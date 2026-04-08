@@ -330,11 +330,6 @@ PROFILES = {
 # ==========================================
 GROQ_MODEL_CHAT  = "llama-3.1-8b-instant"
 GROQ_MODEL_AUDIO = "whisper-large-v3"
-# max_tokens ampliado a 2500: el JSON de leccion+quiz es mayor que texto libre.
-# Con 1000 el modelo truncaba el JSON y rompía el parse.
-# Ampliado a 4000: la lección extensa (3 secciones con markdown) + 13 preguntas
-# superan los 2500 tokens anteriores. 4000 da margen sin acercarse al límite
-# del modelo (8192 tokens de contexto de salida en llama-3.1-8b-instant).
 GROQ_MAX_TOKENS  = 4000
 GROQ_TEMPERATURE = 0.7
 XP_PER_LESSON    = 50
@@ -387,24 +382,6 @@ def get_db_connection():
 # 4. FUNCIONES PRINCIPALES
 # ==========================================
 
-# ------------------------------------------
-# 4a. GENERACION DE LECCION + QUIZ (JSON)
-# ------------------------------------------
-# DISENO: El system_prompt exige JSON puro con 3 campos:
-#   "lesson" — texto de la leccion en Spanglish (puede tener markdown)
-#   "mc"     — lista de preguntas de multiple choice
-#   "fitb"   — lista de preguntas de completar la oracion
-#
-# Por que JSON y no texto libre:
-#   Streamlit necesita iterar sobre objetos Python para crear st.radio
-#   y st.text_input dinamicamente. Texto libre requiere parsers fragiles.
-#   Con JSON + response_format={"type":"json_object"} el modelo emite
-#   JSON valido sin preambulo ni bloques de codigo.
-#
-# Por que response_format={"type":"json_object"}:
-#   Groq soporta "JSON mode" que elimina el 99% de los errores de parse
-#   al forzar al modelo a producir exclusivamente JSON bien formado.
-
 def _build_system_prompt_json(profile_name: str) -> str:
     """
     System prompt actualizado que instruye al LLM a generar:
@@ -412,14 +389,6 @@ def _build_system_prompt_json(profile_name: str) -> str:
       - Un quiz de múltiple choice (5-8 preguntas)
       - Un quiz de fill-in-the-blanks (5 preguntas)
     Todo dentro de un único objeto JSON válido.
-
-    Decisión de diseño — por qué Markdown dentro del string JSON:
-      st.markdown() renderiza Markdown completo incluyendo ### headers,
-      **negritas** y listas con guión. Al embeber Markdown dentro del
-      campo "lesson" del JSON obtenemos estructura visual rica sin
-      necesitar campos JSON adicionales ni lógica de renderizado extra.
-      El modelo debe escapar correctamente las comillas dentro del string
-      (cosa que JSON mode de Groq garantiza en >99% de los casos).
     """
     profile = PROFILES[profile_name]
     return f"""
@@ -509,7 +478,6 @@ INSTRUCCIONES PARA "mc" Y "fitb":
 def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | None = None):
     """
     Llama a Groq con JSON mode. Retorna (parsed_dict, error_string).
-    parsed_dict tiene las claves: 'lesson', 'mc', 'fitb'.
     """
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
@@ -529,15 +497,13 @@ def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | N
             model=GROQ_MODEL_CHAT,
             temperature=GROQ_TEMPERATURE,
             max_tokens=GROQ_MAX_TOKENS,
-            response_format={"type": "json_object"},   # JSON mode de Groq
+            response_format={"type": "json_object"},
         )
         raw = response.choices[0].message.content
 
-        # Parse defensivo: elimina posibles backticks residuales
         raw_clean = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
         data = json.loads(raw_clean)
 
-        # Validacion minima de estructura
         if not all(k in data for k in ("lesson", "mc", "fitb")):
             raise ValueError(f"JSON incompleto. Claves recibidas: {list(data.keys())}")
         if not isinstance(data["mc"],   list) or len(data["mc"])   < 1:
@@ -564,11 +530,8 @@ def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | N
             return None, f"Error inesperado de la API: {e}"
 
 
-# ------------------------------------------
-# 4b. TRANSCRIPCION DE AUDIO
-# ------------------------------------------
 def transcribe_audio(audio_bytes: bytes):
-    """Transcribe audio con Groq Whisper. Retorna (text, error)."""
+    """Transcribe audio con Groq Whisper."""
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
         return None, f"⚠️ {init_error}"
@@ -589,24 +552,15 @@ def transcribe_audio(audio_bytes: bytes):
             os.remove(TEMP_AUDIO_FILE)
 
 
-# ------------------------------------------
-# 4c. GUARDADO EN GOOGLE SHEETS (ACTUALIZADO)
-# ------------------------------------------
-# CAMBIO RESPECTO A VERSION ANTERIOR:
-# Se agregan los parametros score_pct y attempts para registrar el
-# desempeno en el quiz. Ver instrucciones de columnas al final del archivo.
 def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attempts: int):
-    """
-    Registra una sesion completada en Google Sheets.
-    Columnas: timestamp | profile | xp | score_pct | attempts
-    """
+    """Registra una sesion completada en Google Sheets."""
     sheet, db_error = get_db_connection()
     if db_error or not sheet:
         logger.warning(f"No se pudo guardar XP: {db_error}")
         return False, db_error
     try:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        score_str = f"{score_pct:.1%}"   # ej: "75.0%"
+        score_str = f"{score_pct:.1%}"
         sheet.append_row([timestamp, profile_name, xp_gained, score_str, attempts])
         return True, None
     except Exception as e:
@@ -614,21 +568,14 @@ def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attemp
         return False, f"Error de Google Sheets: {e}"
 
 
-# ------------------------------------------
-# 4d. LOGICA DE EVALUACION DEL QUIZ
-# ------------------------------------------
 def evaluate_quiz(mc_questions: list, fitb_questions: list,
                   mc_answers: dict, fitb_answers: dict) -> dict:
-    """
-    Evalua respuestas del usuario contra las correctas.
-    Retorna: {score_pct, passed, correct, total, feedback_mc, feedback_fitb}
-    """
+    """Evalua respuestas del usuario contra las correctas."""
     correct       = 0
     total         = len(mc_questions) + len(fitb_questions)
     feedback_mc   = []
     feedback_fitb = []
 
-    # Multiple choice: comparacion exacta de strings
     for i, q in enumerate(mc_questions):
         user_ans    = mc_answers.get(i, "")
         correct_ans = q.get("answer", "")
@@ -642,7 +589,6 @@ def evaluate_quiz(mc_questions: list, fitb_questions: list,
             "is_correct":    is_correct,
         })
 
-    # Fill in the blanks: case-insensitive, sin espacios extra
     for i, q in enumerate(fitb_questions):
         user_ans    = fitb_answers.get(i, "").strip().lower()
         correct_ans = q.get("answer", "").strip().lower()
@@ -667,9 +613,6 @@ def evaluate_quiz(mc_questions: list, fitb_questions: list,
     }
 
 
-# ------------------------------------------
-# 4e. REPORTE SEMANAL
-# ------------------------------------------
 def send_weekly_report():
     """Envia el reporte semanal por email los viernes."""
     if datetime.datetime.now().weekday() != 4:
@@ -726,9 +669,6 @@ def send_weekly_report():
         logger.error(f"Error en reporte semanal: {e}")
 
 
-# ==========================================
-# FUNCIONES AUXILIARES DE UI
-# ==========================================
 def show_error(message: str):
     st.markdown(f"<div class='error-banner'>⚠️ {message}</div>", unsafe_allow_html=True)
 
@@ -738,25 +678,18 @@ def show_warning(message: str):
 def _quiz_section_title(text: str):
     st.markdown(f"<p class='quiz-section-title'>{text}</p>", unsafe_allow_html=True)
 
-def _question_badge(label: str):
-    st.markdown(f"<span class='q-badge'>{label}</span>", unsafe_allow_html=True)
-
 
 # ==========================================
 # 5. MANEJO DE ESTADO (Session State)
 # ==========================================
-# NUEVAS CLAVES vs version anterior:
-#   quiz_data     — dict parseado de la IA {lesson, mc, fitb} (reemplaza lesson_content)
-#   quiz_result   — dict resultado de evaluate_quiz() | None si no se ha evaluado
-#   quiz_attempts — int: numero de intentos en el quiz actual (para Sheets y UX)
 _STATE_DEFAULTS = {
     "current_user":    None,
     "xp":              0,
     "quiz_data":       None,
     "lesson_error":    None,
     "lesson_pending":  False,
-    "quiz_result":     None,   # NUEVO
-    "quiz_attempts":   0,      # NUEVO
+    "quiz_result":     None,
+    "quiz_attempts":   0,
     "last_text_input": "",
 }
 for key, default in _STATE_DEFAULTS.items():
@@ -767,8 +700,6 @@ for key, default in _STATE_DEFAULTS.items():
 # ==========================================
 # 6. INTERFAZ DE USUARIO
 # ==========================================
-
-# ── PANTALLA DE LOGIN ──
 if st.session_state.current_user is None:
     st.markdown("""
         <div class='welcome-container'>
@@ -793,13 +724,11 @@ if st.session_state.current_user is None:
                 st.session_state.current_user = name
                 st.rerun()
 
-# ── PANTALLA PRINCIPAL (DASHBOARD) ──
 else:
     user  = st.session_state.current_user
     pdata = PROFILES[user]
     color = pdata["color"]
 
-    # Encabezado personalizado
     st.markdown(f"""
         <div class='dashboard-header' style='background: {pdata["gradient"]};'>
             <h2>Hola, {pdata["emoji"]} {user}!</h2>
@@ -866,9 +795,7 @@ else:
             st.session_state.quiz_attempts   = 0
             st.session_state.lesson_error    = None
 
-    # ── BLOQUE DE GENERACION (separado de botones para evitar bucles) ──
-    # Flag pattern: el clic activa lesson_pending=True, la generacion ocurre aqui,
-    # fuera del bloque del boton, garantizando estabilidad entre reruns.
+
     if st.session_state.lesson_pending:
         topic       = st.session_state.get("lesson_topic", "Aventura Diaria")
         custom_text = st.session_state.get("lesson_text", None)
@@ -881,23 +808,15 @@ else:
         st.session_state.lesson_pending = False
         st.session_state.lesson_text    = None
 
-    # ── MOSTRAR ERROR ──
     if st.session_state.lesson_error:
         show_error(f"Error al generar la leccion: {st.session_state.lesson_error}")
 
-    # ══════════════════════════════════════════════════════════════════
-    # BLOQUE LECCION + QUIZ
-    # Visible cuando: hay datos parseados Y el quiz NO ha sido evaluado
-    # (quiz_result is None). Una vez evaluado, este bloque desaparece
-    # y se muestra el panel de resultados.
-    # ══════════════════════════════════════════════════════════════════
     if st.session_state.quiz_data is not None and st.session_state.quiz_result is None:
 
         quiz_data = st.session_state.quiz_data
         mc_qs     = quiz_data.get("mc",   [])
         fitb_qs   = quiz_data.get("fitb", [])
 
-        # ── 6a. LECCION ──
         st.write("---")
         st.markdown("### 📚 Tu Leccion de Hoy")
         st.markdown(
@@ -909,13 +828,6 @@ else:
 
         st.write("")
 
-        # ── 6b. QUIZ dentro de st.form ──
-        # Por que st.form aqui:
-        # Sin form, cada interaccion con st.radio o st.text_input dispara
-        # un rerun completo. Con 13 preguntas, eso genera latencia visible
-        # y puede resetear estados inesperadamente.
-        # st.form agrupa todos los widgets y ejecuta UN SOLO rerun
-        # al presionar submit, dandole a la alumna una experiencia fluida.
         st.markdown(
             f"<div class='quiz-container' style='border-color: {color};'>",
             unsafe_allow_html=True
@@ -935,7 +847,6 @@ else:
             mc_user_answers   = {}
             fitb_user_answers = {}
 
-            # ── Parte A: Multiple Choice ──
             _quiz_section_title("🔤 Parte A — Multiple Choice")
 
             for i, q in enumerate(mc_qs):
@@ -945,7 +856,6 @@ else:
                     f"<p>{q.get('q', '')}</p>",
                     unsafe_allow_html=True
                 )
-                # Placeholder al inicio fuerza una seleccion consciente
                 options_display = ["— Selecciona una respuesta —"] + q.get("options", [])
                 choice = st.radio(
                     label=f"Pregunta {i+1}",
@@ -957,12 +867,10 @@ else:
                 mc_user_answers[i] = "" if choice == "— Selecciona una respuesta —" else choice
                 st.markdown("</div>", unsafe_allow_html=True)
 
-            # ── Parte B: Fill in the Blanks ──
             _quiz_section_title("✏️ Parte B — Fill in the Blanks")
             st.caption("Escribe UNA sola palabra en ingles para completar la oracion.")
 
             for i, q in enumerate(fitb_qs):
-                # Resaltar el hueco visualmente
                 sentence_display = q.get("sentence", "___").replace("___", "**___**")
                 st.markdown(
                     f"<div class='question-card'>"
@@ -985,24 +893,14 @@ else:
                 type="primary"
             )
 
-        st.markdown("</div>", unsafe_allow_html=True)  # cierre quiz-container
+        st.markdown("</div>", unsafe_allow_html=True) 
 
-        # ── 6c. PROCESAR ENVIO ──
-        # Este bloque ejecuta en el mismo rerun del submit.
-        # Al guardar quiz_result (dict), en el proximo rerun este bloque
-        # ya no se muestra (condicion `quiz_result is None` falla).
-        # No hay bucle posible.
         if submitted:
             result = evaluate_quiz(mc_qs, fitb_qs, mc_user_answers, fitb_user_answers)
             st.session_state.quiz_result   = result
             st.session_state.quiz_attempts += 1
             st.rerun()
 
-
-    # ══════════════════════════════════════════════════════════════════
-    # BLOQUE DE RESULTADOS
-    # Visible cuando quiz_result no es None (ya fue evaluado)
-    # ══════════════════════════════════════════════════════════════════
     if st.session_state.quiz_result is not None:
 
         result   = st.session_state.quiz_result
@@ -1037,7 +935,6 @@ else:
 
         st.write("")
 
-        # ── Feedback detallado (colapsable, expandido si fallo) ──
         with st.expander("🔍 Ver correcciones detalladas", expanded=not passed):
 
             if result.get("feedback_mc"):
@@ -1072,4 +969,56 @@ else:
                         f"{icon} {fb['sentence']}{extra}"
                         f"</div>",
                         unsafe_allow_html=True
-                 
+                    )
+
+        st.write("")
+
+        if passed:
+            if st.button(
+                f"🎉 Completar Leccion y ganar {XP_PER_LESSON} XP!",
+                use_container_width=True,
+                type="primary"
+            ):
+                st.session_state.xp += XP_PER_LESSON
+
+                saved, save_error = save_xp_to_sheet(
+                    user, XP_PER_LESSON, pct, attempts
+                )
+                if not saved:
+                    show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
+
+                st.session_state.quiz_data     = None
+                st.session_state.quiz_result   = None
+                st.session_state.quiz_attempts = 0
+                st.session_state.lesson_error  = None
+
+                st.balloons()
+                st.success(
+                    f"Increible, {user}! Obtuviste {pct:.0%} y ganaste +{XP_PER_LESSON} XP. Sigue asi!"
+                )
+
+        else:
+            col_retry, col_new = st.columns(2)
+
+            with col_retry:
+                if st.button(
+                    "🔄 Volver a intentar el Quiz",
+                    use_container_width=True,
+                    type="primary"
+                ):
+                    st.session_state.quiz_result = None
+                    st.rerun()
+
+            with col_new:
+                if st.button(
+                    "📖 Nueva Leccion",
+                    use_container_width=True,
+                    type="secondary"
+                ):
+                    st.session_state.quiz_data     = None
+                    st.session_state.quiz_result   = None
+                    st.session_state.quiz_attempts = 0
+                    st.session_state.lesson_error  = None
+                    st.rerun()
+
+send_weekly_report()
