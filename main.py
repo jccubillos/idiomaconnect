@@ -504,6 +504,10 @@ INSTRUCCIONES PARA "mc" Y "fitb":
   en minúsculas sin tildes ni puntuación. Basa las oraciones en los Ejemplos Prácticos.
 - Todo el contenido de preguntas, opciones y oraciones: en inglés.
 """
+
+
+def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | None = None):
+    """
     Llama a Groq con JSON mode. Retorna (parsed_dict, error_string).
     parsed_dict tiene las claves: 'lesson', 'mc', 'fitb'.
     """
@@ -1068,94 +1072,4 @@ else:
                         f"{icon} {fb['sentence']}{extra}"
                         f"</div>",
                         unsafe_allow_html=True
-                    )
-
-        st.write("")
-
-        # ── Botones de accion post-resultado ──
-        if passed:
-            # APROBO: boton para cerrar la leccion y acreditar XP
-            if st.button(
-                f"🎉 Completar Leccion y ganar {XP_PER_LESSON} XP!",
-                use_container_width=True,
-                type="primary"
-            ):
-                st.session_state.xp += XP_PER_LESSON
-
-                saved, save_error = save_xp_to_sheet(
-                    user, XP_PER_LESSON, pct, attempts
-                )
-                if not saved:
-                    show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
-
-                # Reset para invitar a una nueva leccion
-                st.session_state.quiz_data     = None
-                st.session_state.quiz_result   = None
-                st.session_state.quiz_attempts = 0
-                st.session_state.lesson_error  = None
-
-                st.balloons()
-                st.success(
-                    f"Increible, {user}! Obtuviste {pct:.0%} y ganaste +{XP_PER_LESSON} XP. Sigue asi!"
-                )
-
-        else:
-            # FALLO: dos opciones
-            # "Reintentar" reutiliza el mismo quiz (no gasta requests a Groq)
-            # "Nueva Leccion" genera contenido fresco
-            col_retry, col_new = st.columns(2)
-
-            with col_retry:
-                if st.button(
-                    "🔄 Volver a intentar el Quiz",
-                    use_container_width=True,
-                    type="primary"
-                ):
-                    # Solo resetea el resultado; quiz_data se mantiene intacto.
-                    # En el proximo rerun se muestra el formulario de nuevo.
-                    st.session_state.quiz_result = None
-                    st.rerun()
-
-            with col_new:
-                if st.button(
-                    "📖 Nueva Leccion",
-                    use_container_width=True,
-                    type="secondary"
-                ):
-                    st.session_state.quiz_data     = None
-                    st.session_state.quiz_result   = None
-                    st.session_state.quiz_attempts = 0
-                    st.session_state.lesson_error  = None
-                    st.rerun()
-
-
-# ── DISPARADOR SILENCIOSO DEL REPORTE SEMANAL ──
-send_weekly_report()
-
-
-# ══════════════════════════════════════════════════════════════════════════
-# INSTRUCCIONES PARA GOOGLE SHEETS — NUEVAS COLUMNAS
-# ══════════════════════════════════════════════════════════════════════════
-#
-# Tu hoja "Idiomaconnect_DB" (sheet1) necesita exactamente estos 5 headers
-# en la primera fila (A1:E1):
-#
-#   A            B          C     D            E
-#   timestamp  | profile  | xp | score_pct | attempts
-#
-#   timestamp  — Fecha y hora. Ej: "2025-07-11 14:32:05"
-#   profile    — Nombre. Valores: Antonia, Belen, Sofia
-#   xp         — XP ganados. Siempre 50 si la leccion fue aprobada.
-#   score_pct  — Porcentaje de aciertos. Ej: "75.0%"  (texto)
-#   attempts   — Numero de intentos para aprobar. Minimo 1.
-#
-# Si ya tienes filas con el formato anterior (3 columnas):
-#   1. Agrega "score_pct" en D1  y  "attempts" en E1.
-#   2. Las filas antiguas quedaran con D y E en blanco. No rompe nada.
-#      El reporte semanal trata valores vacios como 0 correctamente.
-#
-# Si la hoja esta vacia:
-#   1. Escribe los 5 headers en A1:E1.
-#   2. Asegurate de que la cuenta de servicio tiene permiso de Editor.
-#
-# ══════════════════════════════════════════════════════════════════════════
+                 
