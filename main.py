@@ -132,7 +132,7 @@ st.markdown("""
     }
 
     /* ================================================
-       NUEVOS ESTILOS: SISTEMA DE QUIZ
+       ESTILOS: SISTEMA DE QUIZ
        ================================================ */
 
     .quiz-container {
@@ -293,7 +293,7 @@ st.markdown("""
 # ==========================================
 FAMILY_CONTEXT = """
 Contexto de la familia de la alumna (Usa esta informacion para crear ejemplos, historias y ejercicios):
-- Padres: Juan Carlos y Daniela (Divorciados. Usar "Dad's house" y "Mom's house").
+- Padres: Juan Carlos y Daniela (Divorciados. Usar 'Dad house' y 'Mom house').
 - Pareja del papa: Camila.
 - Hermano menor: Amaro (10.5 meses de edad).
 - Abuelos maternos: Regina y Jorge Hernan. Abuelos paternos: Silvia y Mario.
@@ -384,11 +384,8 @@ def get_db_connection():
 
 def _build_system_prompt_json(profile_name: str) -> str:
     """
-    System prompt actualizado que instruye al LLM a generar:
-      - Una lección extensa y estructurada en 3 partes con Markdown
-      - Un quiz de múltiple choice (5-8 preguntas)
-      - Un quiz de fill-in-the-blanks (5 preguntas)
-    Todo dentro de un único objeto JSON válido.
+    System prompt actualizado que instruye al LLM a generar un JSON robusto.
+    Se agregó el campo "title" y se prohibieron las comillas dobles.
     """
     profile = PROFILES[profile_name]
     return f"""
@@ -399,21 +396,21 @@ Tu tono debe ser: {profile['tone']}.
 {FAMILY_CONTEXT}
 
 ════════════════════════════════════════
-INSTRUCCIÓN CRÍTICA DE FORMATO:
+INSTRUCCIÓN CRÍTICA DE FORMATO JSON:
 ════════════════════════════════════════
-Debes responder ÚNICAMENTE con un objeto JSON válido.
-Sin texto antes ni después. Sin bloques de código markdown (no uses ```json).
+Debes responder ÚNICAMENTE con un objeto JSON válido. Sin texto antes ni después.
+REGLA DE ORO PARA EVITAR ERRORES: ESTÁ TOTALMENTE PROHIBIDO USAR COMILLAS DOBLES (") DENTRO DE TUS TEXTOS Y EXPLICACIONES. Si necesitas citar algo, usa comillas simples ('). 
 Todos los saltos de línea dentro de los strings del JSON deben ser \\n.
-Todas las comillas dobles dentro de los strings deben estar escapadas como \\".
 
 El JSON debe tener EXACTAMENTE esta estructura:
 {{
+  "title": "<Un título corto y atractivo para la clase en español. Ej: Aprende sobre los Verbos>",
   "lesson": "<string con la lección completa en formato Markdown — ver instrucciones abajo>",
   "mc": [
     {{
       "q": "<pregunta en inglés>",
       "options": ["<opción A>", "<opción B>", "<opción C>", "<opción D>"],
-      "answer": "<texto exacto de la opción correcta, debe coincidir con una de las options>"
+      "answer": "<texto exacto de la opción correcta>"
     }}
   ],
   "fitb": [
@@ -428,57 +425,35 @@ El JSON debe tener EXACTAMENTE esta estructura:
 INSTRUCCIONES PARA EL CAMPO "lesson":
 ════════════════════════════════════════
 La lección debe ser EXTENSA, DETALLADA y estructurada en 3 partes usando Markdown.
-No hay límite de palabras: prioriza la claridad y completitud pedagógica.
 Escribe en Spanglish: explicaciones en español, conceptos clave y ejemplos en inglés.
 
-ESTRUCTURA OBLIGATORIA DE LA LECCIÓN (usa estos encabezados exactos):
+ESTRUCTURA OBLIGATORIA DE LA LECCIÓN:
 
-### 🌟 Parte A — [Título creativo relacionado al tema y a {profile_name}]
-- Escribe una introducción narrativa y divertida que conecte el tema gramatical
-  con la vida real de {profile_name}.
-- Menciona al menos 2 elementos de su contexto personal: sus hobbies ({profile['hobbies']}),
-  familiares (Juan Carlos, Daniela, Amaro, Camila, Regina, Jorge Hernán, Silvia, Mario,
-  Carlos, Natalia, Pamela, Agustín, Máximo, Luciana, Julián) o mascotas
-  (Rosita, Toribio, Blanca, León, Pink, Alma, Odin).
-- Tono: {profile['tone']}
+### 🌟 Parte A — [Subtítulo divertido]
+- Introducción narrativa conectada con {profile_name}.
+- Menciona sus hobbies o familiares.
 - Longitud: 3 a 5 oraciones narrativas.
 
-### 📖 Parte B — Explicación: [Nombre del concepto gramatical]
-- Explica el concepto gramatical o de vocabulario de forma clara y paso a paso.
-- Usa el lenguaje de una niña de 13 años: sin jerga académica innecesaria.
-- Estructura la explicación con sub-secciones si el tema lo requiere.
-- Incluye tablas simples o listas cuando ayuden a la comprensión
-  (ej: tabla de pronombres, lista de verbos irregulares, etc.).
-- Si el tema tiene reglas con excepciones, menciónalas con ejemplos.
-- Longitud: mínimo 150 palabras, sin máximo.
+### 📖 Parte B — Explicación Teórica
+- Explica el concepto gramatical o de vocabulario claramente.
+- Usa el lenguaje de una niña de 13 años.
+- Longitud: mínimo 150 palabras.
 
 ### ✏️ Parte C — Ejemplos Prácticos
-- Presenta entre 5 y 8 oraciones de ejemplo en inglés.
-- Cada ejemplo debe:
-  a) Estar en **negrita** el concepto gramatical clave dentro de la oración.
-  b) Tener su traducción al español entre paréntesis en cursiva justo debajo.
-  c) Incluir al menos 3 ejemplos que usen nombres de familiares o mascotas de {profile_name}.
-- Formato sugerido por ejemplo:
-  - Pink **is playing** in the garden right now.
-    *(Pink está jugando en el jardín ahora mismo.)*
+- Entre 5 y 8 oraciones de ejemplo en inglés.
+- El concepto clave en **negrita**. Traducción al español entre paréntesis en cursiva.
+- Usa nombres de familiares o mascotas.
 
 ════════════════════════════════════════
 INSTRUCCIONES PARA "mc" Y "fitb":
 ════════════════════════════════════════
-- "mc": entre 5 y 8 preguntas de múltiple choice BASADAS en el contenido de la Parte B y C.
-  Cada pregunta tiene exactamente 4 opciones. El campo "answer" debe ser el texto
-  EXACTO (mismo capitalización y puntuación) de una de las opciones en "options".
-- "fitb": exactamente 5 preguntas de completar la oración.
-  Cada oración usa ___ para el hueco. El campo "answer" es UNA sola palabra
-  en minúsculas sin tildes ni puntuación. Basa las oraciones en los Ejemplos Prácticos.
-- Todo el contenido de preguntas, opciones y oraciones: en inglés.
+- "mc": entre 5 y 8 preguntas de múltiple choice BASADAS en la lección.
+- "fitb": 5 preguntas de completar la oración. La respuesta ("answer") debe ser UNA sola palabra en minúsculas sin puntuación.
 """
 
 
 def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | None = None):
-    """
-    Llama a Groq con JSON mode. Retorna (parsed_dict, error_string).
-    """
+    """Llama a Groq con JSON mode."""
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
         return None, f"⚠️ {init_error}"
@@ -504,12 +479,8 @@ def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | N
         raw_clean = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
         data = json.loads(raw_clean)
 
-        if not all(k in data for k in ("lesson", "mc", "fitb")):
-            raise ValueError(f"JSON incompleto. Claves recibidas: {list(data.keys())}")
-        if not isinstance(data["mc"],   list) or len(data["mc"])   < 1:
-            raise ValueError("El campo 'mc' esta vacio o no es una lista.")
-        if not isinstance(data["fitb"], list) or len(data["fitb"]) < 1:
-            raise ValueError("El campo 'fitb' esta vacio o no es una lista.")
+        if not all(k in data for k in ("title", "lesson", "mc", "fitb")):
+            raise ValueError(f"JSON incompleto. Asegúrate de generar 'title', 'lesson', 'mc' y 'fitb'.")
 
         return data, None
 
@@ -704,7 +675,7 @@ if st.session_state.current_user is None:
     st.markdown("""
         <div class='welcome-container'>
             <h1>✨ IdiomaConnect</h1>
-            <p>¿Quien esta lista para aprender ingles hoy?</p>
+            <p>¿Quién está lista para aprender inglés hoy?</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -718,7 +689,7 @@ if st.session_state.current_user is None:
                     <p>{pdata["hobbies"]}</p>
                 </div>
             """, unsafe_allow_html=True)
-            if st.button(f"Soy {name}!", key=f"btn_{name}", use_container_width=True):
+            if st.button(f"¡Soy {name}!", key=f"btn_{name}", use_container_width=True):
                 for k, v in _STATE_DEFAULTS.items():
                     st.session_state[k] = v
                 st.session_state.current_user = name
@@ -731,7 +702,7 @@ else:
 
     st.markdown(f"""
         <div class='dashboard-header' style='background: {pdata["gradient"]};'>
-            <h2>Hola, {pdata["emoji"]} {user}!</h2>
+            <h2>¡Hola, {pdata["emoji"]} {user}!</h2>
             <h3>⭐ {st.session_state.xp} XP</h3>
         </div>
     """, unsafe_allow_html=True)
@@ -742,15 +713,15 @@ else:
         st.rerun()
 
     st.write("---")
-    st.markdown(f"<h3 class='section-title'>¿Que quieres aprender hoy, {user}?</h3>",
+    st.markdown(f"<h3 class='section-title'>¿Qué quieres aprender hoy, {user}?</h3>",
                 unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("🗺️ Que la IA me guie", use_container_width=True):
+        if st.button("🗺️ Que la IA me guíe", use_container_width=True):
             st.session_state.lesson_pending = True
-            st.session_state.lesson_topic   = "Aventura Diaria (Vocabulario general y gramatica divertida)"
+            st.session_state.lesson_topic   = "Aventura Diaria (Vocabulario general y gramática divertida)"
             st.session_state.lesson_text    = None
             st.session_state.quiz_data      = None
             st.session_state.quiz_result    = None
@@ -758,7 +729,7 @@ else:
             st.session_state.lesson_error   = None
 
     with col2:
-        st.markdown("<p class='help-text'>🙋 <b>Tema Escolar / Personalizado</b></p>",
+        st.markdown("<p class='help-text'>🙋‍♀️ <b>Tema Escolar / Personalizado</b></p>",
                     unsafe_allow_html=True)
         st.markdown("<p style='margin-bottom:5px; font-size:0.9rem;'>Graba tu voz o escribe el tema:</p>",
                     unsafe_allow_html=True)
@@ -773,7 +744,7 @@ else:
             if t_error:
                 show_error(t_error)
             elif text:
-                st.success(f"Te escuche decir: *'{text}'*")
+                st.success(f"Te escuché decir: *'{text}'*")
                 st.session_state.lesson_pending = True
                 st.session_state.lesson_topic   = "Tema del Colegio"
                 st.session_state.lesson_text    = text
@@ -782,7 +753,7 @@ else:
                 st.session_state.quiz_attempts  = 0
                 st.session_state.lesson_error   = None
 
-        text_input = st.chat_input(f"¿Que estas aprendiendo en clase, {user}?")
+        text_input = st.chat_input(f"¿Qué estás aprendiendo en clase, {user}?")
         if (text_input
                 and text_input != st.session_state.last_text_input
                 and not st.session_state.lesson_pending):
@@ -800,7 +771,7 @@ else:
         topic       = st.session_state.get("lesson_topic", "Aventura Diaria")
         custom_text = st.session_state.get("lesson_text", None)
 
-        with st.spinner("✨ Preparando tu leccion y quiz con Llama 3.1... (~10 segundos)"):
+        with st.spinner("✨ Preparando tu lección y quiz con Llama 3.1... (~10 segundos)"):
             data_parsed, error = generate_lesson_and_quiz(user, topic, custom_text)
 
         st.session_state.quiz_data      = data_parsed
@@ -809,16 +780,19 @@ else:
         st.session_state.lesson_text    = None
 
     if st.session_state.lesson_error:
-        show_error(f"Error al generar la leccion: {st.session_state.lesson_error}")
+        show_error(f"Error al generar la lección: {st.session_state.lesson_error}")
 
     if st.session_state.quiz_data is not None and st.session_state.quiz_result is None:
 
         quiz_data = st.session_state.quiz_data
         mc_qs     = quiz_data.get("mc",   [])
         fitb_qs   = quiz_data.get("fitb", [])
+        
+        # OBTENEMOS EL NUEVO TÍTULO DINÁMICO
+        lesson_title = quiz_data.get("title", "Tu Lección de Hoy")
 
         st.write("---")
-        st.markdown("### 📚 Tu Leccion de Hoy")
+        st.markdown(f"### 📚 {lesson_title}")
         st.markdown(
             f"<div class='lesson-container' style='border-color: {color};'>"
             f"{quiz_data.get('lesson', '')}"
@@ -832,7 +806,7 @@ else:
             f"<div class='quiz-container' style='border-color: {color};'>",
             unsafe_allow_html=True
         )
-        st.markdown("### 🧠 Quiz de Evaluacion")
+        st.markdown("### 🧠 Quiz de Evaluación")
         attempt_label = (
             f" (intento #{st.session_state.quiz_attempts + 1})"
             if st.session_state.quiz_attempts > 0 else ""
@@ -868,7 +842,7 @@ else:
                 st.markdown("</div>", unsafe_allow_html=True)
 
             _quiz_section_title("✏️ Parte B — Fill in the Blanks")
-            st.caption("Escribe UNA sola palabra en ingles para completar la oracion.")
+            st.caption("Escribe UNA sola palabra en inglés para completar la oración.")
 
             for i, q in enumerate(fitb_qs):
                 sentence_display = q.get("sentence", "___").replace("___", "**___**")
@@ -880,7 +854,7 @@ else:
                 )
                 fitb_user_answers[i] = st.text_input(
                     label=f"Completar {i+1}",
-                    placeholder="Escribe la palabra aqui...",
+                    placeholder="Escribe la palabra aquí...",
                     label_visibility="collapsed",
                     key=f"fitb_input_{i}"
                 )
@@ -912,7 +886,7 @@ else:
 
         panel_class  = "result-pass" if passed else "result-fail"
         emoji_result = "🏆" if passed else "💪"
-        title_text   = "Leccion Superada!" if passed else "Casi! Intentalo de nuevo"
+        title_text   = "¡Lección Superada!" if passed else "¡Casi! Inténtalo de nuevo"
         bar_color    = "#28a745" if passed else "#ffc107"
 
         st.write("---")
@@ -928,7 +902,7 @@ else:
                          style='width:{pct*100:.1f}%; background:{bar_color};'></div>
                 </div>
                 <p style='color:#2c3e50 !important; font-size:0.85rem;'>
-                    Minimo para aprobar: {PASSING_SCORE:.0%}
+                    Mínimo para aprobar: {PASSING_SCORE:.0%}
                 </p>
             </div>
         """, unsafe_allow_html=True)
@@ -975,7 +949,7 @@ else:
 
         if passed:
             if st.button(
-                f"🎉 Completar Leccion y ganar {XP_PER_LESSON} XP!",
+                f"🎉 Completar Lección y ganar {XP_PER_LESSON} XP!",
                 use_container_width=True,
                 type="primary"
             ):
@@ -994,7 +968,7 @@ else:
 
                 st.balloons()
                 st.success(
-                    f"Increible, {user}! Obtuviste {pct:.0%} y ganaste +{XP_PER_LESSON} XP. Sigue asi!"
+                    f"¡Increíble, {user}! Obtuviste {pct:.0%} y ganaste +{XP_PER_LESSON} XP. ¡Sigue así!"
                 )
 
         else:
@@ -1011,14 +985,10 @@ else:
 
             with col_new:
                 if st.button(
-                    "📖 Nueva Leccion",
+                    "📖 Nueva Lección",
                     use_container_width=True,
                     type="secondary"
                 ):
                     st.session_state.quiz_data     = None
                     st.session_state.quiz_result   = None
-                    st.session_state.quiz_attempts = 0
-                    st.session_state.lesson_error  = None
-                    st.rerun()
-
-send_weekly_report()
+                    st.session
