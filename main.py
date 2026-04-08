@@ -385,7 +385,7 @@ def get_db_connection():
 def _build_system_prompt_json(profile_name: str) -> str:
     """
     System prompt actualizado que instruye al LLM a generar un JSON robusto.
-    Se agregó el campo "title" y se prohibieron las comillas dobles.
+    Se agregó el campo "title" y "academic_topic".
     """
     profile = PROFILES[profile_name]
     return f"""
@@ -404,7 +404,8 @@ Todos los saltos de línea dentro de los strings del JSON deben ser \\n.
 
 El JSON debe tener EXACTAMENTE esta estructura:
 {{
-  "title": "<Un título corto y atractivo para la clase en español. Ej: Aprende sobre los Verbos>",
+  "title": "<Un título corto y atractivo para la clase en español. Ej: ¡Misión de Rescate!>",
+  "academic_topic": "<El tema gramatical o vocabulario exacto de la clase. Ej: Verbo To be, Auxiliares Do y Does, Past Continuous>",
   "lesson": "<string con la lección completa en formato Markdown — ver instrucciones abajo>",
   "mc": [
     {{
@@ -479,8 +480,8 @@ def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | N
         raw_clean = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
         data = json.loads(raw_clean)
 
-        if not all(k in data for k in ("title", "lesson", "mc", "fitb")):
-            raise ValueError(f"JSON incompleto. Asegúrate de generar 'title', 'lesson', 'mc' y 'fitb'.")
+        if not all(k in data for k in ("title", "academic_topic", "lesson", "mc", "fitb")):
+            raise ValueError(f"JSON incompleto. Asegúrate de generar 'title', 'academic_topic', 'lesson', 'mc' y 'fitb'.")
 
         return data, None
 
@@ -788,11 +789,14 @@ else:
         mc_qs     = quiz_data.get("mc",   [])
         fitb_qs   = quiz_data.get("fitb", [])
         
-        # OBTENEMOS EL NUEVO TÍTULO DINÁMICO
+        # OBTENEMOS AMBOS TÍTULOS DINÁMICOS
         lesson_title = quiz_data.get("title", "Tu Lección de Hoy")
+        academic_topic = quiz_data.get("academic_topic", "General English")
 
         st.write("---")
         st.markdown(f"### 📚 {lesson_title}")
+        st.markdown(f"**🎯 Enfoque Académico:** {academic_topic}")
+        
         st.markdown(
             f"<div class='lesson-container' style='border-color: {color};'>"
             f"{quiz_data.get('lesson', '')}"
@@ -991,4 +995,8 @@ else:
                 ):
                     st.session_state.quiz_data     = None
                     st.session_state.quiz_result   = None
-                    st.session
+                    st.session_state.quiz_attempts = 0
+                    st.session_state.lesson_error  = None
+                    st.rerun()
+
+send_weekly_report()
