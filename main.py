@@ -332,7 +332,10 @@ GROQ_MODEL_CHAT  = "llama-3.1-8b-instant"
 GROQ_MODEL_AUDIO = "whisper-large-v3"
 # max_tokens ampliado a 2500: el JSON de leccion+quiz es mayor que texto libre.
 # Con 1000 el modelo truncaba el JSON y rompía el parse.
-GROQ_MAX_TOKENS  = 2500
+# Ampliado a 4000: la lección extensa (3 secciones con markdown) + 13 preguntas
+# superan los 2500 tokens anteriores. 4000 da margen sin acercarse al límite
+# del modelo (8192 tokens de contexto de salida en llama-3.1-8b-instant).
+GROQ_MAX_TOKENS  = 4000
 GROQ_TEMPERATURE = 0.7
 XP_PER_LESSON    = 50
 PASSING_SCORE    = 0.60        # 60% minimo para aprobar
