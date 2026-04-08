@@ -405,7 +405,7 @@ Todos los saltos de línea dentro de los strings del JSON deben ser \\n.
 El JSON debe tener EXACTAMENTE esta estructura:
 {{
   "title": "<Un título corto y atractivo para la clase en español. Ej: ¡Misión de Rescate!>",
-  "academic_topic": "<El tema gramatical o vocabulario exacto de la clase. Ej: Verbo To be, Auxiliares Do y Does, Past Continuous>",
+  "academic_topic": "<El tema gramatical o vocabulario exacto de la clase. Ej: Verbo To be, Vocabulario de la casa, Adjetivos>",
   "lesson": "<string con la lección completa en formato Markdown — ver instrucciones abajo>",
   "mc": [
     {{
@@ -435,14 +435,15 @@ ESTRUCTURA OBLIGATORIA DE LA LECCIÓN:
 - Menciona sus hobbies o familiares.
 - Longitud: 3 a 5 oraciones narrativas.
 
-### 📖 Parte B — Explicación Teórica
-- Explica el concepto gramatical o de vocabulario claramente.
+### 📖 Parte B — Explicación Teórica / Vocabulario
+- Explica el concepto gramatical O las palabras de vocabulario claramente.
 - Usa el lenguaje de una niña de 13 años.
+- Si el tema es vocabulario, incluye listas de palabras con su significado en español.
 - Longitud: mínimo 150 palabras.
 
 ### ✏️ Parte C — Ejemplos Prácticos
 - Entre 5 y 8 oraciones de ejemplo en inglés.
-- El concepto clave en **negrita**. Traducción al español entre paréntesis en cursiva.
+- El concepto clave o palabra de vocabulario en **negrita**. Traducción al español entre paréntesis en cursiva.
 - Usa nombres de familiares o mascotas.
 
 ════════════════════════════════════════
@@ -720,9 +721,23 @@ else:
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("🗺️ Que la IA me guíe", use_container_width=True):
+        st.markdown("<p class='help-text'>🤖 <b>Ruta Automática</b></p>", unsafe_allow_html=True)
+        st.markdown("<p style='margin-bottom:5px; font-size:0.9rem;'>Deja que la IA elija por ti:</p>", unsafe_allow_html=True)
+        
+        if st.button("🗺️ Que la IA me guíe (Gramática)", use_container_width=True):
             st.session_state.lesson_pending = True
-            st.session_state.lesson_topic   = "Aventura Diaria (Vocabulario general y gramática divertida)"
+            st.session_state.lesson_topic   = "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)"
+            st.session_state.lesson_text    = None
+            st.session_state.quiz_data      = None
+            st.session_state.quiz_result    = None
+            st.session_state.quiz_attempts  = 0
+            st.session_state.lesson_error   = None
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        if st.button("📝 Aprendamos Vocabulario", use_container_width=True):
+            st.session_state.lesson_pending = True
+            st.session_state.lesson_topic   = "Vocabulario Práctico (Aprender palabras nuevas, adjetivos, objetos de la casa, direcciones como arriba/abajo o verbos de acción simple. PROHIBIDO usar gramática compleja o densa, enfócate 100% en ampliar su vocabulario y mostrar el significado de las palabras)"
             st.session_state.lesson_text    = None
             st.session_state.quiz_data      = None
             st.session_state.quiz_result    = None
