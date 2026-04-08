@@ -270,7 +270,7 @@ PROFILES = {
 # CONSTANTES DE CONFIGURACIÓN
 # ==========================================
 # SOLUCIÓN BUG #2: Actualización de modelo Llama 3 decommissioned a Llama 3.1
-GROQ_MODEL_CHAT  = "llama3.1-8b-instant" 
+GROQ_MODEL_CHAT  = "llama-3.1-8b-instant" 
 GROQ_MODEL_AUDIO = "whisper-large-v3"
 GROQ_MAX_TOKENS  = 1000
 GROQ_TEMPERATURE = 0.7
