@@ -252,13 +252,21 @@ st.markdown("""
     .stRadio label { color: var(--text-dark) !important; }
     .stTextInput input {
         border-radius: var(--radius-sm) !important;
-        border: 1.5px solid #d0d8f0 !important;
+        border: 1.5px solid #667eea !important;
         font-family: 'Space Grotesk', sans-serif !important;
-        color: var(--text-dark) !important;
+        background-color: #3b2f6e !important;
+        color: #ffffff !important;
+        caret-color: #ffffff !important;
+    }
+    .stTextInput input::placeholder {
+        color: rgba(255,255,255,0.55) !important;
+        opacity: 1 !important;
     }
     .stTextInput input:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.15) !important;
+        border-color: #a78bfa !important;
+        background-color: #4a3a85 !important;
+        box-shadow: 0 0 0 3px rgba(167,139,250,0.25) !important;
+        color: #ffffff !important;
     }
 
     /* Quitar borde rojo por defecto de st.form */
@@ -425,32 +433,46 @@ El JSON debe tener EXACTAMENTE esta estructura:
 ════════════════════════════════════════
 INSTRUCCIONES PARA EL CAMPO "lesson":
 ════════════════════════════════════════
-La lección debe ser EXTENSA, DETALLADA y estructurada en 3 partes usando Markdown.
-Escribe en Spanglish: explicaciones en español, conceptos clave y ejemplos en inglés.
+La lección debe ser EXTENSA, CLARA y PEDAGÓGICA, estructurada en 4 partes usando Markdown.
+Idioma: explicaciones siempre en español, los términos en inglés van en **negrita**.
 
-ESTRUCTURA OBLIGATORIA DE LA LECCIÓN:
+TU PRIORIDAD COMO TUTOR ES LA CLARIDAD Y LA COMPRENSIÓN PROFUNDA:
+- Explica el PORQUÉ de cada regla, no solo el QUÉ. Si hay una excepción, nómbrala.
+- Usa analogías simples cuando el concepto sea difícil ("funciona igual que en español cuando...").
+- Antes de dar un ejemplo, asegúrate de que la alumna ya entendió la regla base.
+- No asumas que la alumna conoce términos gramaticales técnicos; si los usas, defínelos.
+- Escribe como si le estuvieras explicando en persona: cálido, paciente, preciso.
 
-### 🌟 Parte A — [Subtítulo divertido]
-- Introducción narrativa conectada con {profile_name}.
-- Menciona sus hobbies o familiares.
-- Longitud: 3 a 5 oraciones narrativas.
+ESTRUCTURA OBLIGATORIA DE LA LECCIÓN (mínimo 300 palabras en total):
 
-### 📖 Parte B — Explicación Teórica / Vocabulario
-- Explica el concepto gramatical O las palabras de vocabulario claramente.
-- Usa el lenguaje de una niña de 13 años.
-- Si el tema es vocabulario, incluye listas de palabras con su significado en español.
-- Longitud: mínimo 150 palabras.
+### 🌟 Parte A — [Subtítulo creativo relacionado al tema]
+- Introducción narrativa de 3 a 5 oraciones que conecte el tema con {profile_name}, sus hobbies o su familia.
+- El objetivo es crear contexto emocional: ¿por qué este tema le va a servir en su vida real?
 
-### ✏️ Parte C — Ejemplos Prácticos
-- Entre 5 y 8 oraciones de ejemplo en inglés.
-- El concepto clave o palabra de vocabulario en **negrita**. Traducción al español entre paréntesis en cursiva.
-- Usa nombres de familiares o mascotas.
+### 📖 Parte B — ¿Qué vamos a aprender hoy?
+- Explicación teórica CLARA y DETALLADA del concepto gramatical o vocabulario.
+- Mínimo 180 palabras. Usa párrafos cortos, no bloques de texto denso.
+- Incluye: (1) la regla principal, (2) cómo se forma o usa, (3) al menos UN error común que cometen los hispanohablantes y cómo evitarlo.
+- Si el tema es vocabulario: incluye tabla o lista con la palabra en inglés, su pronunciación aproximada entre corchetes [pro-nun-cia-ción] y su significado en español.
+- Usa negritas para resaltar las palabras o reglas clave.
+
+### ✏️ Parte C — Ejemplos en acción
+- Entre 6 y 10 oraciones de ejemplo en inglés.
+- Cada ejemplo debe tener: la oración en inglés (con la palabra/concepto clave en **negrita**) + su traducción al español entre paréntesis en *cursiva*.
+- Al menos 3 ejemplos deben usar nombres de familiares o mascotas de {profile_name} ({FAMILY_CONTEXT}).
+- Después de los ejemplos, incluye un párrafo corto de 2-3 oraciones que resuma el patrón que se repite en todos los ejemplos.
+
+### 🎯 Parte D — Tip de Oro + Reto
+- Un consejo práctico memorable de 2-3 oraciones (algo que la alumna pueda recordar fácilmente).
+- Una pregunta o mini-reto corto (1 pregunta) para reflexionar antes del quiz. No requiere respuesta escrita aquí.
 
 ════════════════════════════════════════
 INSTRUCCIONES PARA "mc" Y "fitb":
 ════════════════════════════════════════
-- "mc": entre 5 y 8 preguntas de múltiple choice BASADAS en la lección.
-- "fitb": 5 preguntas de completar la oración. La respuesta ("answer") debe ser UNA sola palabra en minúsculas sin puntuación.
+- "mc": entre 5 y 8 preguntas de múltiple choice BASADAS DIRECTAMENTE en la lección.
+  Las opciones incorrectas deben representar errores comunes y reales, no respuestas absurdas.
+- "fitb": 5 preguntas de completar la oración, usando oraciones que aparezcan o sean similares a los ejemplos de la Parte C.
+  La respuesta ("answer") debe ser UNA sola palabra en minúsculas sin puntuación ni tildes.
 """
 
 
@@ -587,59 +609,136 @@ def evaluate_quiz(mc_questions: list, fitb_questions: list,
 
 
 def send_weekly_report():
-    """Envia el reporte semanal por email los viernes."""
-    if datetime.datetime.now().weekday() != 4:
+    """
+    Envia el reporte semanal por email UNA SOLA VEZ cada viernes,
+    a partir de las 12:00 hr (horario Chile, America/Santiago).
+    
+    Mecanismo anti-spam de doble capa:
+      1. Verifica que sea viernes Y que sean >= 12:00 hr en Chile.
+      2. Guarda la fecha del ultimo envio en st.session_state para no
+         volver a enviar durante la misma sesion de servidor.
+      3. Guarda la fecha en Google Sheets para que persista entre
+         reinicios del servidor (columna "last_report_date" en hoja 2).
+    """
+    import zoneinfo  # disponible en Python 3.9+
+
+    # --- 1. Verificar dia y hora en Chile ---
+    try:
+        chile_tz = zoneinfo.ZoneInfo("America/Santiago")
+    except Exception:
+        # Fallback si zoneinfo no tiene la base de datos de zonas horarias
+        chile_tz = datetime.timezone(datetime.timedelta(hours=-4))
+
+    now_chile = datetime.datetime.now(tz=chile_tz)
+
+    # Solo los viernes (weekday 4) a partir de las 12:00
+    if now_chile.weekday() != 4:
         return
+    if now_chile.hour < 12:
+        return
+
+    # Clave unica para el viernes de esta semana: "2025-WW26" (año + semana ISO)
+    report_key = now_chile.strftime("report_sent_%Y_W%W")
+
+    # --- 2. Guard en session_state (evita reenvios dentro de la misma sesion) ---
+    if st.session_state.get(report_key, False):
+        return
+
+    # --- 3. Guard persistente en Google Sheets (evita reenvios tras reinicio) ---
+    sheet, _ = get_db_connection()
+    if sheet:
+        try:
+            # Usamos la celda A1 de la hoja 2 como registro de ultimo envio.
+            # Si no existe la hoja 2, la creamos.
+            spreadsheet = sheet.spreadsheet
+            try:
+                meta_sheet = spreadsheet.worksheet("meta")
+            except gspread.exceptions.WorksheetNotFound:
+                meta_sheet = spreadsheet.add_worksheet(title="meta", rows=10, cols=2)
+
+            saved_key = ""
+            try:
+                saved_key = meta_sheet.cell(1, 1).value or ""
+            except Exception:
+                pass
+
+            if saved_key == report_key:
+                # Ya se envio el reporte de este viernes; marcar sesion y salir
+                st.session_state[report_key] = True
+                return
+
+        except Exception as e:
+            logger.warning(f"No se pudo verificar meta sheet: {e}")
+            # Seguimos de todas formas para no bloquear el envio
+
+    # --- 4. Construir y enviar el reporte ---
     try:
         sender   = st.secrets["email_sender"]
         password = st.secrets["email_password"]
 
-        sheet, _ = get_db_connection()
         report_lines = []
         if sheet:
-            rows = sheet.get_all_records()
-            summary = {}
-            for row in rows:
-                name  = row.get("profile", "")
-                xp    = int(row.get("xp", 0))
-                score = str(row.get("score_pct", "0%")).replace("%", "")
-                try:
-                    score_f = float(score) / 100.0
-                except ValueError:
-                    score_f = 0.0
-                if name not in summary:
-                    summary[name] = {"xp": 0, "sessions": 0, "score_sum": 0.0}
-                summary[name]["xp"]        += xp
-                summary[name]["sessions"]  += 1
-                summary[name]["score_sum"] += score_f
-            for name, s in summary.items():
-                avg = s["score_sum"] / s["sessions"] if s["sessions"] > 0 else 0
-                report_lines.append(
-                    f"- {name}: {s['xp']} XP | {s['sessions']} lecciones | Promedio quiz: {avg:.0%}"
-                )
+            try:
+                rows = sheet.get_all_records()
+                summary = {}
+                for row in rows:
+                    name  = row.get("profile", "")
+                    xp    = int(row.get("xp", 0) or 0)
+                    score = str(row.get("score_pct", "0%")).replace("%", "")
+                    try:
+                        score_f = float(score) / 100.0
+                    except ValueError:
+                        score_f = 0.0
+                    if name not in summary:
+                        summary[name] = {"xp": 0, "sessions": 0, "score_sum": 0.0}
+                    summary[name]["xp"]        += xp
+                    summary[name]["sessions"]  += 1
+                    summary[name]["score_sum"] += score_f
+                for name, s in summary.items():
+                    avg = s["score_sum"] / s["sessions"] if s["sessions"] > 0 else 0
+                    report_lines.append(
+                        f"  - {name}: {s['xp']} XP | {s['sessions']} lecciones completadas | "
+                        f"Promedio quiz: {avg:.0%}"
+                    )
+            except Exception as e:
+                logger.warning(f"Error leyendo Sheets para reporte: {e}")
 
         if not report_lines:
-            report_lines = ["(No hubo registro de actividad esta semana)"]
+            report_lines = ["  (No hubo registro de actividad esta semana)"]
 
+        fecha_str = now_chile.strftime("%d/%m/%Y")
         body = (
-            "Hola Juan Carlos!\n\n"
-            "Este es el progreso de las trillizas esta semana:\n"
+            f"Hola Juan Carlos!\n\n"
+            f"Aqui tienes el resumen de actividad de las trillizas esta semana ({fecha_str}):\n\n"
             + "\n".join(report_lines)
-            + "\n\nVan excelente! - IdiomaConnect"
+            + "\n\nSiguen avanzando muy bien. Hasta el proximo viernes!\n"
+            + "- IdiomaConnect"
         )
         msg = MIMEMultipart()
         msg['From']    = sender
         msg['To']      = REPORT_EMAIL_TO
-        msg['Subject'] = "Reporte Semanal Idiomaconnect"
+        msg['Subject'] = f"Reporte Semanal IdiomaConnect — {fecha_str}"
         msg.attach(MIMEText(body, 'plain'))
 
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(sender, password)
             server.sendmail(sender, REPORT_EMAIL_TO, msg.as_string())
-        logger.info("Reporte semanal enviado.")
+
+        logger.info(f"Reporte semanal enviado correctamente ({fecha_str}).")
+
+        # --- 5. Marcar como enviado en ambas capas ---
+        st.session_state[report_key] = True
+        if sheet:
+            try:
+                meta_sheet.update_cell(1, 1, report_key)
+            except Exception as e:
+                logger.warning(f"No se pudo guardar report_key en meta sheet: {e}")
+
+    except KeyError as e:
+        logger.error(f"Falta credencial de email en secrets.toml: {e}")
     except Exception as e:
-        logger.error(f"Error en reporte semanal: {e}")
+        logger.error(f"Error al enviar reporte semanal: {e}")
 
 
 def show_error(message: str):
