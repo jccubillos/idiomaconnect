@@ -1145,29 +1145,22 @@ else:
         st.markdown(f"### 📚 {lesson_title}")
         st.markdown(f"**🎯 Enfoque Académico:** {academic_topic}")
 
-        st.markdown(
-            f"<div class='lesson-container' style='border-color: {color};'>"
-            f"{lesson_text}"
-            f"</div>",
-            unsafe_allow_html=True
-        )
-
-        # ── SECCIÓN DE AUDIO ─────────────────────────────────────────────
+        # ── SECCIÓN DE AUDIO (antes de la lección escrita) ───────────────
         st.markdown("<div class='audio-section'>", unsafe_allow_html=True)
         st.markdown(
-            "<p>🔊 <b>Escuchar la Lección</b> — Haz clic para generar el audio y practicar "
-            "la pronunciación en inglés mientras lees el texto arriba.</p>",
+            "<p>🔊 <b>Escuchar la Lección</b> — Presiona el botón, luego lee el texto "
+            "abajo mientras escuchas para practicar pronunciación en inglés.</p>",
             unsafe_allow_html=True
         )
 
         if not GTTS_AVAILABLE:
-            show_warning("El módulo gTTS no está instalado. Agrega `gTTS` a requirements.txt y reinicia la app.")
+            show_warning("El módulo gTTS no está instalado. Verifica que `gTTS` esté en requirements.txt y reinicia la app.")
         else:
             col_audio, col_spacer = st.columns([1, 2])
             with col_audio:
                 if st.button("🔊 Escuchar Lección", use_container_width=True,
                              key="btn_audio_lesson"):
-                    with st.spinner("Generando audio... "):
+                    with st.spinner("Generando audio..."):
                         audio_result = generate_lesson_audio(lesson_text, lang="en")
                     if audio_result:
                         st.session_state.lesson_audio = audio_result
@@ -1177,12 +1170,19 @@ else:
             if st.session_state.lesson_audio:
                 st.audio(st.session_state.lesson_audio, format="audio/mp3", autoplay=False)
                 st.caption(
-                    "La lección se lee en inglés para entrenar tu oído. "
-                    "Sigue el texto escrito arriba mientras escuchas."
+                    "Lección leída en inglés para entrenar tu oído. "
+                    "Sigue el texto escrito abajo mientras escuchas."
                 )
 
         st.markdown("</div>", unsafe_allow_html=True)
         # ─────────────────────────────────────────────────────────────────
+
+        st.markdown(
+            f"<div class='lesson-container' style='border-color: {color};'>"
+            f"{lesson_text}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
 
         st.write("")
 
