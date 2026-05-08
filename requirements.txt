@@ -3,5 +3,6 @@ groq
 gspread
 oauth2client
 audio-recorder-streamlit
-gTTS
+edge-tts
+nest_asyncio
 tzdata
