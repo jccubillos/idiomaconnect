@@ -240,6 +240,238 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* --- ARENA / LEADERBOARD --- */
+    .arena-hero {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-cyan);
+        border-radius: var(--radius-lg);
+        padding: 22px 24px;
+        text-align: center;
+        margin-bottom: 14px;
+        box-shadow: 0 0 24px rgba(0,238,252,0.12);
+        position: relative; overflow: hidden;
+    }
+    .arena-hero h2 {
+        background: linear-gradient(135deg, #ff5351, #c464ff, #00eefc);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; color: transparent !important;
+        font-size: 1.7rem; margin: 0 0 4px 0;
+        letter-spacing: -0.02em;
+    }
+    .arena-hero p { color: var(--text-secondary) !important; margin: 0; font-size: 0.85rem; }
+
+    .leaderboard-row {
+        display: flex; align-items: center; gap: 14px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        transition: var(--t-base);
+        animation: cardReveal 0.4s ease both;
+    }
+    .leaderboard-row:hover { transform: translateX(4px); border-color: var(--border-cyan); }
+    .leaderboard-row.is-self {
+        border-color: var(--profile-accent, #ff5351);
+        box-shadow: 0 0 16px var(--profile-accent, #ff5351);
+        background: rgba(255,255,255,0.03);
+    }
+    .leaderboard-row.rank-1 { border-color: rgba(255,212,0,0.5); box-shadow: 0 0 18px rgba(255,212,0,0.25); }
+    .leaderboard-row.rank-2 { border-color: rgba(192,200,210,0.4); }
+    .leaderboard-row.rank-3 { border-color: rgba(205,127,50,0.5); }
+
+    .lb-rank {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800; font-size: 1.4rem;
+        width: 36px; text-align: center;
+        color: var(--text-secondary) !important;
+    }
+    .leaderboard-row.rank-1 .lb-rank { color: #ffd400 !important; text-shadow: 0 0 10px #ffd400; }
+    .leaderboard-row.rank-2 .lb-rank { color: #c0c8d2 !important; text-shadow: 0 0 8px #c0c8d2; }
+    .leaderboard-row.rank-3 .lb-rank { color: #cd7f32 !important; text-shadow: 0 0 8px #cd7f32; }
+
+    .lb-avatar img {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--lb-accent, #00eefc);
+        box-shadow: 0 0 12px var(--lb-accent, #00eefc);
+        background: var(--bg-mid);
+    }
+    .lb-avatar-fallback {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+        background: var(--bg-mid);
+        border: 2px solid var(--lb-accent, #00eefc);
+        box-shadow: 0 0 12px var(--lb-accent, #00eefc);
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800; font-size: 1rem;
+        color: var(--lb-accent, #ffffff) !important;
+        text-shadow: 0 0 8px var(--lb-accent, transparent);
+        margin: 0;
+    }
+    .lb-meta {
+        font-size: 0.75rem;
+        color: var(--text-dim) !important;
+        margin: 2px 0 0 0;
+        text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .lb-xp {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        text-align: right;
+    }
+    .lb-xp-num {
+        font-size: 1.2rem;
+        color: var(--neon-yellow) !important;
+        text-shadow: 0 0 10px rgba(255,212,0,0.5);
+        line-height: 1;
+    }
+    .lb-xp-label {
+        font-size: 0.65rem;
+        color: var(--text-dim) !important;
+        text-transform: uppercase; letter-spacing: 1px;
+        margin-top: 2px;
+    }
+
+    /* --- PROFILE VIEW --- */
+    .cefr-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--profile-accent, #ff5351);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        text-align: center;
+        margin-bottom: 14px;
+        box-shadow: 0 0 24px var(--profile-accent, #ff5351);
+        position: relative; overflow: hidden;
+    }
+    .cefr-level {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 4rem; font-weight: 800; line-height: 0.95;
+        color: var(--profile-accent, #ff5351) !important;
+        text-shadow: 0 0 20px var(--profile-accent, #ff5351);
+        letter-spacing: -0.03em;
+        margin: 0;
+    }
+    .cefr-rank-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        color: var(--text-primary) !important;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 4px 0 0;
+    }
+    .cefr-rank-tagline {
+        color: var(--text-secondary) !important;
+        font-size: 0.85rem;
+        margin: 6px 0 14px;
+    }
+    .cefr-progress-wrap {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid var(--border-soft);
+        border-radius: 50px;
+        height: 10px;
+        overflow: hidden;
+        margin: 8px 0;
+    }
+    .cefr-progress-fill {
+        height: 100%; border-radius: 50px;
+        background: linear-gradient(90deg, var(--profile-accent, #ff5351), #00eefc);
+        box-shadow: 0 0 12px var(--profile-accent, #ff5351);
+        transition: width 1s ease;
+    }
+    .cefr-next {
+        font-size: 0.75rem;
+        color: var(--text-dim) !important;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .trophy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .trophy-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: 14px 8px;
+        text-align: center;
+        transition: var(--t-base);
+        opacity: 0.35;
+        filter: grayscale(0.8);
+    }
+    .trophy-card.earned {
+        opacity: 1;
+        filter: none;
+        border-color: var(--trophy-accent, #ffd400);
+        box-shadow: 0 0 14px var(--trophy-accent, #ffd400);
+    }
+    .trophy-card .trophy-icon {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 4px;
+    }
+    .trophy-card .trophy-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: var(--text-primary) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        line-height: 1.2;
+    }
+    .trophy-card .trophy-desc {
+        font-size: 0.66rem;
+        color: var(--text-dim) !important;
+        margin-top: 2px;
+        line-height: 1.2;
+    }
+
+    .skill-row {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 8px;
+    }
+    .skill-label {
+        flex: 0 0 90px;
+        font-size: 0.78rem;
+        color: var(--text-secondary) !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+    .skill-bar {
+        flex: 1;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border-soft);
+        border-radius: 50px;
+        height: 8px;
+        overflow: hidden;
+    }
+    .skill-bar-fill {
+        height: 100%; border-radius: 50px;
+        box-shadow: 0 0 10px currentColor;
+    }
+    .skill-pct {
+        flex: 0 0 38px;
+        text-align: right;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: var(--text-primary) !important;
+    }
+
     /* --- WORLDS GRID (mapa de mundos) --- */
     .worlds-section-title {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -1324,22 +1556,206 @@ def get_user_stats(profile_name: str) -> dict:
         return empty
 
 
-def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attempts: int):
-    """Registra una sesion completada en Google Sheets."""
+def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attempts: int,
+                      world: str = "", skill: str = "", lesson_type: str = ""):
+    """
+    Registra una sesion completada en Google Sheets.
+    Columnas: Timestamp | profile | xp | score_pct | attempts
+              | world | skill | lesson_type | streak_date | trophies
+    """
     sheet, db_error = get_db_connection()
     if db_error or not sheet:
         logger.warning(f"No se pudo guardar XP: {db_error}")
         return False, db_error
     try:
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now       = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        streak_dt = now.strftime("%Y-%m-%d")
         score_str = f"{score_pct:.1%}"
-        sheet.append_row([timestamp, profile_name, xp_gained, score_str, attempts])
-        # Invalidar caché de estadísticas para reflejar el nuevo registro
+        sheet.append_row([
+            timestamp, profile_name, xp_gained, score_str, attempts,
+            world, skill, lesson_type, streak_dt, ""
+        ])
+        # Invalidar cachés que dependen del sheet
         get_user_stats.clear()
+        get_leaderboard.clear()
         return True, None
     except Exception as e:
         logger.error(f"Error guardando en Sheets: {e}")
         return False, f"Error de Google Sheets: {e}"
+
+
+# ==========================================
+# LEADERBOARD, CEFR Y TROFEOS
+# ==========================================
+
+@st.cache_data(ttl=120, show_spinner=False)
+def get_leaderboard() -> list[dict]:
+    """
+    Devuelve una lista ordenada por XP semanal (desc) con las stats
+    agregadas de TODOS los perfiles. Lee el sheet una sola vez.
+    Cada elemento: {profile, total_xp, week_xp, total_sessions, avg_score,
+                    best_score, perfect_count, last_activity, world_counts}
+    """
+    base = []
+    sheet, _ = get_db_connection()
+    if not sheet:
+        # Fallback: lista vacía con cada perfil para que la UI no falle
+        for name in PROFILES:
+            base.append({
+                "profile": name, "total_xp": 0, "week_xp": 0,
+                "total_sessions": 0, "avg_score": 0.0, "best_score": 0.0,
+                "perfect_count": 0, "last_activity": None, "world_counts": {},
+                "active_days": 0,
+            })
+        return base
+
+    try:
+        rows = sheet.get_all_records()
+    except Exception as e:
+        logger.warning(f"Error leyendo sheet para leaderboard: {e}")
+        rows = []
+
+    now = datetime.datetime.now()
+    week_start = (now - datetime.timedelta(days=now.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+
+    agg = {name: {
+        "profile": name, "total_xp": 0, "week_xp": 0,
+        "total_sessions": 0, "score_sum": 0.0, "best_score": 0.0,
+        "perfect_count": 0, "last_activity": None, "world_counts": {},
+        "active_days": set(),
+    } for name in PROFILES}
+
+    for r in rows:
+        name = r.get("profile", "")
+        if name not in agg:
+            continue
+        try:
+            xp = int(r.get("xp", 0) or 0)
+        except (ValueError, TypeError):
+            xp = 0
+        try:
+            score_f = float(str(r.get("score_pct", "0%")).replace("%", "")) / 100.0
+        except ValueError:
+            score_f = 0.0
+
+        ts = None
+        ts_str = r.get("timestamp", "") or r.get("Timestamp", "")
+        try:
+            ts = datetime.datetime.strptime(str(ts_str), "%Y-%m-%d %H:%M:%S")
+        except (ValueError, TypeError):
+            ts = None
+
+        a = agg[name]
+        a["total_xp"]       += xp
+        a["total_sessions"] += 1
+        a["score_sum"]      += score_f
+        if score_f > a["best_score"]:
+            a["best_score"] = score_f
+        if score_f >= 0.999:
+            a["perfect_count"] += 1
+        if ts is not None:
+            if a["last_activity"] is None or ts > a["last_activity"]:
+                a["last_activity"] = ts
+            if ts >= week_start:
+                a["week_xp"] += xp
+            a["active_days"].add(ts.date())
+
+        world = str(r.get("world", "") or "").strip()
+        if world:
+            a["world_counts"][world] = a["world_counts"].get(world, 0) + 1
+
+    # Finalizar
+    for a in agg.values():
+        sessions = a["total_sessions"]
+        a["avg_score"] = (a["score_sum"] / sessions) if sessions else 0.0
+        a.pop("score_sum", None)
+        a["active_days"] = len(a["active_days"])
+
+    # Ordenar por XP semanal (desc), desempate por XP total
+    base = sorted(agg.values(),
+                  key=lambda x: (x["week_xp"], x["total_xp"]),
+                  reverse=True)
+    return base
+
+
+# Niveles CEFR derivados del XP total acumulado.
+# Cada tupla: (codigo, nombre, tagline, xp_minimo)
+CEFR_LEVELS = [
+    ("A1", "Explorer",  "Primeros pasos en inglés",                0),
+    ("A2", "Cadet",     "Frases cotidianas y rutinas",            150),
+    ("B1", "Pilot",     "Conversaciones independientes",          400),
+    ("B2", "Captain",   "Fluidez en temas complejos",             900),
+    ("C1", "Commander", "Dominio en contextos académicos",       1700),
+    ("C2", "Legend",    "Maestría casi nativa",                  3000),
+]
+
+
+def get_cefr_info(total_xp: int) -> dict:
+    """
+    Calcula el nivel CEFR estimado, próximo nivel y progreso al siguiente.
+    """
+    current_idx = 0
+    for i, (_, _, _, threshold) in enumerate(CEFR_LEVELS):
+        if total_xp >= threshold:
+            current_idx = i
+        else:
+            break
+
+    code, name, tagline, threshold = CEFR_LEVELS[current_idx]
+
+    if current_idx + 1 < len(CEFR_LEVELS):
+        next_code, next_name, _, next_threshold = CEFR_LEVELS[current_idx + 1]
+        span = max(1, next_threshold - threshold)
+        progress = max(0.0, min(1.0, (total_xp - threshold) / span))
+        xp_to_next = max(0, next_threshold - total_xp)
+        next_label = f"{xp_to_next} XP para {next_code} {next_name}"
+    else:
+        progress = 1.0
+        next_label = "Nivel máximo alcanzado"
+
+    return {
+        "code": code, "name": name, "tagline": tagline,
+        "progress": progress, "next_label": next_label,
+    }
+
+
+# Catálogo de trofeos. (id, icono, nombre corto, descripción, color, predicate(stats)->bool)
+TROPHY_CATALOG = [
+    ("first_step",  "🚀", "Primer Vuelo",   "Completa tu primera misión",
+     "#00eefc", lambda s: s["total_sessions"] >= 1),
+    ("five_lessons","🔥", "Combo x5",       "Completa 5 misiones",
+     "#ff5351", lambda s: s["total_sessions"] >= 5),
+    ("ten_lessons", "⚡", "Combo x10",      "Completa 10 misiones",
+     "#ffd400", lambda s: s["total_sessions"] >= 10),
+    ("perfect",     "🎯", "Notón Perfecto", "Saca 100% en un quiz",
+     "#39ff14", lambda s: s.get("perfect_count", 0) >= 1),
+    ("xp_500",      "💎", "Club 500 XP",    "Acumula 500 XP",
+     "#c464ff", lambda s: s["total_xp"] >= 500),
+    ("xp_1000",     "🏆", "Club 1000 XP",   "Acumula 1000 XP",
+     "#ffd400", lambda s: s["total_xp"] >= 1000),
+    ("xp_2000",     "🌟", "Leyenda",        "Acumula 2000 XP",
+     "#ff66c4", lambda s: s["total_xp"] >= 2000),
+    ("active_5d",   "📅", "Disciplina",     "Activo en 5 días distintos",
+     "#00eefc", lambda s: s.get("active_days", 0) >= 5),
+]
+
+
+def get_trophies(stats: dict) -> list[dict]:
+    """Devuelve la lista del catálogo con flag earned segun stats del perfil."""
+    out = []
+    for tid, icon, name, desc, color, predicate in TROPHY_CATALOG:
+        try:
+            earned = bool(predicate(stats))
+        except Exception:
+            earned = False
+        out.append({
+            "id": tid, "icon": icon, "name": name, "desc": desc,
+            "color": color, "earned": earned,
+        })
+    return out
 
 
 def evaluate_quiz(mc_questions: list, fitb_questions: list,
@@ -1544,16 +1960,21 @@ def _quiz_section_title(text: str):
     st.markdown(f"<p class='quiz-section-title'>{text}</p>", unsafe_allow_html=True)
 
 
-def start_lesson(topic: str, custom_text: str | None = None):
+def start_lesson(topic: str, custom_text: str | None = None,
+                 world: str = "custom", lesson_type: str = "lesson_quiz"):
     """Resetea el estado de quiz y dispara la generación de una nueva lección."""
     st.session_state.lesson_pending = True
     st.session_state.lesson_topic   = topic
     st.session_state.lesson_text    = custom_text
+    st.session_state.current_world  = world
+    st.session_state.current_lesson_type = lesson_type
     st.session_state.quiz_data      = None
     st.session_state.quiz_result    = None
     st.session_state.quiz_attempts  = 0
     st.session_state.lesson_error   = None
     st.session_state.lesson_audio   = None
+    # Volver siempre a la vista Home cuando se inicia una lección
+    st.session_state.view = "home"
 
 
 # ==========================================
@@ -1561,6 +1982,7 @@ def start_lesson(topic: str, custom_text: str | None = None):
 # ==========================================
 _STATE_DEFAULTS = {
     "current_user":    None,
+    "view":            "home",       # home | arena | profile
     "xp":              0,
     "quiz_data":       None,
     "lesson_error":    None,
@@ -1569,6 +1991,8 @@ _STATE_DEFAULTS = {
     "quiz_attempts":   0,
     "last_text_input": "",
     "lesson_audio":    None,   # bytes MP3 cacheados del audio de la lección
+    "current_world":   "",     # mundo elegido para la lección actual
+    "current_lesson_type": "", # tipo de lección (lesson_quiz, etc.)
 }
 for key, default in _STATE_DEFAULTS.items():
     if key not in st.session_state:
@@ -1691,11 +2115,252 @@ else:
             </div>
         """, unsafe_allow_html=True)
 
+    # ── Barra de navegación (Home / Arena / Profile) ─────────────────
+    current_view = st.session_state.get("view", "home")
+    nav_items = [
+        ("home",    "🗺️  Mundos"),
+        ("arena",   "⚔️  Arena"),
+        ("profile", "👤  Perfil"),
+    ]
+    nav_cols = st.columns(len(nav_items))
+    for i, (v_key, label) in enumerate(nav_items):
+        is_active = (current_view == v_key)
+        with nav_cols[i]:
+            # Activo = primary (rojo neón), inactivo = secondary (cyan ghost)
+            if st.button(
+                label,
+                key=f"nav_{v_key}",
+                use_container_width=True,
+                type=("primary" if is_active else "secondary"),
+            ):
+                st.session_state.view = v_key
+                st.rerun()
+
     if st.button("← Cambiar perfil", type="secondary"):
         for k, v in _STATE_DEFAULTS.items():
             st.session_state[k] = v
         st.rerun()
 
+    # ════════════════════════════════════════════════════════════════
+    # VISTAS: ARENA / PROFILE — se renderizan y detienen el flujo aquí
+    # (la vista HOME continúa más abajo con el mapa de mundos + lección)
+    # ════════════════════════════════════════════════════════════════
+    if current_view == "arena":
+        st.markdown("""
+            <div class='arena-hero'>
+                <h2>⚔️ ARENA DE COMPETICIÓN</h2>
+                <p>Ranking semanal · Reset cada lunes</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        leaderboard = get_leaderboard()
+
+        # Filtrar perfiles sin actividad reciente al final, pero mostrarlos siempre
+        for idx, entry in enumerate(leaderboard, start=1):
+            name      = entry["profile"]
+            pdata_lb  = PROFILES.get(name, {})
+            accent_lb = pdata_lb.get("color", "#00eefc")
+            avatar    = get_avatar_for(name)
+            is_self   = (name == user)
+
+            row_classes = ["leaderboard-row"]
+            if idx == 1: row_classes.append("rank-1")
+            elif idx == 2: row_classes.append("rank-2")
+            elif idx == 3: row_classes.append("rank-3")
+            if is_self: row_classes.append("is-self")
+            row_class = " ".join(row_classes)
+
+            if avatar:
+                avatar_html = (
+                    f"<div class='lb-avatar'>"
+                    f"<img src='{avatar}' alt='{name}' "
+                    f"onerror=\"this.parentElement.innerHTML='"
+                    f"<div class=&quot;lb-avatar-fallback&quot;>{pdata_lb.get('emoji','⭐')}</div>';\" />"
+                    f"</div>"
+                )
+            else:
+                avatar_html = (
+                    f"<div class='lb-avatar-fallback'>{pdata_lb.get('emoji','⭐')}</div>"
+                )
+
+            sessions_str = (
+                f"{entry['total_sessions']} lecciones · {entry['avg_score']:.0%} promedio"
+                if entry['total_sessions'] > 0 else "Aún sin actividad"
+            )
+
+            st.markdown(
+                f"<div class='{row_class}' style='--lb-accent: {accent_lb};"
+                f" --profile-accent: {accent_lb};'>"
+                f"<div class='lb-rank'>#{idx}</div>"
+                f"{avatar_html}"
+                f"<div class='lb-info'>"
+                f"<p class='lb-name'>{name}{' · TÚ' if is_self else ''}</p>"
+                f"<p class='lb-meta'>{sessions_str}</p>"
+                f"</div>"
+                f"<div class='lb-xp'>"
+                f"<div class='lb-xp-num'>{entry['week_xp']}</div>"
+                f"<div class='lb-xp-label'>XP semana</div>"
+                f"</div>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+        st.markdown(
+            "<p style='text-align:center; color:#6b7280; font-size:0.78rem;"
+            " margin-top:14px; letter-spacing:1px; text-transform:uppercase;'>"
+            "✦ El ranking se reinicia cada lunes ✦</p>",
+            unsafe_allow_html=True
+        )
+
+    # ════════════════════════════════════════════════════════════════
+    # VISTA: PROFILE (CEFR + trofeos + stats detalladas)
+    # ════════════════════════════════════════════════════════════════
+    elif current_view == "profile":
+        # Buscar entry del usuario en el leaderboard (para perfect_count, active_days, world_counts)
+        leaderboard = get_leaderboard()
+        my_entry = next((e for e in leaderboard if e["profile"] == user), None) or {
+            "total_xp": 0, "total_sessions": 0, "avg_score": 0.0,
+            "best_score": 0.0, "perfect_count": 0, "last_activity": None,
+            "world_counts": {}, "active_days": 0,
+        }
+
+        # ── Tarjeta CEFR ──
+        cefr = get_cefr_info(my_entry["total_xp"])
+        st.markdown(f"""
+            <div class='cefr-card'>
+                <p style='color:#6b7280; font-size:0.72rem; letter-spacing:2px;
+                          text-transform:uppercase; margin:0;'>Nivel actual estimado</p>
+                <p class='cefr-level'>{cefr['code']}</p>
+                <p class='cefr-rank-name'>{cefr['name']}</p>
+                <p class='cefr-rank-tagline'>{cefr['tagline']}</p>
+                <div class='cefr-progress-wrap'>
+                    <div class='cefr-progress-fill' style='width:{cefr['progress']*100:.1f}%;'></div>
+                </div>
+                <p class='cefr-next'>{cefr['next_label']}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # ── Stats detalladas ──
+        st.markdown(
+            "<p class='worlds-section-title'>ESTADÍSTICAS</p>",
+            unsafe_allow_html=True
+        )
+        last_act = my_entry.get("last_activity")
+        last_act_str = last_act.strftime("%d/%m/%Y %H:%M") if last_act else "—"
+
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            st.markdown(f"""
+                <div class='progress-panel' style='flex-direction:column; gap:14px;'>
+                    <div class='stat-item'>
+                        <div class='stat-value' style='color:{color} !important; text-shadow:0 0 10px {color};'>{my_entry["total_xp"]}</div>
+                        <div class='stat-label'>XP Total</div>
+                    </div>
+                    <div class='stat-item'>
+                        <div class='stat-value'>{my_entry["total_sessions"]}</div>
+                        <div class='stat-label'>Lecciones completadas</div>
+                    </div>
+                    <div class='stat-item'>
+                        <div class='stat-value' style='color:#39ff14 !important; text-shadow:0 0 10px #39ff14;'>{my_entry["best_score"]:.0%}</div>
+                        <div class='stat-label'>Mejor nota</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with col_s2:
+            st.markdown(f"""
+                <div class='progress-panel' style='flex-direction:column; gap:14px;'>
+                    <div class='stat-item'>
+                        <div class='stat-value' style='color:#00eefc !important; text-shadow:0 0 10px #00eefc;'>{my_entry["avg_score"]:.0%}</div>
+                        <div class='stat-label'>Promedio quiz</div>
+                    </div>
+                    <div class='stat-item'>
+                        <div class='stat-value' style='color:#ffd400 !important; text-shadow:0 0 10px #ffd400;'>{my_entry.get("active_days", 0)}</div>
+                        <div class='stat-label'>Días activos</div>
+                    </div>
+                    <div class='stat-item'>
+                        <div class='stat-value' style='font-size:0.95rem;'>{last_act_str}</div>
+                        <div class='stat-label'>Última misión</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        # ── Distribución por mundo ──
+        world_counts = my_entry.get("world_counts", {})
+        if world_counts:
+            st.markdown(
+                "<p class='worlds-section-title'>DISTRIBUCIÓN POR MUNDO</p>",
+                unsafe_allow_html=True
+            )
+            world_meta = {
+                "grammar":   ("🌌", "Galaxia Gramatical", "#c464ff"),
+                "vocab":     ("📚", "Bóveda Vocabulario", "#00eefc"),
+                "personal":  (PERSONAL_WORLDS.get(user, {}).get("emoji", "⭐"),
+                              PERSONAL_WORLDS.get(user, {}).get("name", "Mi Mundo"),
+                              color),
+                "challenge": ("⚔️", "Desafío Sorpresa", "#ff5351"),
+                "voice":     ("🎤", "Misión Voz", "#39ff14"),
+                "custom":    ("📡", "Tema personalizado", "#ffd400"),
+            }
+            total_world = sum(world_counts.values()) or 1
+            for w_key, count in sorted(world_counts.items(),
+                                        key=lambda x: x[1], reverse=True):
+                emoji_w, name_w, color_w = world_meta.get(
+                    w_key, ("•", w_key.title(), "#a8acb3")
+                )
+                pct_w = count / total_world
+                st.markdown(
+                    f"<div class='skill-row'>"
+                    f"<div class='skill-label'>{emoji_w} {name_w}</div>"
+                    f"<div class='skill-bar'>"
+                    f"<div class='skill-bar-fill' style='width:{pct_w*100:.1f}%;"
+                    f" background:{color_w}; color:{color_w};'></div>"
+                    f"</div>"
+                    f"<div class='skill-pct'>{count}</div>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+        # ── Trofeos ──
+        st.markdown(
+            "<p class='worlds-section-title'>TROFEOS</p>",
+            unsafe_allow_html=True
+        )
+        trophies = get_trophies(my_entry)
+        earned_n = sum(1 for t in trophies if t["earned"])
+        st.markdown(
+            f"<p style='text-align:center; color:#a8acb3; font-size:0.85rem;"
+            f" margin:0 0 10px;'>"
+            f"<b style='color:{color}; text-shadow:0 0 10px {color};'>{earned_n}</b>"
+            f" / {len(trophies)} desbloqueados</p>",
+            unsafe_allow_html=True
+        )
+
+        trophies_html = "<div class='trophy-grid'>"
+        for t in trophies:
+            klass = "trophy-card earned" if t["earned"] else "trophy-card"
+            t_color = t["color"]
+            t_icon  = t["icon"]
+            t_name  = t["name"]
+            t_desc  = t["desc"]
+            trophies_html += (
+                f"<div class='{klass}' style='--trophy-accent: {t_color};'>"
+                f"<span class='trophy-icon'>{t_icon}</span>"
+                f"<div class='trophy-name'>{t_name}</div>"
+                f"<div class='trophy-desc'>{t_desc}</div>"
+                f"</div>"
+            )
+        trophies_html += "</div>"
+        st.markdown(trophies_html, unsafe_allow_html=True)
+
+    # Si estamos en arena o profile, detener acá — no renderizar el resto.
+    if current_view in ("arena", "profile"):
+        send_weekly_report()
+        st.stop()
+
+    # ════════════════════════════════════════════════════════════════
+    # VISTA: HOME (mapa de mundos + lección + quiz)
+    # ════════════════════════════════════════════════════════════════
     st.markdown(
         "<p class='worlds-section-title'>MAPA DE MUNDOS</p>",
         unsafe_allow_html=True
@@ -1771,7 +2436,7 @@ else:
                 )
                 if st.button(w["btn"], key=f"world_{w['key']}",
                              use_container_width=True, type="secondary"):
-                    start_lesson(w["topic"])
+                    start_lesson(w["topic"], world=w["key"])
                 st.markdown("</div>", unsafe_allow_html=True)
 
     # ── Voice Comm Panel (audio + texto libre) ──────────────────────────
@@ -1797,14 +2462,14 @@ else:
                 show_error(t_error)
             elif text:
                 st.success(f"Te escuché decir: *'{text}'*")
-                start_lesson("Tema del Colegio", text)
+                start_lesson("Tema del Colegio", text, world="voice")
 
     text_input = st.chat_input(f"Escribe tu tema personalizado aquí, {user}...")
     if (text_input
             and text_input != st.session_state.last_text_input
             and not st.session_state.lesson_pending):
         st.session_state.last_text_input = text_input
-        start_lesson("Tema del Colegio", text_input)
+        start_lesson("Tema del Colegio", text_input, world="custom")
 
     # --- GENERAR LECCIÓN ---
     if st.session_state.lesson_pending:
@@ -2056,7 +2721,11 @@ else:
             ):
                 st.session_state.xp += XP_PER_LESSON
 
-                saved, save_error = save_xp_to_sheet(user, XP_PER_LESSON, pct, attempts)
+                saved, save_error = save_xp_to_sheet(
+                    user, XP_PER_LESSON, pct, attempts,
+                    world=st.session_state.get("current_world", ""),
+                    lesson_type=st.session_state.get("current_lesson_type", ""),
+                )
                 if not saved:
                     show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
 
