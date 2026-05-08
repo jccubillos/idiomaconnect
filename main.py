@@ -15,19 +15,13 @@ import re
 
 import asyncio
 import tempfile
+import threading
 
 try:
     import edge_tts
     EDGE_TTS_AVAILABLE = True
 except ImportError:
     EDGE_TTS_AVAILABLE = False
-
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-    NEST_ASYNCIO_AVAILABLE = True
-except ImportError:
-    NEST_ASYNCIO_AVAILABLE = False
 
 # ==========================================
 # CONFIGURACIÓN DE LOGGING
@@ -758,44 +752,57 @@ def _strip_markdown(text: str) -> str:
 
 def generate_lesson_audio(lesson_text: str) -> bytes | None:
     """
-    Genera audio TTS de la lección usando edge-tts con voz bilingüe
-    es-US-PalomaNeural: pronuncia correctamente español e inglés mezclados.
-    Retorna bytes MP3 o None si falla.
+    Genera audio TTS usando edge-tts con voz bilingüe es-US-PalomaNeural.
+    Corre en un hilo separado con su propio event loop para no interferir
+    con el event loop de Streamlit/uvicorn.
     """
     if not EDGE_TTS_AVAILABLE:
         return None
-    try:
-        clean_text = _strip_markdown(lesson_text)[:5000]
-        if not clean_text:
-            return None
 
-        # Voz bilingüe español-inglés (US Spanish, neural, pronuncia ambos idiomas bien)
-        VOICE = "es-US-PalomaNeural"
-
-        tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
-        tmp.close()
-
-        async def _run():
-            communicate = edge_tts.Communicate(clean_text, VOICE)
-            await communicate.save(tmp.name)
-
-        try:
-            asyncio.run(_run())
-        except RuntimeError:
-            # Streamlit ya tiene un event loop activo — nest_asyncio resuelve esto
-            asyncio.get_event_loop().run_until_complete(_run())
-
-        with open(tmp.name, "rb") as f:
-            return f.read()
-
-    except Exception as e:
-        logger.error(f"Error generando audio edge-tts: {e}")
+    clean_text = _strip_markdown(lesson_text)[:5000]
+    if not clean_text:
         return None
-    finally:
+
+    VOICE = "es-US-PalomaNeural"
+    result_holder = [None]
+    error_holder  = [None]
+
+    def run_in_thread():
+        tmp_path = None
         try:
-            os.remove(tmp.name)
-        except Exception:
-            pass
+            tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+            tmp.close()
+            tmp_path = tmp.name
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                async def _generate():
+                    communicate = edge_tts.Communicate(clean_text, VOICE)
+                    await communicate.save(tmp_path)
+                loop.run_until_complete(_generate())
+            finally:
+                loop.close()
+
+            with open(tmp_path, "rb") as f:
+                result_holder[0] = f.read()
+        except Exception as e:
+            error_holder[0] = e
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except Exception:
+                    pass
+
+    t = threading.Thread(target=run_in_thread, daemon=True)
+    t.start()
+    t.join(timeout=30)
+
+    if error_holder[0]:
+        logger.error(f"Error generando audio edge-tts: {error_holder[0]}")
+        return None
+    return result_holder[0]
 
 
 @st.cache_data(ttl=120, show_spinner=False)
