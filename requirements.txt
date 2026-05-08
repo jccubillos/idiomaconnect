@@ -4,5 +4,4 @@ gspread
 oauth2client
 audio-recorder-streamlit
 edge-tts
-nest_asyncio
 tzdata
