@@ -577,6 +577,237 @@ st.markdown("""
         animation: breathe 3s ease-in-out infinite;
     }
 
+    /* --- DAILY REVIEW (SRS) hero card sobre el grid --- */
+    .srs-hero {
+        background: linear-gradient(135deg,
+            rgba(196,100,255,0.10) 0%,
+            rgba(0,238,252,0.08) 100%);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(196,100,255,0.4);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        margin: 8px 0 14px;
+        display: flex; align-items: center; gap: 14px;
+        box-shadow: 0 0 22px rgba(196,100,255,0.18);
+        position: relative; overflow: hidden;
+        animation: cardReveal 0.5s ease both;
+    }
+    .srs-hero-icon {
+        font-size: 2.4rem;
+        filter: drop-shadow(0 0 14px #c464ff);
+        animation: floatY 4s ease-in-out infinite;
+    }
+    .srs-hero-info { flex: 1; min-width: 0; }
+    .srs-hero-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800; font-size: 1.05rem;
+        color: #c464ff !important;
+        text-shadow: 0 0 10px rgba(196,100,255,0.6);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .srs-hero-sub {
+        color: var(--text-secondary) !important;
+        font-size: 0.84rem;
+        margin: 3px 0 0;
+    }
+    .srs-hero-badge {
+        background: rgba(255,212,0,0.1);
+        border: 1px solid rgba(255,212,0,0.5);
+        border-radius: 50px;
+        padding: 4px 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 0.85rem;
+        color: var(--neon-yellow) !important;
+        text-shadow: 0 0 8px rgba(255,212,0,0.5);
+        flex-shrink: 0;
+    }
+
+    /* --- SRS FLASHCARD --- */
+    .srs-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(196,100,255,0.5);
+        border-radius: var(--radius-xl);
+        padding: 36px 28px;
+        margin: 10px 0;
+        text-align: center;
+        box-shadow: 0 0 28px rgba(196,100,255,0.2);
+        animation: slideUp 0.4s ease both;
+        position: relative; overflow: hidden;
+    }
+    .srs-progress {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim) !important;
+        margin: 0 0 18px;
+    }
+    .srs-progress b { color: #c464ff !important; text-shadow: 0 0 8px rgba(196,100,255,0.6); }
+    .srs-word {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 2.6rem; font-weight: 800;
+        color: var(--text-primary) !important;
+        line-height: 1.1;
+        margin: 8px 0 4px;
+        letter-spacing: -0.01em;
+    }
+    .srs-emoji {
+        font-size: 3rem;
+        line-height: 1;
+        margin-bottom: 6px;
+        filter: drop-shadow(0 0 14px #c464ff);
+    }
+    .srs-ipa {
+        color: #00eefc !important;
+        font-family: 'Source Sans 3', sans-serif !important;
+        font-size: 1rem;
+        margin: 4px 0 16px;
+        text-shadow: 0 0 8px rgba(0,238,252,0.4);
+    }
+    .srs-translation {
+        background: rgba(57,255,20,0.08);
+        border: 1px solid rgba(57,255,20,0.4);
+        border-radius: var(--radius-md);
+        padding: 14px 18px;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: var(--neon-green) !important;
+        text-shadow: 0 0 10px rgba(57,255,20,0.5);
+        margin: 12px 0;
+    }
+
+    /* --- PRONUNCIATION CHALLENGE --- */
+    .pron-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-cyan);
+        border-radius: var(--radius-lg);
+        padding: 28px 22px 22px;
+        margin: 10px 0;
+        text-align: center;
+        box-shadow: 0 0 22px rgba(0,238,252,0.2);
+        animation: slideUp 0.4s ease both;
+    }
+    .pron-meta {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim) !important;
+        margin: 0 0 8px;
+    }
+    .pron-meta b { color: var(--neon-cyan) !important; }
+    .pron-target {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--neon-cyan) !important;
+        text-shadow: 0 0 18px rgba(0,238,252,0.6);
+        margin: 6px 0 4px;
+        letter-spacing: -0.02em;
+    }
+    .pron-ipa {
+        color: var(--text-secondary) !important;
+        font-family: 'Source Sans 3', sans-serif !important;
+        font-size: 1.05rem;
+        margin: 0 0 6px;
+        font-style: italic;
+    }
+    .pron-meaning {
+        color: var(--text-secondary) !important;
+        font-size: 0.95rem;
+        margin: 0 0 16px;
+    }
+
+    .pron-result {
+        margin-top: 14px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        animation: flashIn 0.4s ease both;
+    }
+    .pron-result-good {
+        background: rgba(57,255,20,0.06);
+        border: 1px solid rgba(57,255,20,0.5);
+        box-shadow: 0 0 14px rgba(57,255,20,0.18);
+    }
+    .pron-result-mid {
+        background: rgba(255,212,0,0.06);
+        border: 1px solid rgba(255,212,0,0.5);
+        box-shadow: 0 0 14px rgba(255,212,0,0.18);
+    }
+    .pron-result-bad {
+        background: rgba(255,83,81,0.06);
+        border: 1px solid rgba(255,83,81,0.5);
+        box-shadow: 0 0 14px rgba(255,83,81,0.18);
+    }
+    .pron-score {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 2.2rem;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+    .pron-result-good .pron-score { color: var(--neon-green) !important; text-shadow: 0 0 14px rgba(57,255,20,0.6); }
+    .pron-result-mid  .pron-score { color: var(--neon-yellow) !important; text-shadow: 0 0 14px rgba(255,212,0,0.6); }
+    .pron-result-bad  .pron-score { color: var(--neon-red) !important; text-shadow: 0 0 14px rgba(255,83,81,0.6); }
+    .pron-heard {
+        color: var(--text-secondary) !important;
+        font-size: 0.88rem;
+        margin: 6px 0 0;
+    }
+    .pron-heard em { color: var(--text-primary) !important; font-style: normal; font-weight: 700; }
+
+    /* --- CONVERSATION MODE --- */
+    .conv-bubble {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+        margin: 6px 0;
+        animation: slideUp 0.3s ease both;
+        line-height: 1.45;
+        font-size: 0.95rem;
+    }
+    .conv-bubble.assistant {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-cyan);
+        margin-right: auto;
+        color: var(--text-primary) !important;
+        box-shadow: 0 0 12px rgba(0,238,252,0.1);
+    }
+    .conv-bubble.user {
+        background: linear-gradient(135deg, rgba(196,100,255,0.18), rgba(0,238,252,0.10));
+        border: 1px solid var(--profile-accent, #c464ff);
+        margin-left: auto;
+        color: var(--text-primary) !important;
+        text-align: right;
+        box-shadow: 0 0 12px var(--profile-accent, rgba(196,100,255,0.3));
+    }
+    .conv-bubble .speaker {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        opacity: 0.8;
+    }
+    .conv-bubble.assistant .speaker { color: var(--neon-cyan) !important; }
+    .conv-bubble.user .speaker { color: var(--profile-accent, #c464ff) !important; }
+    .conv-bubble .gloss {
+        font-style: italic;
+        color: var(--text-dim) !important;
+        font-size: 0.82rem;
+        display: block;
+        margin-top: 4px;
+    }
+
     /* --- ARENA / LEADERBOARD --- */
     .arena-hero {
         background: var(--bg-glass-strong);
@@ -1623,17 +1854,36 @@ def get_db_connection():
 # 4. FUNCIONES PRINCIPALES
 # ==========================================
 
-def _build_system_prompt_json(profile_name: str) -> str:
-    """System prompt que instruye al LLM a generar un JSON robusto."""
+def _build_system_prompt_json(profile_name: str, cefr_code: str = "A1",
+                               cefr_name: str = "Explorer") -> str:
+    """System prompt que instruye al LLM a generar un JSON robusto.
+    Adapta complejidad al nivel CEFR estimado del/la alumno/a."""
     profile  = PROFILES[profile_name]
     gender   = profile.get("gender", "niño/niña")
     pronoun  = "ella" if gender == "niña" else "él"
     age_desc = profile.get("age_desc", "13 años")
     grade    = profile.get("grade", "")
+
+    # Guía de complejidad por nivel
+    cefr_guides = {
+        "A1": "Vocabulario muy básico (saludos, familia, números, colores, objetos comunes). Oraciones cortas en presente simple. Evita pasado y futuro.",
+        "A2": "Vocabulario cotidiano (rutinas, hobbies, comida, ropa). Presente simple, presente continuo y pasado simple regular. Oraciones de 5-10 palabras.",
+        "B1": "Vocabulario amplio (opiniones, sentimientos, planes). Todos los tiempos básicos, condicionales tipo 1, modales (can/should/must). Oraciones complejas con conectores.",
+        "B2": "Vocabulario académico y de actualidad. Voz pasiva, condicionales 2 y 3, perfecto continuo, reported speech. Discusión de temas abstractos.",
+        "C1": "Vocabulario sofisticado, expresiones idiomáticas, phrasal verbs avanzados. Estructuras complejas, matices, ironía, registro formal/informal.",
+        "C2": "Nivel casi nativo. Sutilezas, juegos de palabras, registros culturales, lenguaje literario.",
+    }
+    complexity_guide = cefr_guides.get(cefr_code, cefr_guides["A1"])
+
     return f"""
 Eres un tutor de inglés experto, cariñoso y motivador, diseñado exclusivamente para {profile_name}, un/a {gender} de {age_desc}, cursando {grade}.
 A {pronoun} le apasiona: {profile['hobbies']}.
 Tu tono debe ser: {profile['tone']}.
+
+NIVEL ESTIMADO DEL/LA ALUMNO/A: {cefr_code} ({cefr_name})
+GUÍA DE COMPLEJIDAD ({cefr_code}): {complexity_guide}
+
+Adapta vocabulario, gramática y longitud de oraciones a este nivel. Si subes la complejidad, hazlo gradualmente; nunca brinques 2 niveles de un solo tirón.
 
 {profile['family_context']}
 
@@ -1691,7 +1941,7 @@ ESTRUCTURA OBLIGATORIA DE LA LECCIÓN (mínimo 300 palabras en total):
 - Explicación teórica CLARA y DETALLADA del concepto gramatical o vocabulario.
 - Mínimo 180 palabras. Usa párrafos cortos, no bloques de texto denso.
 - Incluye: (1) la regla principal, (2) cómo se forma o usa, (3) al menos UN error común que cometen los hispanohablantes y cómo evitarlo.
-- Si el tema es vocabulario: incluye una lista con guiones (-) con la palabra en inglés, su pronunciación aproximada entre corchetes [pro-nun-cia-ción] y su significado en español. NUNCA uses tablas con pipes (|).
+- Si el tema es vocabulario: incluye una lista con guiones (-) donde CADA palabra empiece con un emoji visual representativo, seguida de la palabra en inglés, su pronunciación aproximada entre corchetes [pro-nun-cia-ción] y su significado en español. Ejemplo: `- 🦋 **butterfly** [bá-ter-flai] — mariposa`. NUNCA uses tablas con pipes (|). Los emojis ayudan a memorizar visualmente.
 - Usa negritas para resaltar las palabras o reglas clave.
 
 ### ✏️ Parte C — Ejemplos en acción
@@ -1714,13 +1964,16 @@ INSTRUCCIONES PARA "mc" Y "fitb":
 """
 
 
-def generate_lesson_and_quiz(profile_name: str, topic: str, custom_text: str | None = None):
-    """Llama a Groq con JSON mode."""
+def generate_lesson_and_quiz(profile_name: str, topic: str,
+                              custom_text: str | None = None,
+                              cefr_code: str = "A1",
+                              cefr_name: str = "Explorer"):
+    """Llama a Groq con JSON mode, adaptado al nivel CEFR del alumno."""
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
         return None, f"⚠️ {init_error}"
 
-    system_prompt = _build_system_prompt_json(profile_name)
+    system_prompt = _build_system_prompt_json(profile_name, cefr_code, cefr_name)
     # Sanitize user input before sending to the LLM
     safe_topic = topic.strip()[:300] if topic else "Aventura Diaria"
     safe_custom = custom_text.strip()[:500] if custom_text else None
@@ -2031,6 +2284,8 @@ def get_leaderboard() -> list[dict]:
         "perfect_count": 0, "last_activity": None, "world_counts": {},
         "active_days": set(),
         "battle_wins": 0, "lesson_count": 0,
+        "pronunciation_count": 0, "conversation_count": 0,
+        "srs_review_count": 0,
         "active_dates_set": set(),  # para max_consec_streak
     } for name in PROFILES}
 
@@ -2079,6 +2334,12 @@ def get_leaderboard() -> list[dict]:
             # Considerar victoria si score >= 60% (mismo umbral que classic)
             if score_f >= PASSING_SCORE:
                 a["battle_wins"] += 1
+        elif ltype == "pronunciation":
+            a["pronunciation_count"] += 1
+        elif ltype == "conversation":
+            a["conversation_count"] += 1
+        elif ltype == "srs_review":
+            a["srs_review_count"] += 1
         elif ltype in ("lesson_quiz", ""):
             a["lesson_count"] += 1
 
@@ -2197,6 +2458,13 @@ TROPHY_CATALOG = [
     # Exploración
     ("explorer",    "🌍", "Explorador",     "Visita los 4 mundos universales",
      "#c464ff", lambda s: s.get("unique_worlds_visited", 0) >= 4),
+    # Modos avanzados
+    ("speaker",     "🎤", "Voz Clara",      "Practica pronunciación 1 vez",
+     "#39ff14", lambda s: s.get("pronunciation_count", 0) >= 1),
+    ("conversator", "💬", "Conversador",    "Completa 3 conversaciones",
+     "#c464ff", lambda s: s.get("conversation_count", 0) >= 3),
+    ("memory",      "🧠", "Memoria de Elefante", "Repasa 50 palabras",
+     "#ffd400", lambda s: s.get("srs_review_count", 0) >= 50),
 ]
 
 
@@ -2449,7 +2717,7 @@ def start_lesson(topic: str, custom_text: str | None = None,
 
 
 def reset_to_worlds():
-    """Limpia toda lección/battle y vuelve al mapa de mundos."""
+    """Limpia toda lección/battle/conv/pron/srs y vuelve al mapa de mundos."""
     keys_to_reset = [
         "quiz_data", "quiz_result", "quiz_attempts", "lesson_error",
         "lesson_audio", "lesson_pending", "selected_world",
@@ -2457,11 +2725,491 @@ def reset_to_worlds():
         "battle_history", "battle_index", "battle_streak",
         "battle_max_streak", "battle_correct", "battle_total",
         "battle_mc_answer", "battle_fitb_answer",
+        # Pronunciation
+        "pron_words", "pron_index", "pron_results", "pron_last_audio",
+        "pron_last_score", "pron_finished",
+        # Conversation
+        "conv_active", "conv_history", "conv_turn_count",
+        "conv_pending_user_input",
+        # SRS
+        "srs_active", "srs_cards", "srs_index", "srs_revealed",
+        "srs_correct", "srs_attempted", "srs_finished",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
             st.session_state[k] = _STATE_DEFAULTS[k]
     st.session_state.battle_hp = st.session_state.battle_max_hp
+
+
+def start_pronunciation(world_key: str, world_topic: str):
+    """Inicia el modo pronunciación: pide palabras al LLM y arma el estado."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🎤 Preparando palabras para practicar..."):
+        words, err = generate_pronunciation_words(profile_name, world_topic, cefr)
+
+    if err or not words:
+        st.error(f"⚠️ No pude generar palabras: {err or 'sin datos'}")
+        return
+
+    st.session_state.lesson_pending = False
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "pronunciation"
+    st.session_state.pron_words      = words
+    st.session_state.pron_index      = 0
+    st.session_state.pron_results    = []
+    st.session_state.pron_last_audio = None
+    st.session_state.pron_last_score = None
+    st.session_state.pron_finished   = False
+    st.session_state.selected_world  = None  # cierra entry page
+    st.session_state.view = "home"
+
+
+def start_conversation(world_key: str):
+    """Inicia el modo conversación con la IA."""
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "conversation"
+    st.session_state.conv_active     = True
+    st.session_state.conv_history    = []
+    st.session_state.conv_turn_count = 0
+    st.session_state.conv_pending_user_input = ""
+    st.session_state.selected_world  = None
+    st.session_state.view = "home"
+
+
+def start_srs_review(profile_name: str):
+    """Inicia el modo SRS: trae cards vencidas y arma el estado."""
+    cards = get_due_srs_cards(profile_name, limit=12)
+    st.session_state.srs_active     = True
+    st.session_state.srs_cards      = cards
+    st.session_state.srs_index      = 0
+    st.session_state.srs_revealed   = False
+    st.session_state.srs_correct    = 0
+    st.session_state.srs_attempted  = 0
+    st.session_state.srs_finished   = False
+    st.session_state.current_world  = "srs"
+    st.session_state.current_lesson_type = "srs_review"
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+# ==========================================
+# CONVERSATION MODE HELPERS
+# ==========================================
+
+def _build_conversation_system_prompt(profile_name: str, world_meta: dict,
+                                       cefr_code: str = "A1") -> str:
+    """System prompt para modo conversación. La IA actúa como personaje
+    temático del mundo y conversa en inglés al nivel CEFR de la alumna/o."""
+    profile  = PROFILES[profile_name]
+    gender   = profile.get("gender", "niña")
+    age_desc = profile.get("age_desc", "13 años")
+
+    # Personaje según el mundo
+    persona = {
+        "Galaxia Gramatical":  "Captain Grammar, an experienced space explorer who teaches grammar through stories of the cosmos",
+        "Bóveda de Vocabulario": "Wordsmith Quinn, a friendly librarian who loves teaching new words",
+        "Galería de Arte":     "Art curator Maya, passionate about painting and creative expression",
+        "Sala de Conciertos":  "Maestro Leo, a music teacher who connects English with musical concepts",
+        "Arena Olímpica":      "Coach Riley, an enthusiastic gymnastics coach who motivates through sports",
+        "Cabina de Vuelo":     "Pilot Captain Jordan, who teaches English through aviation and medical adventures",
+        "Sala de Boss Battle": "Game master Pixel, who turns conversations into RPG-style quests",
+        "Campamento Sinfónico": "Scout leader Sam, sharing nature and music adventures around a campfire",
+        "Desafío Sorpresa":    "Mystery Mentor, a curious and clever tutor who always has surprises",
+    }.get(world_meta.get("name", ""), "a friendly English tutor")
+
+    return f"""
+You are {persona}.
+You are having a casual English conversation with {profile_name}, a {gender} of {age_desc}.
+
+CEFR LEVEL OF STUDENT: {cefr_code} — adjust your English accordingly:
+- A1: very simple sentences, basic vocab, present simple
+- A2: short sentences, daily topics, present + past simple
+- B1: more complex sentences, opinions, future + conditionals
+- B2+: rich vocabulary, abstract topics, idioms
+
+CONVERSATION RULES:
+1. ALWAYS answer in English first, in 1-3 short sentences appropriate to the level.
+2. Then add a single line in Spanish prefixed with "🇪🇸:" giving a brief gloss/help. Example: "🇪🇸: ¿Cuál es tu deporte favorito?"
+3. End every response with ONE engaging follow-up question to keep the conversation flowing.
+4. If the student makes a grammar mistake, gently correct it BEFORE your main reply, like: "(Quick fix: 'I am' not 'I be') Now, ..."
+5. Stay in character with the world's theme: {world_meta.get('tagline','')}
+6. Be encouraging, never harsh. This is a teen learning English.
+7. NEVER give a paragraph longer than 4 lines.
+8. Respond in plain text, no markdown headers.
+
+START: Greet {profile_name} in English warmly and ask an opening question related to your world's theme.
+"""
+
+
+def conversation_send(profile_name: str, world_meta: dict,
+                       cefr_code: str, history: list) -> tuple:
+    """Envía la conversación a Groq y devuelve (response_text, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    system_prompt = _build_conversation_system_prompt(
+        profile_name, world_meta, cefr_code
+    )
+    messages = [{"role": "system", "content": system_prompt}] + history
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=messages,
+            model=GROQ_MODEL_CHAT,
+            temperature=0.8,
+            max_tokens=300,
+        )
+        return response.choices[0].message.content.strip(), None
+    except Exception as e:
+        logger.error(f"Conversación Groq error: {e}")
+        return None, f"Error de la API: {e}"
+
+
+# ==========================================
+# PRONUNCIATION HELPERS
+# ==========================================
+
+def generate_pronunciation_words(profile_name: str, world_topic: str,
+                                  cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 6 palabras o frases cortas para practicar pronunciación,
+    relacionadas con el mundo. Devuelve (lista de dicts, error).
+    Cada item: {word, ipa, meaning, emoji}"""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un experto en pronunciación inglesa para hispanohablantes.
+Generas listas de palabras o frases cortas para practicar pronunciación.
+
+Nivel del/la alumno/a: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+Tema del mundo: {world_topic}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "words": [
+    {{
+      "word": "<palabra o frase corta en inglés (1-3 palabras)>",
+      "ipa": "<transcripción IPA real del inglés americano>",
+      "meaning": "<significado en español>",
+      "emoji": "<un solo emoji visual representativo>"
+    }}
+  ]
+}}
+
+REGLAS:
+- Genera EXACTAMENTE 6 palabras/frases.
+- Mezcla dificultad: 2 fáciles, 3 medias, 1 difícil para hispanohablantes (sonidos como 'th', 'r' final, vocales 'i' vs 'ee').
+- Las palabras deben ser temáticas al mundo del estudiante.
+- Acordes al nivel CEFR ({cefr_code}).
+- IPA debe ser real, no inventado.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": f"Genera la lista para el tema: {world_topic[:200]}"}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.7,
+            max_tokens=800,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        words = data.get("words", [])
+        if not words:
+            return None, "El modelo no devolvió palabras. Intenta de nuevo."
+        return words[:6], None
+    except Exception as e:
+        logger.error(f"Error generando palabras de pronunciación: {e}")
+        return None, f"Error al generar palabras: {e}"
+
+
+def _normalize_text(s: str) -> str:
+    """Limpia para comparación: minúsculas, sin puntuación, espacios colapsados."""
+    if not s:
+        return ""
+    s = s.lower().strip()
+    s = re.sub(r"[^a-z0-9'\s]", " ", s)
+    s = re.sub(r"\s+", " ", s)
+    return s.strip()
+
+
+def _phonemize_word(word: str) -> str:
+    """Convierte una palabra inglesa a una secuencia de fonemas IPA usando phonemizer.
+    Devuelve string vacío si phonemizer no está disponible."""
+    try:
+        from phonemizer import phonemize  # type: ignore
+        result = phonemize(
+            word, language="en-us", backend="espeak",
+            strip=True, preserve_punctuation=False
+        )
+        return str(result).strip()
+    except Exception:
+        return ""
+
+
+def _levenshtein(a: str, b: str) -> int:
+    """Distancia de edición simple entre dos strings."""
+    if not a:
+        return len(b)
+    if not b:
+        return len(a)
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cost = 0 if ca == cb else 1
+            cur.append(min(cur[j-1] + 1, prev[j] + 1, prev[j-1] + cost))
+        prev = cur
+    return prev[-1]
+
+
+def score_pronunciation(target: str, transcribed: str) -> dict:
+    """
+    Devuelve dict con: score (0-100), tier ('good'|'mid'|'bad'),
+    method ('exact'|'phoneme'|'char'), heard (lo que entendió Whisper).
+    """
+    t_norm = _normalize_text(target)
+    s_norm = _normalize_text(transcribed)
+
+    # Match exacto → 100
+    if t_norm == s_norm and t_norm:
+        return {"score": 100, "tier": "good", "method": "exact",
+                "heard": transcribed}
+
+    # Intentar match por fonemas (phonemizer + espeak)
+    target_ph = _phonemize_word(t_norm)
+    spoken_ph = _phonemize_word(s_norm)
+
+    if target_ph and spoken_ph:
+        max_len = max(len(target_ph), len(spoken_ph), 1)
+        dist    = _levenshtein(target_ph, spoken_ph)
+        score   = max(0, int(round((1 - dist / max_len) * 100)))
+        method  = "phoneme"
+    else:
+        # Fallback: comparación por caracteres
+        max_len = max(len(t_norm), len(s_norm), 1)
+        dist    = _levenshtein(t_norm, s_norm)
+        score   = max(0, int(round((1 - dist / max_len) * 100)))
+        method  = "char"
+
+    if score >= 80:
+        tier = "good"
+    elif score >= 55:
+        tier = "mid"
+    else:
+        tier = "bad"
+
+    return {"score": score, "tier": tier, "method": method,
+            "heard": transcribed}
+
+
+# ==========================================
+# SRS (Spaced Repetition System) HELPERS
+# ==========================================
+
+def _ensure_srs_sheet():
+    """Garantiza que existe la pestaña 'srs' con headers correctos.
+    Devuelve el worksheet o None."""
+    sheet, _ = get_db_connection()
+    if not sheet:
+        return None
+    try:
+        spreadsheet = sheet.spreadsheet
+        try:
+            srs_ws = spreadsheet.worksheet("srs")
+        except gspread.exceptions.WorksheetNotFound:
+            srs_ws = spreadsheet.add_worksheet(title="srs", rows=2000, cols=10)
+            srs_ws.append_row([
+                "profile", "word", "translation", "emoji",
+                "ease", "interval_days", "repetitions",
+                "next_review", "last_review", "lapses"
+            ])
+        return srs_ws
+    except Exception as e:
+        logger.warning(f"No se pudo asegurar pestaña srs: {e}")
+        return None
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def get_srs_cards(profile_name: str) -> list[dict]:
+    """Devuelve todas las cards del perfil en SRS."""
+    srs_ws = _ensure_srs_sheet()
+    if not srs_ws:
+        return []
+    try:
+        rows = srs_ws.get_all_records()
+        return [r for r in rows
+                if str(r.get("profile", "")).strip() == profile_name]
+    except Exception as e:
+        logger.warning(f"Error leyendo SRS: {e}")
+        return []
+
+
+def get_due_srs_count(profile_name: str) -> int:
+    """Cuenta cuántas cards están vencidas (next_review <= hoy)."""
+    cards = get_srs_cards(profile_name)
+    today = datetime.date.today()
+    n = 0
+    for c in cards:
+        try:
+            nr = datetime.datetime.strptime(
+                str(c.get("next_review", "")), "%Y-%m-%d"
+            ).date()
+            if nr <= today:
+                n += 1
+        except (ValueError, TypeError):
+            n += 1  # cards sin fecha cuentan como pendientes
+    return n
+
+
+def get_due_srs_cards(profile_name: str, limit: int = 12) -> list[dict]:
+    """Devuelve las cards vencidas, ordenadas por más antiguas primero."""
+    cards = get_srs_cards(profile_name)
+    today = datetime.date.today()
+    due = []
+    for c in cards:
+        try:
+            nr = datetime.datetime.strptime(
+                str(c.get("next_review", "")), "%Y-%m-%d"
+            ).date()
+            if nr <= today:
+                c["_due_date"] = nr
+                due.append(c)
+        except (ValueError, TypeError):
+            c["_due_date"] = datetime.date(2000, 1, 1)
+            due.append(c)
+    due.sort(key=lambda x: x.get("_due_date") or datetime.date.today())
+    return due[:limit]
+
+
+def add_srs_card(profile_name: str, word: str,
+                  translation: str, emoji: str = "📝") -> bool:
+    """Agrega una nueva card al SRS si no existe ya esa palabra."""
+    srs_ws = _ensure_srs_sheet()
+    if not srs_ws:
+        return False
+    try:
+        # Evitar duplicados (mismo profile + word)
+        existing = get_srs_cards(profile_name)
+        word_l = word.strip().lower()
+        for c in existing:
+            if str(c.get("word", "")).strip().lower() == word_l:
+                return False  # ya existe
+
+        today = datetime.date.today().strftime("%Y-%m-%d")
+        srs_ws.append_row([
+            profile_name, word.strip(), translation.strip(), emoji,
+            2.5, 1, 0, today, "", 0
+        ])
+        get_srs_cards.clear()
+        return True
+    except Exception as e:
+        logger.warning(f"Error agregando SRS: {e}")
+        return False
+
+
+def update_srs_card(profile_name: str, word: str, quality: int) -> bool:
+    """
+    Actualiza una card SRS según el algoritmo SM-2 simplificado.
+    quality: 0 (no la sabía) | 1 (difícil, casi) | 2 (bien) | 3 (perfecto)
+    """
+    srs_ws = _ensure_srs_sheet()
+    if not srs_ws:
+        return False
+    try:
+        rows = srs_ws.get_all_records()
+        word_l = word.strip().lower()
+        for idx, r in enumerate(rows, start=2):  # +2 = header offset
+            if (str(r.get("profile", "")).strip() == profile_name
+                    and str(r.get("word", "")).strip().lower() == word_l):
+
+                ease = float(r.get("ease", 2.5) or 2.5)
+                interval = int(r.get("interval_days", 1) or 1)
+                reps = int(r.get("repetitions", 0) or 0)
+                lapses = int(r.get("lapses", 0) or 0)
+
+                if quality <= 0:
+                    # Falló: reset
+                    reps = 0
+                    interval = 1
+                    lapses += 1
+                    ease = max(1.3, ease - 0.2)
+                else:
+                    reps += 1
+                    if reps == 1:
+                        interval = 1
+                    elif reps == 2:
+                        interval = 3
+                    else:
+                        interval = max(1, int(round(interval * ease)))
+                    # Ajuste de ease por calidad
+                    delta = {1: -0.15, 2: 0.0, 3: 0.15}.get(quality, 0)
+                    ease = max(1.3, min(3.0, ease + delta))
+
+                today = datetime.date.today()
+                next_review = today + datetime.timedelta(days=interval)
+                today_s = today.strftime("%Y-%m-%d")
+                next_s  = next_review.strftime("%Y-%m-%d")
+
+                # Update fila completa (cols 5-10: ease, interval, reps, next, last, lapses)
+                srs_ws.update(
+                    f"E{idx}:J{idx}",
+                    [[round(ease, 2), interval, reps, next_s, today_s, lapses]]
+                )
+                get_srs_cards.clear()
+                return True
+        return False
+    except Exception as e:
+        logger.warning(f"Error actualizando SRS: {e}")
+        return False
+
+
+def extract_vocab_from_lesson(lesson_text: str) -> list[dict]:
+    """Extrae palabras de vocabulario del texto Markdown de la lección.
+    Busca el patrón: '- 🦋 **butterfly** [ipa] — mariposa'.
+    Devuelve lista de dicts {word, translation, emoji} (máx 10)."""
+    if not lesson_text:
+        return []
+    out = []
+    # Pattern flexible: - [opcional prefijo no-letras] **word** [opt ipa] — translation
+    # Captura todo lo que esté antes de **word** (suele ser emoji + espacio).
+    pattern = re.compile(
+        r"^\s*-\s+(.*?)"
+        r"\*\*([A-Za-z][A-Za-z\s'-]{0,30})\*\*"
+        r"\s*(?:\[[^\]]+\])?"
+        r"\s*[—–\-:]\s*([^\n]+)",
+        re.MULTILINE
+    )
+    for m in pattern.finditer(lesson_text):
+        prefix = (m.group(1) or "").strip()
+        word   = (m.group(2) or "").strip()
+        trans  = (m.group(3) or "").strip()
+        # Extraer el primer caracter "raro" (emoji) del prefijo
+        emoji = "📝"
+        if prefix:
+            non_ascii = [c for c in prefix if ord(c) > 127]
+            if non_ascii:
+                emoji = non_ascii[0]
+        # Limpiar traducción de cursivas, etc.
+        trans = re.sub(r"[*_`]", "", trans).strip()
+        if word and trans and len(out) < 10:
+            out.append({"word": word, "translation": trans, "emoji": emoji})
+    return out
 
 
 def build_battle_questions(quiz_data: dict) -> list[dict]:
@@ -2518,6 +3266,26 @@ _STATE_DEFAULTS = {
     "battle_history":    None,    # lista completa de feedbacks por pregunta
     "battle_mc_answer":  None,    # selección MC pendiente
     "battle_fitb_answer": "",     # input FITB pendiente
+    # Pronunciation mode state
+    "pron_words":      None,      # lista de {word, ipa, meaning, emoji}
+    "pron_index":      0,
+    "pron_results":    None,      # lista de scores por palabra
+    "pron_last_audio": None,
+    "pron_last_score": None,      # último resultado de score_pronunciation
+    "pron_finished":   False,
+    # Conversation mode state
+    "conv_active":   False,
+    "conv_history":  None,        # [{role, content}, ...]
+    "conv_turn_count": 0,
+    "conv_pending_user_input": "",
+    # SRS state
+    "srs_active":    False,
+    "srs_cards":     None,
+    "srs_index":     0,
+    "srs_revealed":  False,
+    "srs_correct":   0,
+    "srs_attempted": 0,
+    "srs_finished":  False,
 }
 for key, default in _STATE_DEFAULTS.items():
     if key not in st.session_state:
@@ -3175,6 +3943,511 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.1) PRONUNCIATION MODE ──────────────────────────────────────
+    if st.session_state.pron_words is not None:
+        pron_world_meta = get_world_meta(
+            st.session_state.get("current_world", ""), user
+        )
+        pron_accent = pron_world_meta.get("accent", "#00eefc")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {pron_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        words = st.session_state.pron_words
+        idx   = st.session_state.pron_index
+        total = len(words)
+
+        # ── Pantalla final ──
+        if st.session_state.pron_finished or idx >= total:
+            results = st.session_state.pron_results or []
+            if results:
+                avg_score = sum(r["score"] for r in results) / len(results)
+            else:
+                avg_score = 0
+            n_good = sum(1 for r in results if r["tier"] == "good")
+            n_mid  = sum(1 for r in results if r["tier"] == "mid")
+            n_bad  = sum(1 for r in results if r["tier"] == "bad")
+
+            xp_award = max(15, int(avg_score / 2))  # 0-50 XP
+
+            color_avg = "#39ff14" if avg_score >= 80 else "#ffd400" if avg_score >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🎤</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        ¡Práctica completa!
+                    </h1>
+                    <p style='color:#a8acb3; margin:6px 0 0; font-size:1rem;'>
+                        Promedio de pronunciación
+                    </p>
+                    <div style='font-family: Plus Jakarta Sans; font-weight:800; font-size:3.5rem;
+                                color:{color_avg}; text-shadow:0 0 22px {color_avg}; margin: 6px 0;'>
+                        {int(avg_score)}%
+                    </div>
+                    <div class='battle-end-stats'>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#39ff14; text-shadow:0 0 14px #39ff14;'>{n_good}</div>
+                            <div class='battle-end-stat-label'>Excelentes</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ffd400; text-shadow:0 0 14px #ffd400;'>{n_mid}</div>
+                            <div class='battle-end-stat-label'>Casi</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ff5351; text-shadow:0 0 14px #ff5351;'>{n_bad}</div>
+                            <div class='battle-end-stat-label'>Por mejorar</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ff66c4; text-shadow:0 0 14px #ff66c4;'>+{xp_award}</div>
+                            <div class='battle-end-stat-label'>XP ganado</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.write("")
+            col_p1, col_p2 = st.columns(2)
+            with col_p1:
+                if st.button("✅ Reclamar XP", key="pron_claim",
+                             use_container_width=True, type="primary"):
+                    st.session_state.xp += xp_award
+                    saved, _ = save_xp_to_sheet(
+                        user, xp_award, avg_score / 100.0, attempts=1,
+                        world=st.session_state.get("current_world", ""),
+                        skill="pronunciation",
+                        lesson_type="pronunciation"
+                    )
+                    if saved:
+                        st.success(f"¡Buena pronunciación, {user}! +{xp_award} XP.")
+                    reset_to_worlds()
+                    st.rerun()
+            with col_p2:
+                if st.button("🏠 Volver al mapa", key="pron_back_end",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Card actual ──
+        w = words[idx]
+        word_text = w.get("word", "")
+        ipa       = w.get("ipa", "")
+        meaning   = w.get("meaning", "")
+        emoji     = w.get("emoji", "🔊")
+
+        st.markdown(f"""
+            <div class='pron-card'>
+                <p class='pron-meta'>🎤 Pronunciación · <b>{idx + 1}/{total}</b></p>
+                <div style='font-size:2.6rem; line-height:1;
+                            filter: drop-shadow(0 0 16px {pron_accent});'>{emoji}</div>
+                <p class='pron-target'>{word_text}</p>
+                <p class='pron-ipa'>{ipa}</p>
+                <p class='pron-meaning'>{meaning}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Botón listen — genera audio y reproduce
+        col_p1, col_p2 = st.columns([1, 1])
+        with col_p1:
+            if st.button("🔊 Escuchar", key=f"pron_listen_{idx}",
+                         use_container_width=True, type="secondary"):
+                with st.spinner("Generando audio..."):
+                    audio_bytes_listen = generate_lesson_audio(word_text)
+                if audio_bytes_listen:
+                    st.audio(audio_bytes_listen, format="audio/mp3", autoplay=True)
+
+        # Audio recorder + comparación con score
+        with col_p2:
+            st.markdown(
+                "<p style='font-size:0.78rem; color:#a8acb3; margin: 0 0 4px; text-align:center;'>"
+                "Repite la palabra:</p>",
+                unsafe_allow_html=True
+            )
+            user_audio = audio_recorder(
+                text="Grabar", recording_color="#ff5351",
+                neutral_color=pron_accent, icon_size="2x",
+                key=f"pron_rec_{idx}"
+            )
+
+        # Si grabó audio nuevo (no procesado aún)
+        if user_audio and st.session_state.pron_last_audio != user_audio:
+            st.session_state.pron_last_audio = user_audio
+            with st.spinner("Analizando tu pronunciación..."):
+                transcribed, t_err = transcribe_audio(user_audio)
+            if t_err:
+                show_error(t_err)
+            else:
+                result = score_pronunciation(word_text, transcribed or "")
+                st.session_state.pron_last_score = result
+
+        # Mostrar resultado de la última grabación si existe
+        last = st.session_state.pron_last_score
+        if last is not None:
+            cls = f"pron-result pron-result-{last['tier']}"
+            tier_label = {
+                "good": "¡Excelente!",
+                "mid":  "Casi, sigue practicando",
+                "bad":  "Intenta de nuevo",
+            }.get(last["tier"], "")
+            st.markdown(
+                f"<div class='{cls}'>"
+                f"<div class='pron-score'>{last['score']}%</div>"
+                f"<p style='margin:0; font-weight:700; font-family: Plus Jakarta Sans;'>"
+                f"{tier_label}</p>"
+                f"<p class='pron-heard'>Te escuché: <em>{last['heard'] or '(silencio)'}</em></p>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+            col_pn1, col_pn2 = st.columns([1, 1])
+            with col_pn1:
+                if st.button("🔁 Reintentar", key=f"pron_retry_{idx}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.pron_last_audio = None
+                    st.session_state.pron_last_score = None
+                    st.rerun()
+            with col_pn2:
+                if st.button("➜ Aceptar y siguiente", key=f"pron_next_{idx}",
+                             use_container_width=True, type="primary"):
+                    if st.session_state.pron_results is None:
+                        st.session_state.pron_results = []
+                    st.session_state.pron_results.append({
+                        "word":  word_text,
+                        "score": last["score"],
+                        "tier":  last["tier"],
+                    })
+                    st.session_state.pron_index += 1
+                    st.session_state.pron_last_audio = None
+                    st.session_state.pron_last_score = None
+                    if st.session_state.pron_index >= total:
+                        st.session_state.pron_finished = True
+                    st.rerun()
+
+        st.write("")
+        if st.button("✕ Abandonar práctica", key="pron_abandon",
+                     type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.2) CONVERSATION MODE ───────────────────────────────────────
+    if st.session_state.conv_active:
+        conv_world_meta = get_world_meta(
+            st.session_state.get("current_world", ""), user
+        )
+        conv_accent = conv_world_meta.get("accent", "#00eefc")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {conv_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        # Header
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{conv_accent};"
+            f" text-shadow:0 0 10px {conv_accent};'>"
+            f"💬 Conversación · {conv_world_meta.get('name','Mundo')}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Historial de mensajes
+        history = st.session_state.conv_history or []
+
+        # Si está vacío, generar el primer turno (saludo de la IA)
+        if not history:
+            cefr_now = get_cefr_info(
+                next((e["total_xp"] for e in get_leaderboard() if e["profile"] == user), 0)
+            )["code"]
+            with st.spinner("Iniciando conversación..."):
+                first_msg, err = conversation_send(
+                    user, conv_world_meta, cefr_now,
+                    [{"role": "user", "content": "(Start the conversation)"}]
+                )
+            if err:
+                show_error(err)
+            elif first_msg:
+                history = [{"role": "assistant", "content": first_msg}]
+                st.session_state.conv_history = history
+
+        # Render bubbles
+        for m in history:
+            if m["role"] == "system":
+                continue
+            content = m["content"]
+            # Separar gloss en español
+            if "🇪🇸:" in content:
+                main_part, _, gloss_part = content.partition("🇪🇸:")
+                gloss_html = f"<span class='gloss'>🇪🇸: {gloss_part.strip()}</span>"
+            else:
+                main_part = content
+                gloss_html = ""
+
+            speaker = "TUTOR" if m["role"] == "assistant" else user.upper()
+            klass = "assistant" if m["role"] == "assistant" else "user"
+            st.markdown(
+                f"<div class='conv-bubble {klass}'>"
+                f"<div class='speaker'>{speaker}</div>"
+                f"{main_part.strip()}{gloss_html}"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+        # Botones para enviar respuesta (audio o texto)
+        st.write("")
+        st.markdown(
+            "<p style='font-size:0.82rem; color:#a8acb3; margin: 4px 0;'>"
+            "Tu turno · habla en inglés (o escribe abajo):</p>",
+            unsafe_allow_html=True
+        )
+
+        col_c1, col_c2 = st.columns([1, 4])
+        with col_c1:
+            user_audio_conv = audio_recorder(
+                text="Hablar", recording_color="#ff5351",
+                neutral_color=conv_accent, icon_size="2x",
+                key=f"conv_rec_{st.session_state.conv_turn_count}"
+            )
+        with col_c2:
+            if user_audio_conv:
+                with st.spinner("Transcribiendo..."):
+                    transcribed_conv, terr = transcribe_audio(user_audio_conv)
+                if terr:
+                    show_error(terr)
+                elif transcribed_conv:
+                    st.session_state.conv_pending_user_input = transcribed_conv
+                    st.success(f"Te escuché: *'{transcribed_conv}'*")
+
+        text_conv = st.chat_input(
+            "Escribe en inglés...",
+            key=f"conv_text_{st.session_state.conv_turn_count}"
+        )
+        if text_conv:
+            st.session_state.conv_pending_user_input = text_conv
+
+        # Si hay input pendiente, enviar a la IA
+        if st.session_state.conv_pending_user_input:
+            user_input = st.session_state.conv_pending_user_input
+            st.session_state.conv_pending_user_input = ""
+            history = (st.session_state.conv_history or []) + [
+                {"role": "user", "content": user_input}
+            ]
+            cefr_now = get_cefr_info(
+                next((e["total_xp"] for e in get_leaderboard() if e["profile"] == user), 0)
+            )["code"]
+            with st.spinner("La IA está respondiendo..."):
+                ai_msg, err2 = conversation_send(
+                    user, conv_world_meta, cefr_now, history
+                )
+            if err2:
+                show_error(err2)
+            elif ai_msg:
+                history.append({"role": "assistant", "content": ai_msg})
+                st.session_state.conv_history = history
+                st.session_state.conv_turn_count += 1
+                st.rerun()
+
+        # Botones finalizar
+        st.write("")
+        col_e1, col_e2 = st.columns(2)
+        turn_count = st.session_state.conv_turn_count
+        # Mínimo 3 turnos del usuario para reclamar XP
+        can_claim = turn_count >= 3
+
+        with col_e1:
+            if st.button(
+                f"🏁 Terminar y reclamar XP ({turn_count}/3+)" if not can_claim else "🏁 Terminar y reclamar XP",
+                key="conv_finish",
+                use_container_width=True,
+                type="primary",
+                disabled=not can_claim
+            ):
+                xp_award = min(60, 20 + turn_count * 5)
+                st.session_state.xp += xp_award
+                saved, _ = save_xp_to_sheet(
+                    user, xp_award, 1.0, attempts=1,
+                    world=st.session_state.get("current_world", ""),
+                    skill="conversation",
+                    lesson_type="conversation"
+                )
+                if saved:
+                    st.success(f"¡Gran conversación, {user}! +{xp_award} XP.")
+                reset_to_worlds()
+                st.rerun()
+        with col_e2:
+            if st.button("✕ Salir", key="conv_abandon",
+                         use_container_width=True, type="secondary"):
+                reset_to_worlds()
+                st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.3) SRS REVIEW MODE ─────────────────────────────────────────
+    if st.session_state.srs_active:
+        st.markdown(
+            "<style>:root, .stApp { --profile-accent: #c464ff; }</style>",
+            unsafe_allow_html=True
+        )
+
+        cards = st.session_state.srs_cards or []
+        idx   = st.session_state.srs_index
+        total = len(cards)
+
+        # ── Sin cards o terminó ──
+        if total == 0:
+            st.markdown("""
+                <div class='battle-end battle-end-victory' style='border-color: #c464ff; box-shadow: 0 0 28px rgba(196,100,255,0.3);'>
+                    <div class='battle-end-emoji' style='color:#c464ff;'>🌱</div>
+                    <h1 class='battle-end-title' style='color:#c464ff; text-shadow:0 0 18px #c464ff;'>
+                        Sin repasos por ahora
+                    </h1>
+                    <p style='color:#a8acb3; margin:10px 0; font-size:1rem;'>
+                        Aún no tienes palabras pendientes de repaso.<br>
+                        ¡Completa lecciones para ir armando tu mazo!
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button("🏠 Volver al mapa", key="srs_back_empty",
+                         use_container_width=True, type="primary"):
+                reset_to_worlds()
+                st.rerun()
+            send_weekly_report()
+            st.stop()
+
+        if st.session_state.srs_finished or idx >= total:
+            attempted = st.session_state.srs_attempted
+            correct   = st.session_state.srs_correct
+            pct = (correct / attempted) if attempted else 0
+            xp_award = 10 + correct * 5
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: #c464ff; box-shadow: 0 0 30px rgba(196,100,255,0.35);'>
+                    <div class='battle-end-emoji' style='color:#c464ff;'>🧠</div>
+                    <h1 class='battle-end-title' style='color:#c464ff; text-shadow:0 0 20px #c464ff;'>
+                        Repaso Completo
+                    </h1>
+                    <div class='battle-end-stats'>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#39ff14; text-shadow:0 0 14px #39ff14;'>{correct}/{attempted}</div>
+                            <div class='battle-end-stat-label'>Recordadas</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#00eefc; text-shadow:0 0 14px #00eefc;'>{int(pct*100)}%</div>
+                            <div class='battle-end-stat-label'>Acierto</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ff66c4; text-shadow:0 0 14px #ff66c4;'>+{xp_award}</div>
+                            <div class='battle-end-stat-label'>XP ganado</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.write("")
+            if st.button("✅ Terminar y guardar", key="srs_finish_claim",
+                         use_container_width=True, type="primary"):
+                st.session_state.xp += xp_award
+                saved, _ = save_xp_to_sheet(
+                    user, xp_award, pct, attempts=1,
+                    world="srs", skill="vocabulary",
+                    lesson_type="srs_review"
+                )
+                if saved:
+                    st.success(f"¡Excelente memoria, {user}! +{xp_award} XP.")
+                reset_to_worlds()
+                st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Card actual ──
+        card = cards[idx]
+        word        = str(card.get("word", "")).strip()
+        translation = str(card.get("translation", "")).strip()
+        emoji_card  = str(card.get("emoji", "📝")).strip() or "📝"
+
+        st.markdown(
+            f"<p style='text-align:center; color:#6b7280; font-size:0.78rem;"
+            f" letter-spacing:2px; text-transform:uppercase; margin: 8px 0 0;'>"
+            f"🧠 Repaso Inteligente · <b style='color:#c464ff;"
+            f" text-shadow: 0 0 8px #c464ff;'>{idx+1}/{total}</b></p>",
+            unsafe_allow_html=True
+        )
+
+        if not st.session_state.srs_revealed:
+            st.markdown(f"""
+                <div class='srs-card'>
+                    <p class='srs-progress'>¿Recuerdas qué significa esta palabra?</p>
+                    <div class='srs-emoji'>{emoji_card}</div>
+                    <p class='srs-word'>{word}</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            col_s1, col_s2 = st.columns([1, 1])
+            with col_s1:
+                if st.button("🔊 Escuchar", key=f"srs_listen_{idx}",
+                             use_container_width=True, type="secondary"):
+                    with st.spinner("Generando audio..."):
+                        ab = generate_lesson_audio(word)
+                    if ab:
+                        st.audio(ab, format="audio/mp3", autoplay=True)
+            with col_s2:
+                if st.button("👁️ Mostrar respuesta", key=f"srs_reveal_{idx}",
+                             use_container_width=True, type="primary"):
+                    st.session_state.srs_revealed = True
+                    st.rerun()
+        else:
+            st.markdown(f"""
+                <div class='srs-card'>
+                    <div class='srs-emoji'>{emoji_card}</div>
+                    <p class='srs-word'>{word}</p>
+                    <div class='srs-translation'>{translation}</div>
+                    <p class='srs-progress'>¿Qué tan bien la recordabas?</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            col_q1, col_q2, col_q3, col_q4 = st.columns(4)
+
+            def _grade_card(quality: int):
+                update_srs_card(user, word, quality)
+                st.session_state.srs_attempted += 1
+                if quality >= 2:
+                    st.session_state.srs_correct += 1
+                st.session_state.srs_index += 1
+                st.session_state.srs_revealed = False
+                if st.session_state.srs_index >= total:
+                    st.session_state.srs_finished = True
+
+            with col_q1:
+                if st.button("😖 No la sabía", key=f"srs_q0_{idx}",
+                             use_container_width=True, type="secondary"):
+                    _grade_card(0); st.rerun()
+            with col_q2:
+                if st.button("😅 Difícil", key=f"srs_q1_{idx}",
+                             use_container_width=True, type="secondary"):
+                    _grade_card(1); st.rerun()
+            with col_q3:
+                if st.button("🙂 Bien", key=f"srs_q2_{idx}",
+                             use_container_width=True, type="secondary"):
+                    _grade_card(2); st.rerun()
+            with col_q4:
+                if st.button("🤩 Perfecto", key=f"srs_q3_{idx}",
+                             use_container_width=True, type="primary"):
+                    _grade_card(3); st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir del repaso", key="srs_abandon",
+                     type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 3) WORLD ENTRY PAGE ──────────────────────────────────────────
     if (st.session_state.selected_world is not None
             and not st.session_state.lesson_pending
@@ -3218,13 +4491,13 @@ else:
             unsafe_allow_html=True
         )
 
-        # Dos cartas: Lección + Quiz vs Modo Batalla
+        # 4 modos en grid 2x2: Lección, Batalla, Pronunciación, Conversación
         modes = [
             {
                 "key":    "lesson_quiz",
                 "icon":   "🧠",
                 "name":   "Lección + Quiz",
-                "desc":   "Aprende con una explicación guiada y luego responde un quiz a tu ritmo.",
+                "desc":   "Explicación guiada + quiz a tu ritmo.",
                 "btn":    "Iniciar Lección",
                 "accent": "#00eefc",
             },
@@ -3232,32 +4505,56 @@ else:
                 "key":    "battle",
                 "icon":   "⚔️",
                 "name":   "Modo Batalla",
-                "desc":   "Combate intenso: 8 preguntas, HP limitado, aciertos en cadena. Sin lección previa.",
+                "desc":   "Combate: 8 preguntas, HP limitado, aciertos en cadena.",
                 "btn":    "¡Combatir!",
                 "accent": "#ff5351",
             },
+            {
+                "key":    "pronunciation",
+                "icon":   "🎤",
+                "name":   "Pronunciación",
+                "desc":   "Escucha 6 palabras del mundo y repítelas — la IA evalúa.",
+                "btn":    "Practicar",
+                "accent": "#39ff14",
+            },
+            {
+                "key":    "conversation",
+                "icon":   "💬",
+                "name":   "Conversación",
+                "desc":   "Charla libre en inglés con un personaje del mundo.",
+                "btn":    "Conversar",
+                "accent": "#c464ff",
+            },
         ]
 
-        mode_cols = st.columns(2)
-        for i, m in enumerate(modes):
-            m_accent = m["accent"]
-            m_icon   = m["icon"]
-            m_name   = m["name"]
-            m_desc   = m["desc"]
-            with mode_cols[i]:
-                st.markdown(
-                    f"<div class='mode-card' style='--mode-accent: {m_accent};'>"
-                    f"<div class='mode-icon'>{m_icon}</div>"
-                    f"<p class='mode-name'>{m_name}</p>"
-                    f"<p class='mode-desc'>{m_desc}</p>"
-                    f"</div>",
-                    unsafe_allow_html=True
-                )
-                if st.button(m["btn"], key=f"mode_{m['key']}",
-                             use_container_width=True,
-                             type="primary" if m["key"] == "battle" else "secondary"):
-                    start_lesson(wmeta["topic"], world=wkey, lesson_type=m["key"])
-                    st.rerun()
+        # Grid 2x2
+        for row_start in (0, 2):
+            mode_cols = st.columns(2)
+            for j, m in enumerate(modes[row_start:row_start+2]):
+                m_accent = m["accent"]
+                m_icon   = m["icon"]
+                m_name   = m["name"]
+                m_desc   = m["desc"]
+                with mode_cols[j]:
+                    st.markdown(
+                        f"<div class='mode-card' style='--mode-accent: {m_accent};'>"
+                        f"<div class='mode-icon'>{m_icon}</div>"
+                        f"<p class='mode-name'>{m_name}</p>"
+                        f"<p class='mode-desc'>{m_desc}</p>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+                    if st.button(m["btn"], key=f"mode_{m['key']}",
+                                 use_container_width=True,
+                                 type="primary" if m["key"] == "battle" else "secondary"):
+                        if m["key"] == "pronunciation":
+                            start_pronunciation(wkey, wmeta["topic"])
+                        elif m["key"] == "conversation":
+                            start_conversation(wkey)
+                        else:
+                            start_lesson(wmeta["topic"], world=wkey,
+                                          lesson_type=m["key"])
+                        st.rerun()
 
         st.write("")
         if st.button("← Volver al mapa de mundos", key="world_back",
@@ -3278,6 +4575,26 @@ else:
     )
 
     if not in_lesson_flow:
+        # SRS hero card: muestra si hay cards pendientes de repaso
+        due_count = get_due_srs_count(user)
+        if due_count > 0:
+            st.markdown(
+                f"<div class='srs-hero'>"
+                f"<div class='srs-hero-icon'>🧠</div>"
+                f"<div class='srs-hero-info'>"
+                f"<p class='srs-hero-title'>Repaso Inteligente</p>"
+                f"<p class='srs-hero-sub'>Tienes palabras esperando a que las recuerdes</p>"
+                f"</div>"
+                f"<div class='srs-hero-badge'>{due_count} 🌱</div>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            if st.button(f"🧠 Repasar {due_count} palabra{'s' if due_count != 1 else ''}",
+                         key="srs_start_btn",
+                         use_container_width=True, type="primary"):
+                start_srs_review(user)
+                st.rerun()
+
         st.markdown(
             "<p class='worlds-section-title'>MAPA DE MUNDOS</p>",
             unsafe_allow_html=True
@@ -3396,11 +4713,22 @@ else:
         custom_text = st.session_state.get("lesson_text", None)
         is_battle   = st.session_state.get("current_lesson_type", "") == "battle"
 
+        # Calcular nivel CEFR estimado para adaptar la complejidad
+        my_lb_entry = next(
+            (e for e in get_leaderboard() if e["profile"] == user),
+            {"total_xp": 0}
+        )
+        cefr_info_now = get_cefr_info(my_lb_entry["total_xp"])
+
         spinner_text = ("⚔️ Cargando arena de combate..."
                         if is_battle
                         else "✨ Preparando tu lección y quiz... (~10 segundos)")
         with st.spinner(spinner_text):
-            data_parsed, error = generate_lesson_and_quiz(user, topic, custom_text)
+            data_parsed, error = generate_lesson_and_quiz(
+                user, topic, custom_text,
+                cefr_code=cefr_info_now["code"],
+                cefr_name=cefr_info_now["name"]
+            )
 
         st.session_state.lesson_error   = error
         st.session_state.lesson_pending = False
@@ -3686,6 +5014,17 @@ else:
                 )
                 if not saved:
                     show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
+
+                # Auto-añadir vocabulario de la lección al mazo SRS
+                if st.session_state.quiz_data:
+                    lesson_md = st.session_state.quiz_data.get("lesson", "")
+                    vocab_items = extract_vocab_from_lesson(lesson_md)
+                    added = 0
+                    for v in vocab_items:
+                        if add_srs_card(user, v["word"], v["translation"], v.get("emoji", "📝")):
+                            added += 1
+                    if added > 0:
+                        st.info(f"📚 +{added} palabra{'s' if added != 1 else ''} agregada{'s' if added != 1 else ''} a tu mazo de repaso.")
 
                 st.session_state.quiz_data     = None
                 st.session_state.quiz_result   = None
