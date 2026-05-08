@@ -240,6 +240,108 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* --- WORLDS GRID (mapa de mundos) --- */
+    .worlds-section-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: var(--neon-cyan) !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin: 18px 0 10px;
+        text-align: center;
+        text-shadow: 0 0 10px rgba(0,238,252,0.4);
+    }
+    .worlds-section-title::before, .worlds-section-title::after {
+        content: "◆"; margin: 0 10px;
+        color: var(--neon-cyan); opacity: 0.6;
+    }
+
+    .world-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 18px 18px 14px;
+        margin-bottom: 10px;
+        position: relative;
+        overflow: hidden;
+        animation: cardReveal 0.5s ease both;
+        transition: var(--t-base);
+        cursor: default;
+    }
+    .world-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: var(--radius-lg);
+        padding: 1px; pointer-events: none;
+        background: linear-gradient(135deg, var(--world-accent, #00eefc) 0%, transparent 60%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.6;
+    }
+    .world-card-header {
+        display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    }
+    .world-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--world-accent, #00eefc);
+        box-shadow: 0 0 14px var(--world-accent, #00eefc);
+        flex-shrink: 0;
+    }
+    .world-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800; font-size: 1.05rem; line-height: 1.2;
+        color: var(--world-accent, #00eefc) !important;
+        text-shadow: 0 0 8px var(--world-accent, #00eefc);
+        margin: 0;
+    }
+    .world-tagline {
+        font-size: 0.78rem; color: var(--text-secondary) !important;
+        margin: 2px 0 0 0; line-height: 1.3;
+    }
+    .world-card .stButton { margin-top: 10px; }
+    .world-card .stButton > button {
+        background: rgba(255,255,255,0.03) !important;
+        border: 1px solid var(--world-accent, #00eefc) !important;
+        color: var(--world-accent, #00eefc) !important;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2) !important;
+        font-size: 0.85rem !important;
+        padding: 8px 16px !important;
+    }
+    .world-card .stButton > button:hover {
+        background: rgba(255,255,255,0.06) !important;
+        box-shadow: 0 0 18px var(--world-accent, #00eefc) !important;
+        text-shadow: 0 0 6px var(--world-accent, #00eefc);
+    }
+
+    /* --- VOICE COMM PANEL --- */
+    .voice-comm {
+        background: var(--bg-glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-cyan);
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        margin-top: 10px;
+        box-shadow: 0 0 14px rgba(0,238,252,0.08);
+    }
+    .voice-comm-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        color: var(--neon-cyan) !important;
+        text-shadow: 0 0 10px rgba(0,238,252,0.4);
+        font-size: 0.95rem;
+        margin: 0 0 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .voice-comm-sub {
+        color: var(--text-secondary) !important;
+        font-size: 0.82rem;
+        margin: 0 0 10px 0;
+    }
+
     /* --- DASHBOARD HEADER --- */
     .dashboard-header {
         background: var(--bg-glass-strong);
@@ -757,6 +859,75 @@ Contexto familiar de Antonela (usa esto para crear ejemplos, historias y ejercic
 """
     },
 }
+
+# ==========================================
+# MUNDOS PERSONALES (uno por perfil, basado en hobbies)
+# ==========================================
+PERSONAL_WORLDS = {
+    "Antonia": {
+        "emoji": "🎨",
+        "name": "Galería de Arte",
+        "tagline": "Pintura, museos y emociones en colores",
+        "topic": (
+            "Vocabulario del mundo del arte y la pintura: colores, técnicas, materiales "
+            "(brush, canvas, easel, palette), tipos de obras, museos famosos, expresar "
+            "emociones a través del arte. Incluye también algo de vocabulario de tenis "
+            "(racket, court, serve) en al menos un ejemplo."
+        ),
+    },
+    "Belen": {
+        "emoji": "🎼",
+        "name": "Sala de Conciertos",
+        "tagline": "Notas, escenarios y vibras musicales",
+        "topic": (
+            "Vocabulario musical en inglés: instrumentos (piano, keys, chords), notas, "
+            "composición, partituras, conciertos, sentimientos al tocar. Verbos clave: "
+            "play, practice, perform, compose. Usa ejemplos en escenarios y conciertos."
+        ),
+    },
+    "Sofia": {
+        "emoji": "🤸",
+        "name": "Arena Olímpica",
+        "tagline": "Movimiento, disciplina y récords",
+        "topic": (
+            "Vocabulario deportivo: gimnasia, partes del cuerpo en movimiento, posiciones "
+            "(handstand, cartwheel, balance beam), competencia, entrenamiento, esfuerzo y "
+            "disciplina. Verbos: stretch, jump, flip, train. Ejemplos en torneos y rutinas."
+        ),
+    },
+    "Agustin": {
+        "emoji": "✈️",
+        "name": "Cabina de Vuelo",
+        "tagline": "Aeronaves, salud y misiones aéreas",
+        "topic": (
+            "Vocabulario de aviación militar (aircraft, cockpit, runway, mission, squadron) "
+            "y medicina básica (doctor, patient, hospital, heart, lungs). Mezcla con "
+            "vocabulario de fútbol (goal, pass, midfielder) en al menos un ejemplo. "
+            "Tono motivador, metas grandes."
+        ),
+    },
+    "Maximo": {
+        "emoji": "🎮",
+        "name": "Sala de Boss Battle",
+        "tagline": "Niveles, ítems y misiones épicas",
+        "topic": (
+            "Vocabulario de videojuegos: levels, items, quests, achievements, characters, "
+            "boss, power-up, respawn, leaderboard. Combina con vocabulario de medicina "
+            "(doctor, medicine, healthy) en al menos un ejemplo, y un guiño al fútbol."
+        ),
+    },
+    "Antonela": {
+        "emoji": "🏕️",
+        "name": "Campamento Sinfónico",
+        "tagline": "Naturaleza, violín y trabajo en equipo",
+        "topic": (
+            "Vocabulario de naturaleza (forest, lake, mountain, river, campfire), scouts y "
+            "trabajo en equipo (teamwork, mission, helping). Incluye términos del violín "
+            "(bow, strings, melody) y del basquetbol (court, team, dribble) en ejemplos."
+        ),
+    },
+}
+
 
 # ==========================================
 # CONSTANTES DE CONFIGURACION
@@ -1373,6 +1544,18 @@ def _quiz_section_title(text: str):
     st.markdown(f"<p class='quiz-section-title'>{text}</p>", unsafe_allow_html=True)
 
 
+def start_lesson(topic: str, custom_text: str | None = None):
+    """Resetea el estado de quiz y dispara la generación de una nueva lección."""
+    st.session_state.lesson_pending = True
+    st.session_state.lesson_topic   = topic
+    st.session_state.lesson_text    = custom_text
+    st.session_state.quiz_data      = None
+    st.session_state.quiz_result    = None
+    st.session_state.quiz_attempts  = 0
+    st.session_state.lesson_error   = None
+    st.session_state.lesson_audio   = None
+
+
 # ==========================================
 # 5. MANEJO DE ESTADO (Session State)
 # ==========================================
@@ -1404,19 +1587,13 @@ if st.session_state.current_user is None:
     """, unsafe_allow_html=True)
 
     profile_list = list(PROFILES.items())
-    group_labels = {
-        0: "MIS HIJAS",
-        1: "MIS SOBRINOS",
-    }
     groups = [profile_list[:3], profile_list[3:]]
 
     for g_idx, group in enumerate(groups):
         if not group:
             continue
-        st.markdown(
-            f"<p class='group-label'>{group_labels[g_idx]}</p>",
-            unsafe_allow_html=True
-        )
+        if g_idx > 0:
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         cols = st.columns(3)
         for j, (name, pdata) in enumerate(group):
             with cols[j]:
@@ -1519,49 +1696,100 @@ else:
             st.session_state[k] = v
         st.rerun()
 
-    st.write("---")
-    st.markdown(f"<h3 class='section-title'>⚙️ Selecciona tu misión, {user}</h3>",
-                unsafe_allow_html=True)
+    st.markdown(
+        "<p class='worlds-section-title'>MAPA DE MUNDOS</p>",
+        unsafe_allow_html=True
+    )
 
-    col1, col2 = st.columns(2)
+    # ── Mundos disponibles para esta sesión ────────────────────────────
+    personal_world = PERSONAL_WORLDS.get(user, {
+        "emoji": "⭐", "name": "Mi Mundo", "tagline": "Personalizado para ti",
+        "topic": "Vocabulario práctico de la vida diaria"
+    })
 
-    with col1:
-        st.markdown("<p class='help-text'>🤖 <b>Ruta Automática</b></p>", unsafe_allow_html=True)
-        st.markdown("<p style='margin-bottom:5px; font-size:0.9rem; color:#a8acb3;'>Deja que la IA elija por ti:</p>",
-                    unsafe_allow_html=True)
+    worlds = [
+        {
+            "key":     "grammar",
+            "emoji":   "🌌",
+            "name":    "Galaxia Gramatical",
+            "tagline": "Reglas, estructuras y patrones del inglés",
+            "accent":  "#c464ff",
+            "topic":   "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)",
+            "btn":     "Iniciar Misión",
+        },
+        {
+            "key":     "vocab",
+            "emoji":   "📚",
+            "name":    "Bóveda de Vocabulario",
+            "tagline": "Palabras nuevas, adjetivos, objetos cotidianos",
+            "accent":  "#00eefc",
+            "topic":   ("Vocabulario Práctico (Aprender palabras nuevas, adjetivos, "
+                        "objetos de la casa, direcciones como arriba/abajo o verbos de "
+                        "acción simple. PROHIBIDO usar gramática compleja o densa, "
+                        "enfócate 100% en ampliar su vocabulario y mostrar el "
+                        "significado de las palabras)"),
+            "btn":     "Iniciar Misión",
+        },
+        {
+            "key":     "personal",
+            "emoji":   personal_world["emoji"],
+            "name":    personal_world["name"],
+            "tagline": personal_world["tagline"],
+            "accent":  color,
+            "topic":   personal_world["topic"],
+            "btn":     "Entrar a mi mundo",
+        },
+        {
+            "key":     "challenge",
+            "emoji":   "⚔️",
+            "name":    "Desafío Sorpresa",
+            "tagline": "La IA elige el reto perfecto para hoy",
+            "accent":  "#ff5351",
+            "topic":   ("Reto Sorpresa: la IA elige libremente entre gramática avanzada, "
+                        "vocabulario temático, expresiones idiomáticas o phrasal verbs. "
+                        "Debe ser un tema que sorprenda, sea desafiante pero alcanzable, "
+                        "y conectado con la edad e intereses del/la alumno/a."),
+            "btn":     "Aceptar Desafío",
+        },
+    ]
 
-        if st.button("🗺️ Que la IA me guíe (Gramática)", use_container_width=True):
-            st.session_state.lesson_pending = True
-            st.session_state.lesson_topic   = "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)"
-            st.session_state.lesson_text    = None
-            st.session_state.quiz_data      = None
-            st.session_state.quiz_result    = None
-            st.session_state.quiz_attempts  = 0
-            st.session_state.lesson_error   = None
-            st.session_state.lesson_audio   = None
+    # Grid 2x2 de mundos
+    for row_start in (0, 2):
+        cols = st.columns(2)
+        for j, w in enumerate(worlds[row_start:row_start+2]):
+            with cols[j]:
+                st.markdown(
+                    f"<div class='world-card' style='--world-accent: {w['accent']};'>"
+                    f"  <div class='world-card-header'>"
+                    f"    <div class='world-icon'>{w['emoji']}</div>"
+                    f"    <div>"
+                    f"      <p class='world-name'>{w['name']}</p>"
+                    f"      <p class='world-tagline'>{w['tagline']}</p>"
+                    f"    </div>"
+                    f"  </div>",
+                    unsafe_allow_html=True
+                )
+                if st.button(w["btn"], key=f"world_{w['key']}",
+                             use_container_width=True, type="secondary"):
+                    start_lesson(w["topic"])
+                st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+    # ── Voice Comm Panel (audio + texto libre) ──────────────────────────
+    st.markdown(
+        "<div class='voice-comm'>"
+        "<p class='voice-comm-title'>📡 Misión Personalizada</p>"
+        "<p class='voice-comm-sub'>Habla o escribe el tema que estás viendo en el colegio:</p>"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
-        if st.button("📝 Aprendamos Vocabulario", use_container_width=True):
-            st.session_state.lesson_pending = True
-            st.session_state.lesson_topic   = "Vocabulario Práctico (Aprender palabras nuevas, adjetivos, objetos de la casa, direcciones como arriba/abajo o verbos de acción simple. PROHIBIDO usar gramática compleja o densa, enfócate 100% en ampliar su vocabulario y mostrar el significado de las palabras)"
-            st.session_state.lesson_text    = None
-            st.session_state.quiz_data      = None
-            st.session_state.quiz_result    = None
-            st.session_state.quiz_attempts  = 0
-            st.session_state.lesson_error   = None
-            st.session_state.lesson_audio   = None
-
-    with col2:
-        st.markdown("<p class='help-text'>🙋‍♀️ <b>Tema Escolar / Personalizado</b></p>",
-                    unsafe_allow_html=True)
-        st.markdown("<p style='margin-bottom:5px; font-size:0.9rem; color:#a8acb3;'>Graba tu voz o escribe el tema:</p>",
-                    unsafe_allow_html=True)
-
+    col_v1, col_v2 = st.columns([1, 3])
+    with col_v1:
         audio_bytes = audio_recorder(
-            text="Clic para hablar", recording_color="#e74c3c",
+            text="Hablar", recording_color="#ff5351",
             neutral_color=color, icon_size="2x"
         )
+    with col_v2:
         if audio_bytes and not st.session_state.lesson_pending:
             with st.spinner("Escuchando tu voz... 🎙️"):
                 text, t_error = transcribe_audio(audio_bytes)
@@ -1569,28 +1797,14 @@ else:
                 show_error(t_error)
             elif text:
                 st.success(f"Te escuché decir: *'{text}'*")
-                st.session_state.lesson_pending = True
-                st.session_state.lesson_topic   = "Tema del Colegio"
-                st.session_state.lesson_text    = text
-                st.session_state.quiz_data      = None
-                st.session_state.quiz_result    = None
-                st.session_state.quiz_attempts  = 0
-                st.session_state.lesson_error   = None
-                st.session_state.lesson_audio   = None
+                start_lesson("Tema del Colegio", text)
 
-        text_input = st.chat_input(f"¿Qué estás aprendiendo en clase, {user}?")
-        if (text_input
-                and text_input != st.session_state.last_text_input
-                and not st.session_state.lesson_pending):
-            st.session_state.last_text_input = text_input
-            st.session_state.lesson_pending  = True
-            st.session_state.lesson_topic    = "Tema del Colegio"
-            st.session_state.lesson_text     = text_input
-            st.session_state.quiz_data       = None
-            st.session_state.quiz_result     = None
-            st.session_state.quiz_attempts   = 0
-            st.session_state.lesson_error    = None
-            st.session_state.lesson_audio    = None
+    text_input = st.chat_input(f"Escribe tu tema personalizado aquí, {user}...")
+    if (text_input
+            and text_input != st.session_state.last_text_input
+            and not st.session_state.lesson_pending):
+        st.session_state.last_text_input = text_input
+        start_lesson("Tema del Colegio", text_input)
 
     # --- GENERAR LECCIÓN ---
     if st.session_state.lesson_pending:
