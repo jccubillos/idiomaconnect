@@ -13,11 +13,21 @@ import logging
 import io
 import re
 
+import asyncio
+import tempfile
+
 try:
-    from gtts import gTTS
-    GTTS_AVAILABLE = True
+    import edge_tts
+    EDGE_TTS_AVAILABLE = True
 except ImportError:
-    GTTS_AVAILABLE = False
+    EDGE_TTS_AVAILABLE = False
+
+try:
+    import nest_asyncio
+    nest_asyncio.apply()
+    NEST_ASYNCIO_AVAILABLE = True
+except ImportError:
+    NEST_ASYNCIO_AVAILABLE = False
 
 # ==========================================
 # CONFIGURACIÓN DE LOGGING
@@ -380,38 +390,128 @@ st.markdown("""
 # ==========================================
 # 2. CONTEXTO FAMILIAR Y PERFILES
 # ==========================================
-FAMILY_CONTEXT = """
-Contexto de la familia de la alumna (Usa esta informacion para crear ejemplos, historias y ejercicios):
-- Padres: Juan Carlos y Daniela (Divorciados. Usar 'Dad house' y 'Mom house').
-- Pareja del papa: Camila.
-- Hermano menor: Amaro (10.5 meses de edad).
-- Abuelos maternos: Regina y Jorge Hernan. Abuelos paternos: Silvia y Mario.
-- Tios: Carlos, Natalia, Pamela. Primos: Agustin, Maximo, Luciana, Julian.
-- Mascotas (7 en total): Gatos (Rosita, Toribio, Blanca, Leon). Perros (Pink - poodle, Alma - doberman, Odin - doberman).
-"""
 
 PROFILES = {
+    # ── Hijas de Juan Carlos ─────────────────────────────────────────────
     "Antonia": {
         "color": "#8e44ad",
         "gradient": "linear-gradient(135deg, #9b59b6, #6c3483)",
         "emoji": "🎨",
+        "gender": "niña",
+        "age_desc": "13 años (nacida el 24/Sept/2012)",
+        "grade": "8vo básico",
         "hobbies": "Tenis y pintura",
-        "tone": "Creativo e inspirador, usa metaforas visuales y de deporte."
+        "tone": "Creativo e inspirador, usa metaforas visuales y de deporte.",
+        "family_context": """
+Contexto familiar de Antonia (usa esto para crear ejemplos, historias y ejercicios):
+- Padres: Juan Carlos y Daniela (divorciados; usar 'Dad's house' y 'Mom's house').
+- Pareja del papa: Camila. Hermano menor: Amaro (bebe de 10 meses).
+- Hermanas: Belen y Sofia (trillizas).
+- Abuelos maternos: Regina y Jorge Hernan. Abuelos paternos: Silvia y Mario.
+- Tios: Carlos, Natalia, Pamela. Primos: Agustin (14), Maximo (12), Luciana, Julian, Antonela (12).
+- Mascotas: Gatos (Rosita, Toribio, Blanca, Leon) y Perros (Pink-poodle, Alma-doberman, Odin-doberman).
+"""
     },
     "Belen": {
         "color": "#2980b9",
         "gradient": "linear-gradient(135deg, #3498db, #1a6fa0)",
         "emoji": "🎹",
+        "gender": "niña",
+        "age_desc": "13 años (nacida el 24/Sept/2012)",
+        "grade": "8vo básico",
         "hobbies": "Piano y musica",
-        "tone": "Armonioso y ritmico, usa analogias musicales y melodiosas."
+        "tone": "Armonioso y ritmico, usa analogias musicales y melodiosas.",
+        "family_context": """
+Contexto familiar de Belen (usa esto para crear ejemplos, historias y ejercicios):
+- Padres: Juan Carlos y Daniela (divorciados; usar 'Dad's house' y 'Mom's house').
+- Pareja del papa: Camila. Hermano menor: Amaro (bebe de 10 meses).
+- Hermanas: Antonia y Sofia (trillizas).
+- Abuelos maternos: Regina y Jorge Hernan. Abuelos paternos: Silvia y Mario.
+- Tios: Carlos, Natalia, Pamela. Primos: Agustin (14), Maximo (12), Luciana, Julian, Antonela (12).
+- Mascotas: Gatos (Rosita, Toribio, Blanca, Leon) y Perros (Pink-poodle, Alma-doberman, Odin-doberman).
+"""
     },
     "Sofia": {
         "color": "#d35400",
         "gradient": "linear-gradient(135deg, #e67e22, #a04000)",
         "emoji": "🤸",
+        "gender": "niña",
+        "age_desc": "13 años (nacida el 24/Sept/2012)",
+        "grade": "8vo básico",
         "hobbies": "Gimnasia",
-        "tone": "Dinamico, energetico y enfocado en la superacion fisica y el movimiento."
-    }
+        "tone": "Dinamico, energetico y enfocado en la superacion fisica y el movimiento.",
+        "family_context": """
+Contexto familiar de Sofia (usa esto para crear ejemplos, historias y ejercicios):
+- Padres: Juan Carlos y Daniela (divorciados; usar 'Dad's house' y 'Mom's house').
+- Pareja del papa: Camila. Hermano menor: Amaro (bebe de 10 meses).
+- Hermanas: Antonia y Belen (trillizas).
+- Abuelos maternos: Regina y Jorge Hernan. Abuelos paternos: Silvia y Mario.
+- Tios: Carlos, Natalia, Pamela. Primos: Agustin (14), Maximo (12), Luciana, Julian, Antonela (12).
+- Mascotas: Gatos (Rosita, Toribio, Blanca, Leon) y Perros (Pink-poodle, Alma-doberman, Odin-doberman).
+"""
+    },
+    # ── Sobrinos (hijos de Carlos y Natalia) ─────────────────────────────
+    "Agustin": {
+        "color": "#16a085",
+        "gradient": "linear-gradient(135deg, #1abc9c, #0e6655)",
+        "emoji": "✈️",
+        "gender": "niño",
+        "age_desc": "14 años",
+        "grade": "8vo básico",
+        "hobbies": "Futbol, videojuegos, le apasiona la medicina y la aviacion militar (sueña con ser medico o piloto de la Fuerza Aerea)",
+        "tone": "Aventurero y ambicioso, usa analogias de aviacion, medicina, jugadas de futbol y misiones de videojuegos. Habla de metas y logros grandes.",
+        "family_context": """
+Contexto familiar de Agustin (usa esto para crear ejemplos, historias y ejercicios):
+- Papa: Carlos. Mama: Natalia.
+- Hermano menor: Maximo (12 años, 7mo basico).
+- Tio: Juan Carlos. Tia: Camila.
+- Primas: Antonia, Belen y Sofia (trillizas de 13 años, hijas de su tio Juan Carlos).
+- Primo/a adicional: Antonela (12 años, vive en Villarrica).
+- Mascota: Guquito (perro). Viven en Santiago.
+- Nota: Agustin sueña con ser medico o piloto de la Fuerza Aerea de Chile.
+"""
+    },
+    "Maximo": {
+        "color": "#c0392b",
+        "gradient": "linear-gradient(135deg, #e74c3c, #922b21)",
+        "emoji": "🎮",
+        "gender": "niño",
+        "age_desc": "12 años",
+        "grade": "7mo básico",
+        "hobbies": "Futbol, videojuegos, le apasiona la medicina (sueña con ser medico)",
+        "tone": "Curioso y analitico, usa analogias de videojuegos, niveles y misiones, medicina y futbol. Celebra cada avance como subir de nivel.",
+        "family_context": """
+Contexto familiar de Maximo (usa esto para crear ejemplos, historias y ejercicios):
+- Papa: Carlos. Mama: Natalia.
+- Hermano mayor: Agustin (14 años, 8vo basico).
+- Tio: Juan Carlos. Tia: Camila.
+- Primas: Antonia, Belen y Sofia (trillizas de 13 años, hijas de su tio Juan Carlos).
+- Primo/a adicional: Antonela (12 años, vive en Villarrica).
+- Mascota: Guquito (perro). Viven en Santiago.
+- Nota: Maximo sueña con ser medico.
+"""
+    },
+    # ── Sobrina (por otra rama familiar) ─────────────────────────────────
+    "Antonela": {
+        "color": "#e91e8c",
+        "gradient": "linear-gradient(135deg, #f06292, #880e4f)",
+        "emoji": "🎻",
+        "gender": "niña",
+        "age_desc": "12 años",
+        "grade": "7mo básico",
+        "hobbies": "Violin, basquetbol y scouts (va cada domingo)",
+        "tone": "Alegre, aventurero y comunitario, mezcla analogias musicales del violin con la energia del basquetbol y los valores de exploradora scout. Usa imagenes de naturaleza y trabajo en equipo.",
+        "family_context": """
+Contexto familiar de Antonela (usa esto para crear ejemplos, historias y ejercicios):
+- Papa: Rodrigo. Mama: Marisela.
+- Hermana: Florencia.
+- Abuelo: Moises. Abuela: Ninfia.
+- Tio: Juan Carlos. Tia: Camila.
+- Mascotas: Odin y Polka (perros), Colela (oveja), una chiva.
+- Vive en el campo en la ciudad de Villarrica (sur de Chile, zona de lagos y bosques).
+- Los domingos va a scout: le encanta la naturaleza, el trabajo en equipo y las aventuras al aire libre.
+"""
+    },
 }
 
 # ==========================================
@@ -474,13 +574,17 @@ def get_db_connection():
 
 def _build_system_prompt_json(profile_name: str) -> str:
     """System prompt que instruye al LLM a generar un JSON robusto."""
-    profile = PROFILES[profile_name]
+    profile  = PROFILES[profile_name]
+    gender   = profile.get("gender", "niño/niña")
+    pronoun  = "ella" if gender == "niña" else "él"
+    age_desc = profile.get("age_desc", "13 años")
+    grade    = profile.get("grade", "")
     return f"""
-Eres un tutor de inglés experto, cariñoso y motivador, diseñado exclusivamente para {profile_name}, una niña de 13 años (nacida el 24/Sept/2012).
-A ella le apasiona: {profile['hobbies']}.
+Eres un tutor de inglés experto, cariñoso y motivador, diseñado exclusivamente para {profile_name}, un/a {gender} de {age_desc}, cursando {grade}.
+A {pronoun} le apasiona: {profile['hobbies']}.
 Tu tono debe ser: {profile['tone']}.
 
-{FAMILY_CONTEXT}
+{profile['family_context']}
 
 ════════════════════════════════════════
 INSTRUCCIÓN CRÍTICA DE FORMATO JSON:
@@ -538,7 +642,7 @@ ESTRUCTURA OBLIGATORIA DE LA LECCIÓN (mínimo 300 palabras en total):
 ### ✏️ Parte C — Ejemplos en acción
 - Entre 6 y 10 oraciones de ejemplo en inglés.
 - Cada ejemplo debe tener: la oración en inglés (con la palabra/concepto clave en **negrita**) + su traducción al español entre paréntesis en *cursiva*.
-- Al menos 3 ejemplos deben usar nombres de familiares o mascotas de {profile_name} ({FAMILY_CONTEXT}).
+- Al menos 3 ejemplos deben usar nombres de familiares o mascotas de {profile_name} (ver contexto familiar arriba).
 - Después de los ejemplos, incluye un párrafo corto de 2-3 oraciones que resuma el patrón que se repite en todos los ejemplos.
 
 ### 🎯 Parte D — Tip de Oro + Reto
@@ -652,23 +756,46 @@ def _strip_markdown(text: str) -> str:
     return text.strip()
 
 
-def generate_lesson_audio(lesson_text: str, lang: str = "en") -> bytes | None:
-    """Genera audio TTS de la lección usando gTTS. Retorna bytes MP3 o None."""
-    if not GTTS_AVAILABLE:
+def generate_lesson_audio(lesson_text: str) -> bytes | None:
+    """
+    Genera audio TTS de la lección usando edge-tts con voz bilingüe
+    es-US-PalomaNeural: pronuncia correctamente español e inglés mezclados.
+    Retorna bytes MP3 o None si falla.
+    """
+    if not EDGE_TTS_AVAILABLE:
         return None
     try:
-        clean_text = _strip_markdown(lesson_text)
+        clean_text = _strip_markdown(lesson_text)[:5000]
         if not clean_text:
             return None
-        # Limitar a 5000 caracteres para garantizar velocidad de respuesta
-        tts = gTTS(text=clean_text[:5000], lang=lang, slow=False)
-        buf = io.BytesIO()
-        tts.write_to_fp(buf)
-        buf.seek(0)
-        return buf.read()
+
+        # Voz bilingüe español-inglés (US Spanish, neural, pronuncia ambos idiomas bien)
+        VOICE = "es-US-PalomaNeural"
+
+        tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tmp.close()
+
+        async def _run():
+            communicate = edge_tts.Communicate(clean_text, VOICE)
+            await communicate.save(tmp.name)
+
+        try:
+            asyncio.run(_run())
+        except RuntimeError:
+            # Streamlit ya tiene un event loop activo — nest_asyncio resuelve esto
+            asyncio.get_event_loop().run_until_complete(_run())
+
+        with open(tmp.name, "rb") as f:
+            return f.read()
+
     except Exception as e:
-        logger.error(f"Error generando audio TTS: {e}")
+        logger.error(f"Error generando audio edge-tts: {e}")
         return None
+    finally:
+        try:
+            os.remove(tmp.name)
+        except Exception:
+            pass
 
 
 @st.cache_data(ttl=120, show_spinner=False)
@@ -975,21 +1102,37 @@ if st.session_state.current_user is None:
         </div>
     """, unsafe_allow_html=True)
 
-    cols = st.columns(3)
-    for i, (name, pdata) in enumerate(PROFILES.items()):
-        with cols[i]:
-            st.markdown(f"""
-                <div class='profile-card' style='background: {pdata["gradient"]};'>
-                    <span class='emoji-avatar'>{pdata["emoji"]}</span>
-                    <h2>{name}</h2>
-                    <p>{pdata["hobbies"]}</p>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button(f"¡Soy {name}!", key=f"btn_{name}", use_container_width=True):
-                for k, v in _STATE_DEFAULTS.items():
-                    st.session_state[k] = v
-                st.session_state.current_user = name
-                st.rerun()
+    profile_list = list(PROFILES.items())
+    # Separar en dos grupos: hijas y sobrinos
+    group_labels = {
+        0: "👧 Mis Hijas",
+        1: "👦👧 Mis Sobrinos",
+    }
+    groups = [profile_list[:3], profile_list[3:]]
+    for g_idx, group in enumerate(groups):
+        if not group:
+            continue
+        st.markdown(
+            f"<p style='text-align:center; font-weight:700; color:#6b7280; "
+            f"font-size:0.85rem; letter-spacing:1px; text-transform:uppercase; "
+            f"margin: 20px 0 8px 0;'>{group_labels[g_idx]}</p>",
+            unsafe_allow_html=True
+        )
+        cols = st.columns(3)
+        for j, (name, pdata) in enumerate(group):
+            with cols[j]:
+                st.markdown(f"""
+                    <div class='profile-card' style='background: {pdata["gradient"]};'>
+                        <span class='emoji-avatar'>{pdata["emoji"]}</span>
+                        <h2>{name}</h2>
+                        <p>{pdata["hobbies"].split(',')[0]}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                if st.button(f"¡Soy {name}!", key=f"btn_{name}", use_container_width=True):
+                    for k, v in _STATE_DEFAULTS.items():
+                        st.session_state[k] = v
+                    st.session_state.current_user = name
+                    st.rerun()
 
 else:
     user  = st.session_state.current_user
@@ -1153,15 +1296,15 @@ else:
             unsafe_allow_html=True
         )
 
-        if not GTTS_AVAILABLE:
-            show_warning("El módulo gTTS no está instalado. Verifica que `gTTS` esté en requirements.txt y reinicia la app.")
+        if not EDGE_TTS_AVAILABLE:
+            show_warning("El módulo edge-tts no está instalado. Verifica que `edge-tts` y `nest_asyncio` estén en requirements.txt y reinicia la app.")
         else:
             col_audio, col_spacer = st.columns([1, 2])
             with col_audio:
                 if st.button("🔊 Escuchar Lección", use_container_width=True,
                              key="btn_audio_lesson"):
                     with st.spinner("Generando audio..."):
-                        audio_result = generate_lesson_audio(lesson_text, lang="en")
+                        audio_result = generate_lesson_audio(lesson_text)
                     if audio_result:
                         st.session_state.lesson_audio = audio_result
                     else:
@@ -1170,7 +1313,7 @@ else:
             if st.session_state.lesson_audio:
                 st.audio(st.session_state.lesson_audio, format="audio/mp3", autoplay=False)
                 st.caption(
-                    "Lección leída en inglés para entrenar tu oído. "
+                    "Voz bilingüe: pronuncia el español y el inglés correctamente. "
                     "Sigue el texto escrito abajo mientras escuchas."
                 )
 
