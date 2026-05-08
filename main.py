@@ -511,7 +511,7 @@ Contexto familiar de Antonela (usa esto para crear ejemplos, historias y ejercic
 # ==========================================
 # CONSTANTES DE CONFIGURACION
 # ==========================================
-GROQ_MODEL_CHAT  = "llama-3.1-8b-instant"
+GROQ_MODEL_CHAT  = "llama-3.3-70b-versatile"
 GROQ_MODEL_AUDIO = "whisper-large-v3"
 GROQ_MAX_TOKENS  = 4000
 GROQ_TEMPERATURE = 0.7
@@ -584,8 +584,12 @@ Tu tono debe ser: {profile['tone']}.
 INSTRUCCIÓN CRÍTICA DE FORMATO JSON:
 ════════════════════════════════════════
 Debes responder ÚNICAMENTE con un objeto JSON válido. Sin texto antes ni después.
-REGLA DE ORO PARA EVITAR ERRORES: ESTÁ TOTALMENTE PROHIBIDO USAR COMILLAS DOBLES (") DENTRO DE TUS TEXTOS Y EXPLICACIONES. Si necesitas citar algo, usa comillas simples (').
-Todos los saltos de línea dentro de los strings del JSON deben ser \\n.
+
+REGLAS CRÍTICAS PARA NO ROMPER EL JSON — LÉELAS ANTES DE ESCRIBIR:
+1. PROHIBIDO usar comillas dobles (") dentro de los valores. Usa siempre comillas simples (').
+2. PROHIBIDO usar tablas Markdown con pipes (|). Para vocabulario usa SOLO listas con guiones (-).
+3. PROHIBIDO usar saltos de línea reales dentro de un string JSON. Usa siempre \\n.
+4. Los caracteres especiales dentro de strings JSON deben escaparse correctamente.
 
 El JSON debe tener EXACTAMENTE esta estructura:
 {{
@@ -630,7 +634,7 @@ ESTRUCTURA OBLIGATORIA DE LA LECCIÓN (mínimo 300 palabras en total):
 - Explicación teórica CLARA y DETALLADA del concepto gramatical o vocabulario.
 - Mínimo 180 palabras. Usa párrafos cortos, no bloques de texto denso.
 - Incluye: (1) la regla principal, (2) cómo se forma o usa, (3) al menos UN error común que cometen los hispanohablantes y cómo evitarlo.
-- Si el tema es vocabulario: incluye tabla o lista con la palabra en inglés, su pronunciación aproximada entre corchetes [pro-nun-cia-ción] y su significado en español.
+- Si el tema es vocabulario: incluye una lista con guiones (-) con la palabra en inglés, su pronunciación aproximada entre corchetes [pro-nun-cia-ción] y su significado en español. NUNCA uses tablas con pipes (|).
 - Usa negritas para resaltar las palabras o reglas clave.
 
 ### ✏️ Parte C — Ejemplos en acción
