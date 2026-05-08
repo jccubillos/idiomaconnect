@@ -240,6 +240,343 @@ st.markdown("""
         font-weight: 600;
     }
 
+    /* --- WORLD ENTRY HERO (página themed por mundo) --- */
+    .world-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius-xl);
+        padding: 36px 28px 40px;
+        margin: 6px 0 14px;
+        background:
+            radial-gradient(ellipse at 30% 20%, var(--world-accent-soft, rgba(0,238,252,0.18)) 0%, transparent 55%),
+            radial-gradient(ellipse at 70% 80%, var(--world-accent-soft, rgba(0,238,252,0.10)) 0%, transparent 55%),
+            linear-gradient(135deg, rgba(29,32,35,0.92) 0%, rgba(16,20,23,0.96) 100%);
+        border: 1px solid var(--world-accent, #00eefc);
+        box-shadow: 0 0 32px var(--world-accent-glow, rgba(0,238,252,0.25));
+        backdrop-filter: blur(15px);
+        animation: cardReveal 0.55s ease both;
+        text-align: center;
+    }
+    .world-hero::before {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background-image:
+            linear-gradient(var(--world-accent, #00eefc) 1px, transparent 1px),
+            linear-gradient(90deg, var(--world-accent, #00eefc) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.05;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+    .world-hero::after {
+        content: ""; position: absolute; inset: -2px; border-radius: inherit;
+        pointer-events: none;
+        background: conic-gradient(from 0deg, transparent 0%, var(--world-accent, #00eefc) 25%, transparent 50%);
+        filter: blur(40px);
+        opacity: 0.18;
+        animation: spin 22s linear infinite;
+    }
+    .world-hero-emoji {
+        font-size: 5.5rem;
+        line-height: 1;
+        display: inline-block;
+        filter: drop-shadow(0 0 24px var(--world-accent, #00eefc));
+        animation: floatY 4s ease-in-out infinite;
+        position: relative; z-index: 1;
+    }
+    .world-hero-breadcrumb {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: var(--text-dim) !important;
+        font-size: 0.72rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 0 0 16px;
+        position: relative; z-index: 1;
+    }
+    .world-hero-breadcrumb b {
+        color: var(--world-accent, #00eefc) !important;
+        text-shadow: 0 0 10px var(--world-accent, #00eefc);
+    }
+    .world-hero-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 2.4rem;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--world-accent, #00eefc) !important;
+        text-shadow: 0 0 24px var(--world-accent, #00eefc);
+        margin: 8px 0 6px;
+        position: relative; z-index: 1;
+    }
+    .world-hero-tagline {
+        color: var(--text-secondary) !important;
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 480px;
+        margin: 0 auto;
+        position: relative; z-index: 1;
+    }
+
+    /* --- MODE BUTTONS (Lección / Batalla en world entry) --- */
+    .mode-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 22px 18px 14px;
+        text-align: center;
+        margin-bottom: 10px;
+        transition: var(--t-base);
+        position: relative; overflow: hidden;
+        animation: cardReveal 0.5s ease both;
+    }
+    .mode-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: inherit;
+        padding: 1px; pointer-events: none;
+        background: linear-gradient(135deg, var(--mode-accent, #00eefc), transparent 60%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.7;
+    }
+    .mode-card:hover { transform: translateY(-3px); }
+    .mode-icon {
+        font-size: 2.6rem; line-height: 1;
+        filter: drop-shadow(0 0 16px var(--mode-accent, #00eefc));
+        margin-bottom: 8px;
+    }
+    .mode-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: var(--mode-accent, #00eefc) !important;
+        text-shadow: 0 0 12px var(--mode-accent, #00eefc);
+        margin: 4px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .mode-desc {
+        color: var(--text-secondary) !important;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        margin: 0 0 12px;
+        min-height: 40px;
+    }
+
+    /* --- BATTLE MODE HUD --- */
+    .battle-hud {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--neon-red);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        margin: 6px 0 12px;
+        box-shadow: 0 0 24px rgba(255,83,81,0.2);
+        position: relative; overflow: hidden;
+    }
+    .battle-hud::before {
+        content: ""; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(255,83,81,0.05), transparent);
+        animation: scan 4s linear infinite;
+    }
+    .battle-hud-row {
+        display: flex; align-items: center; gap: 14px;
+        flex-wrap: wrap;
+    }
+    .battle-stat {
+        display: flex; flex-direction: column; align-items: center;
+        min-width: 60px;
+        position: relative; z-index: 1;
+    }
+    .battle-stat-label {
+        font-size: 0.62rem;
+        color: var(--text-dim) !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+    }
+    .battle-stat-value {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 1.3rem;
+        line-height: 1;
+        margin-top: 2px;
+    }
+
+    .battle-hp-wrap {
+        flex: 1; min-width: 160px; position: relative; z-index: 1;
+    }
+    .battle-hp-bar {
+        background: rgba(0,0,0,0.5);
+        border: 1px solid var(--border-soft);
+        border-radius: 4px;
+        height: 18px;
+        overflow: hidden;
+        position: relative;
+    }
+    .battle-hp-fill {
+        height: 100%;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+        box-shadow: 0 0 10px currentColor;
+    }
+    .battle-hp-fill.high   { background: var(--neon-green); color: var(--neon-green); }
+    .battle-hp-fill.mid    { background: var(--neon-yellow); color: var(--neon-yellow); }
+    .battle-hp-fill.low    { background: var(--neon-red); color: var(--neon-red); animation: pulse 0.6s ease infinite; }
+    .battle-hp-text {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800; font-size: 0.78rem;
+        color: #fff !important;
+        text-shadow: 0 0 4px #000, 1px 1px 0 rgba(0,0,0,0.5);
+        letter-spacing: 1px;
+    }
+
+    /* --- BATTLE QUESTION CARD --- */
+    .battle-question {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-soft);
+        border-left: 3px solid var(--neon-cyan);
+        border-radius: var(--radius-md);
+        padding: 22px 24px;
+        margin: 8px 0;
+        animation: slideUp 0.35s ease both;
+        box-shadow: 0 0 18px rgba(0,238,252,0.1);
+    }
+    .battle-q-meta {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 12px;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+    .battle-q-num {
+        color: var(--neon-cyan) !important;
+        text-shadow: 0 0 8px rgba(0,238,252,0.5);
+        font-weight: 800;
+    }
+    .battle-q-type {
+        color: var(--text-dim) !important;
+        background: rgba(255,255,255,0.04);
+        padding: 3px 10px;
+        border-radius: 50px;
+        border: 1px solid var(--border-soft);
+        font-weight: 700;
+    }
+    .battle-q-text {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        font-size: 1.25rem;
+        line-height: 1.4;
+        color: var(--text-primary) !important;
+        margin: 8px 0 14px;
+    }
+
+    /* --- BATTLE FEEDBACK FLASH --- */
+    .battle-flash {
+        border-radius: var(--radius-md);
+        padding: 18px 20px;
+        margin: 10px 0;
+        text-align: center;
+        animation: flashIn 0.4s ease both;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .battle-flash-correct {
+        background: rgba(57,255,20,0.08);
+        border: 1px solid rgba(57,255,20,0.5);
+        box-shadow: 0 0 20px rgba(57,255,20,0.3);
+    }
+    .battle-flash-correct .flash-title {
+        color: var(--neon-green) !important;
+        text-shadow: 0 0 16px rgba(57,255,20,0.7);
+    }
+    .battle-flash-wrong {
+        background: rgba(255,83,81,0.08);
+        border: 1px solid rgba(255,83,81,0.5);
+        box-shadow: 0 0 20px rgba(255,83,81,0.3);
+    }
+    .battle-flash-wrong .flash-title {
+        color: var(--neon-red) !important;
+        text-shadow: 0 0 16px rgba(255,83,81,0.7);
+    }
+    .flash-title {
+        font-weight: 800;
+        font-size: 1.4rem;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .flash-detail {
+        color: var(--text-secondary) !important;
+        font-size: 0.9rem;
+        margin: 6px 0 0;
+    }
+
+    /* --- VICTORY / DEFEAT screens --- */
+    .battle-end {
+        text-align: center;
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border-radius: var(--radius-xl);
+        padding: 40px 28px;
+        margin: 10px 0;
+        animation: cardReveal 0.5s ease both;
+        position: relative;
+        overflow: hidden;
+    }
+    .battle-end-victory {
+        border: 2px solid var(--neon-green);
+        box-shadow: 0 0 40px rgba(57,255,20,0.35);
+    }
+    .battle-end-defeat {
+        border: 2px solid var(--neon-red);
+        box-shadow: 0 0 40px rgba(255,83,81,0.35);
+    }
+    .battle-end-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 3rem;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+    }
+    .battle-end-victory .battle-end-title {
+        color: var(--neon-green) !important;
+        text-shadow: 0 0 24px rgba(57,255,20,0.8);
+    }
+    .battle-end-defeat .battle-end-title {
+        color: var(--neon-red) !important;
+        text-shadow: 0 0 24px rgba(255,83,81,0.8);
+    }
+    .battle-end-emoji {
+        font-size: 4rem;
+        line-height: 1;
+        margin-bottom: 4px;
+        filter: drop-shadow(0 0 18px currentColor);
+    }
+    .battle-end-stats {
+        display: flex; justify-content: center; gap: 28px;
+        flex-wrap: wrap;
+        margin: 18px 0 8px;
+    }
+    .battle-end-stat-num {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 2rem;
+        line-height: 1;
+    }
+    .battle-end-stat-label {
+        font-size: 0.7rem;
+        color: var(--text-dim) !important;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    /* Reactividad de XP badge: respiración suave */
+    .dashboard-header .xp-display {
+        animation: breathe 3s ease-in-out infinite;
+    }
+
     /* --- ARENA / LEADERBOARD --- */
     .arena-hero {
         background: var(--bg-glass-strong);
@@ -937,6 +1274,11 @@ st.markdown("""
         to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes pulse  { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+    @keyframes scan   { 0% { background-position: -120% 0; } 100% { background-position: 220% 0; } }
+    @keyframes breathe { 0%,100% { box-shadow: 0 0 8px rgba(255,212,0,0.3); } 50% { box-shadow: 0 0 16px rgba(255,212,0,0.55); } }
+    @keyframes flashIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
 
     div[data-testid="column"]:nth-child(1) .profile-card { animation-delay: 0.0s; }
     div[data-testid="column"]:nth-child(2) .profile-card { animation-delay: 0.1s; }
@@ -1159,6 +1501,68 @@ PERSONAL_WORLDS = {
         ),
     },
 }
+
+
+# ==========================================
+# CATÁLOGO DE MUNDOS UNIVERSALES
+# ==========================================
+UNIVERSAL_WORLDS = {
+    "grammar": {
+        "emoji":   "🌌",
+        "name":    "Galaxia Gramatical",
+        "tagline": "Reglas, estructuras y patrones del inglés",
+        "intro":   ("Bienvenida al sector galáctico de la gramática. Aquí decodificarás "
+                    "las reglas que rigen el universo del idioma inglés."),
+        "accent":  "#c464ff",
+        "topic":   "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)",
+    },
+    "vocab": {
+        "emoji":   "📚",
+        "name":    "Bóveda de Vocabulario",
+        "tagline": "Palabras nuevas, adjetivos, objetos cotidianos",
+        "intro":   ("Has accedido a la cámara acorazada de palabras. Cada misión "
+                    "expande tu inventario lingüístico con vocabulario práctico."),
+        "accent":  "#00eefc",
+        "topic":   ("Vocabulario Práctico (Aprender palabras nuevas, adjetivos, "
+                    "objetos de la casa, direcciones como arriba/abajo o verbos de "
+                    "acción simple. PROHIBIDO usar gramática compleja o densa, "
+                    "enfócate 100% en ampliar su vocabulario y mostrar el "
+                    "significado de las palabras)"),
+    },
+    "challenge": {
+        "emoji":   "⚔️",
+        "name":    "Desafío Sorpresa",
+        "tagline": "La IA elige el reto perfecto para hoy",
+        "intro":   ("Modo aleatorio activado. La IA seleccionará un desafío "
+                    "sorpresivo conectado con tu edad e intereses. ¿Listo/a?"),
+        "accent":  "#ff5351",
+        "topic":   ("Reto Sorpresa: la IA elige libremente entre gramática avanzada, "
+                    "vocabulario temático, expresiones idiomáticas o phrasal verbs. "
+                    "Debe ser un tema que sorprenda, sea desafiante pero alcanzable, "
+                    "y conectado con la edad e intereses del/la alumno/a."),
+    },
+}
+
+
+def get_world_meta(world_key: str, profile_name: str) -> dict:
+    """Devuelve el meta del mundo. Para 'personal' arma uno desde PERSONAL_WORLDS."""
+    if world_key == "personal":
+        pw = PERSONAL_WORLDS.get(profile_name)
+        accent = PROFILES.get(profile_name, {}).get("color", "#ff66c4")
+        if pw:
+            return {
+                "emoji":   pw["emoji"],
+                "name":    pw["name"],
+                "tagline": pw["tagline"],
+                "intro":   ("Tu mundo personal te espera. Aquí cada misión está "
+                            "tejida con las cosas que te apasionan."),
+                "accent":  accent,
+                "topic":   pw["topic"],
+            }
+    return UNIVERSAL_WORLDS.get(world_key, {
+        "emoji": "⭐", "name": "Mundo", "tagline": "",
+        "intro": "", "accent": "#00eefc", "topic": "Aventura Diaria",
+    })
 
 
 # ==========================================
@@ -1626,6 +2030,8 @@ def get_leaderboard() -> list[dict]:
         "total_sessions": 0, "score_sum": 0.0, "best_score": 0.0,
         "perfect_count": 0, "last_activity": None, "world_counts": {},
         "active_days": set(),
+        "battle_wins": 0, "lesson_count": 0,
+        "active_dates_set": set(),  # para max_consec_streak
     } for name in PROFILES}
 
     for r in rows:
@@ -1667,12 +2073,47 @@ def get_leaderboard() -> list[dict]:
         if world:
             a["world_counts"][world] = a["world_counts"].get(world, 0) + 1
 
+        # Tracking de tipo de lección y batallas ganadas
+        ltype = str(r.get("lesson_type", "") or "").strip()
+        if ltype == "battle":
+            # Considerar victoria si score >= 60% (mismo umbral que classic)
+            if score_f >= PASSING_SCORE:
+                a["battle_wins"] += 1
+        elif ltype in ("lesson_quiz", ""):
+            a["lesson_count"] += 1
+
+        if ts is not None:
+            a["active_dates_set"].add(ts.date())
+
     # Finalizar
     for a in agg.values():
         sessions = a["total_sessions"]
         a["avg_score"] = (a["score_sum"] / sessions) if sessions else 0.0
         a.pop("score_sum", None)
         a["active_days"] = len(a["active_days"])
+
+        # Calcular streak máximo de días consecutivos
+        dates = sorted(a["active_dates_set"])
+        max_streak = 0
+        cur_streak = 0
+        prev_date = None
+        for d in dates:
+            if prev_date is None or (d - prev_date).days == 1:
+                cur_streak += 1
+            elif (d - prev_date).days > 1:
+                cur_streak = 1
+            # day 0 no incrementa
+            max_streak = max(max_streak, cur_streak)
+            prev_date = d
+        a["max_consec_days"] = max_streak
+
+        # Mundos universales únicos visitados (los 4: grammar/vocab/personal/challenge)
+        UNIVERSAL_KEYS = {"grammar", "vocab", "personal", "challenge"}
+        a["unique_worlds_visited"] = len(
+            UNIVERSAL_KEYS.intersection(a["world_counts"].keys())
+        )
+
+        a.pop("active_dates_set", None)
 
     # Ordenar por XP semanal (desc), desempate por XP total
     base = sorted(agg.values(),
@@ -1724,22 +2165,38 @@ def get_cefr_info(total_xp: int) -> dict:
 
 # Catálogo de trofeos. (id, icono, nombre corto, descripción, color, predicate(stats)->bool)
 TROPHY_CATALOG = [
+    # Progresión básica
     ("first_step",  "🚀", "Primer Vuelo",   "Completa tu primera misión",
      "#00eefc", lambda s: s["total_sessions"] >= 1),
     ("five_lessons","🔥", "Combo x5",       "Completa 5 misiones",
      "#ff5351", lambda s: s["total_sessions"] >= 5),
     ("ten_lessons", "⚡", "Combo x10",      "Completa 10 misiones",
      "#ffd400", lambda s: s["total_sessions"] >= 10),
+    # Calidad
     ("perfect",     "🎯", "Notón Perfecto", "Saca 100% en un quiz",
      "#39ff14", lambda s: s.get("perfect_count", 0) >= 1),
+    # XP milestones
     ("xp_500",      "💎", "Club 500 XP",    "Acumula 500 XP",
      "#c464ff", lambda s: s["total_xp"] >= 500),
     ("xp_1000",     "🏆", "Club 1000 XP",   "Acumula 1000 XP",
      "#ffd400", lambda s: s["total_xp"] >= 1000),
     ("xp_2000",     "🌟", "Leyenda",        "Acumula 2000 XP",
      "#ff66c4", lambda s: s["total_xp"] >= 2000),
+    # Constancia
     ("active_5d",   "📅", "Disciplina",     "Activo en 5 días distintos",
      "#00eefc", lambda s: s.get("active_days", 0) >= 5),
+    ("streak_3d",   "⛅", "Racha 3 días",   "3 días consecutivos activos",
+     "#39ff14", lambda s: s.get("max_consec_days", 0) >= 3),
+    ("streak_7d",   "🌅", "Racha 7 días",   "7 días consecutivos activos",
+     "#ff5351", lambda s: s.get("max_consec_days", 0) >= 7),
+    # Battle mode
+    ("battle_first","🥷", "Bautismo de Fuego", "Gana tu primera batalla",
+     "#ff5351", lambda s: s.get("battle_wins", 0) >= 1),
+    ("battle_5",    "🌪️", "Guerrero",       "Gana 5 batallas",
+     "#ffd400", lambda s: s.get("battle_wins", 0) >= 5),
+    # Exploración
+    ("explorer",    "🌍", "Explorador",     "Visita los 4 mundos universales",
+     "#c464ff", lambda s: s.get("unique_worlds_visited", 0) >= 4),
 ]
 
 
@@ -1962,7 +2419,7 @@ def _quiz_section_title(text: str):
 
 def start_lesson(topic: str, custom_text: str | None = None,
                  world: str = "custom", lesson_type: str = "lesson_quiz"):
-    """Resetea el estado de quiz y dispara la generación de una nueva lección."""
+    """Resetea el estado de quiz/battle y dispara la generación de una nueva lección."""
     st.session_state.lesson_pending = True
     st.session_state.lesson_topic   = topic
     st.session_state.lesson_text    = custom_text
@@ -1973,8 +2430,61 @@ def start_lesson(topic: str, custom_text: str | None = None,
     st.session_state.quiz_attempts  = 0
     st.session_state.lesson_error   = None
     st.session_state.lesson_audio   = None
-    # Volver siempre a la vista Home cuando se inicia una lección
+    # Battle state reset
+    st.session_state.battle_questions  = None
+    st.session_state.battle_finished   = False
+    st.session_state.battle_feedback   = None
+    st.session_state.battle_history    = []
+    st.session_state.battle_index      = 0
+    st.session_state.battle_hp         = st.session_state.battle_max_hp
+    st.session_state.battle_streak     = 0
+    st.session_state.battle_max_streak = 0
+    st.session_state.battle_correct    = 0
+    st.session_state.battle_total      = 0
+    st.session_state.battle_mc_answer  = None
+    st.session_state.battle_fitb_answer = ""
+    # Cerrar el world entry y volver a Home
+    st.session_state.selected_world = None
     st.session_state.view = "home"
+
+
+def reset_to_worlds():
+    """Limpia toda lección/battle y vuelve al mapa de mundos."""
+    keys_to_reset = [
+        "quiz_data", "quiz_result", "quiz_attempts", "lesson_error",
+        "lesson_audio", "lesson_pending", "selected_world",
+        "battle_questions", "battle_finished", "battle_feedback",
+        "battle_history", "battle_index", "battle_streak",
+        "battle_max_streak", "battle_correct", "battle_total",
+        "battle_mc_answer", "battle_fitb_answer",
+    ]
+    for k in keys_to_reset:
+        if k in _STATE_DEFAULTS:
+            st.session_state[k] = _STATE_DEFAULTS[k]
+    st.session_state.battle_hp = st.session_state.battle_max_hp
+
+
+def build_battle_questions(quiz_data: dict) -> list[dict]:
+    """Convierte el JSON de la lección en una lista de preguntas mezcladas
+    para el modo batalla. Mezcla MC y FITB, ~8 preguntas máximo."""
+    import random as _random
+    questions = []
+    for q in quiz_data.get("mc", []):
+        questions.append({
+            "type":    "mc",
+            "q":       q.get("q", ""),
+            "options": q.get("options", []),
+            "answer":  q.get("answer", ""),
+        })
+    for q in quiz_data.get("fitb", []):
+        questions.append({
+            "type":    "fitb",
+            "q":       q.get("sentence", ""),
+            "options": [],
+            "answer":  q.get("answer", ""),
+        })
+    _random.shuffle(questions)
+    return questions[:8]   # capped a 8 para que la batalla sea ágil
 
 
 # ==========================================
@@ -1983,6 +2493,7 @@ def start_lesson(topic: str, custom_text: str | None = None,
 _STATE_DEFAULTS = {
     "current_user":    None,
     "view":            "home",       # home | arena | profile
+    "selected_world":  None,         # cuando set, muestra world entry page
     "xp":              0,
     "quiz_data":       None,
     "lesson_error":    None,
@@ -1992,7 +2503,21 @@ _STATE_DEFAULTS = {
     "last_text_input": "",
     "lesson_audio":    None,   # bytes MP3 cacheados del audio de la lección
     "current_world":   "",     # mundo elegido para la lección actual
-    "current_lesson_type": "", # tipo de lección (lesson_quiz, etc.)
+    "current_lesson_type": "", # tipo de lección (lesson_quiz | battle)
+    # Battle mode state
+    "battle_index":      0,
+    "battle_hp":         100,
+    "battle_max_hp":     100,
+    "battle_streak":     0,
+    "battle_max_streak": 0,
+    "battle_correct":    0,
+    "battle_total":      0,
+    "battle_questions":  None,    # lista normalizada [{type, q, options?, answer}]
+    "battle_finished":   False,
+    "battle_feedback":   None,    # último feedback {is_correct, ...}
+    "battle_history":    None,    # lista completa de feedbacks por pregunta
+    "battle_mc_answer":  None,    # selección MC pendiente
+    "battle_fitb_answer": "",     # input FITB pendiente
 }
 for key, default in _STATE_DEFAULTS.items():
     if key not in st.session_state:
@@ -2359,130 +2884,545 @@ else:
         st.stop()
 
     # ════════════════════════════════════════════════════════════════
-    # VISTA: HOME (mapa de mundos + lección + quiz)
+    # VISTA: HOME (puede mostrar: world entry, battle, lesson+quiz, o worlds grid)
     # ════════════════════════════════════════════════════════════════
-    st.markdown(
-        "<p class='worlds-section-title'>MAPA DE MUNDOS</p>",
-        unsafe_allow_html=True
-    )
 
-    # ── Mundos disponibles para esta sesión ────────────────────────────
-    personal_world = PERSONAL_WORLDS.get(user, {
-        "emoji": "⭐", "name": "Mi Mundo", "tagline": "Personalizado para ti",
-        "topic": "Vocabulario práctico de la vida diaria"
-    })
+    # ── 1) BATTLE MODE: pregunta activa ──────────────────────────────
+    if (st.session_state.battle_questions
+            and not st.session_state.battle_finished):
+        # Inyectar accent del mundo actual sobre el HUD de batalla
+        battle_world_meta = get_world_meta(
+            st.session_state.get("current_world", ""), user
+        )
+        b_accent = battle_world_meta.get("accent", color)
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {b_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
 
-    worlds = [
-        {
-            "key":     "grammar",
-            "emoji":   "🌌",
-            "name":    "Galaxia Gramatical",
-            "tagline": "Reglas, estructuras y patrones del inglés",
-            "accent":  "#c464ff",
-            "topic":   "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)",
-            "btn":     "Iniciar Misión",
-        },
-        {
-            "key":     "vocab",
-            "emoji":   "📚",
-            "name":    "Bóveda de Vocabulario",
-            "tagline": "Palabras nuevas, adjetivos, objetos cotidianos",
-            "accent":  "#00eefc",
-            "topic":   ("Vocabulario Práctico (Aprender palabras nuevas, adjetivos, "
-                        "objetos de la casa, direcciones como arriba/abajo o verbos de "
-                        "acción simple. PROHIBIDO usar gramática compleja o densa, "
-                        "enfócate 100% en ampliar su vocabulario y mostrar el "
-                        "significado de las palabras)"),
-            "btn":     "Iniciar Misión",
-        },
-        {
-            "key":     "personal",
-            "emoji":   personal_world["emoji"],
-            "name":    personal_world["name"],
-            "tagline": personal_world["tagline"],
-            "accent":  color,
-            "topic":   personal_world["topic"],
-            "btn":     "Entrar a mi mundo",
-        },
-        {
-            "key":     "challenge",
-            "emoji":   "⚔️",
-            "name":    "Desafío Sorpresa",
-            "tagline": "La IA elige el reto perfecto para hoy",
-            "accent":  "#ff5351",
-            "topic":   ("Reto Sorpresa: la IA elige libremente entre gramática avanzada, "
-                        "vocabulario temático, expresiones idiomáticas o phrasal verbs. "
-                        "Debe ser un tema que sorprenda, sea desafiante pero alcanzable, "
-                        "y conectado con la edad e intereses del/la alumno/a."),
-            "btn":     "Aceptar Desafío",
-        },
-    ]
+        b_questions = st.session_state.battle_questions
+        b_idx       = st.session_state.battle_index
+        b_total     = len(b_questions)
+        b_hp        = max(0, st.session_state.battle_hp)
+        b_max_hp    = st.session_state.battle_max_hp
+        b_streak    = st.session_state.battle_streak
+        b_correct   = st.session_state.battle_correct
 
-    # Grid 2x2 de mundos
-    for row_start in (0, 2):
-        cols = st.columns(2)
-        for j, w in enumerate(worlds[row_start:row_start+2]):
-            with cols[j]:
+        # ── HUD ──
+        hp_pct = (b_hp / b_max_hp) if b_max_hp else 0
+        hp_class = "high" if hp_pct > 0.6 else "mid" if hp_pct > 0.3 else "low"
+        st.markdown(
+            f"<div class='battle-hud'>"
+            f"<div class='battle-hud-row'>"
+            f"<div class='battle-stat'>"
+            f"  <div class='battle-stat-label'>Pregunta</div>"
+            f"  <div class='battle-stat-value' style='color:{b_accent}; text-shadow:0 0 10px {b_accent};'>"
+            f"  {min(b_idx + 1, b_total)}/{b_total}</div>"
+            f"</div>"
+            f"<div class='battle-hp-wrap'>"
+            f"  <div class='battle-stat-label' style='text-align:left;'>HP</div>"
+            f"  <div class='battle-hp-bar'>"
+            f"    <div class='battle-hp-fill {hp_class}' style='width:{hp_pct*100:.0f}%;'></div>"
+            f"    <span class='battle-hp-text'>{b_hp} / {b_max_hp}</span>"
+            f"  </div>"
+            f"</div>"
+            f"<div class='battle-stat'>"
+            f"  <div class='battle-stat-label'>Streak</div>"
+            f"  <div class='battle-stat-value' style='color:#ffd400; text-shadow:0 0 10px #ffd400;'>"
+            f"  🔥{b_streak}</div>"
+            f"</div>"
+            f"<div class='battle-stat'>"
+            f"  <div class='battle-stat-label'>Aciertos</div>"
+            f"  <div class='battle-stat-value' style='color:#39ff14; text-shadow:0 0 10px #39ff14;'>"
+            f"  {b_correct}</div>"
+            f"</div>"
+            f"</div></div>",
+            unsafe_allow_html=True
+        )
+
+        # Mostrar feedback flash si lo hay (después de la última respuesta)
+        feedback = st.session_state.battle_feedback
+        if feedback is not None:
+            if feedback["is_correct"]:
                 st.markdown(
-                    f"<div class='world-card' style='--world-accent: {w['accent']};'>"
-                    f"  <div class='world-card-header'>"
-                    f"    <div class='world-icon'>{w['emoji']}</div>"
-                    f"    <div>"
-                    f"      <p class='world-name'>{w['name']}</p>"
-                    f"      <p class='world-tagline'>{w['tagline']}</p>"
-                    f"    </div>"
-                    f"  </div>",
+                    f"<div class='battle-flash battle-flash-correct'>"
+                    f"<p class='flash-title'>✓ ¡Acierto!</p>"
+                    f"<p class='flash-detail'>+{feedback.get('xp_gained', 10)} XP · "
+                    f"Streak: {feedback.get('streak', 0)}</p>"
+                    f"</div>",
                     unsafe_allow_html=True
                 )
-                if st.button(w["btn"], key=f"world_{w['key']}",
-                             use_container_width=True, type="secondary"):
-                    start_lesson(w["topic"], world=w["key"])
-                st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    f"<div class='battle-flash battle-flash-wrong'>"
+                    f"<p class='flash-title'>✗ Fallaste</p>"
+                    f"<p class='flash-detail'>"
+                    f"Tu respuesta: <em>{feedback.get('your_answer', '—')}</em> · "
+                    f"Correcta: <strong>{feedback.get('correct_answer', '')}</strong> · "
+                    f"−{feedback.get('hp_lost', 20)} HP</p>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
 
-    # ── Voice Comm Panel (audio + texto libre) ──────────────────────────
-    st.markdown(
-        "<div class='voice-comm'>"
-        "<p class='voice-comm-title'>📡 Misión Personalizada</p>"
-        "<p class='voice-comm-sub'>Habla o escribe el tema que estás viendo en el colegio:</p>"
-        "</div>",
-        unsafe_allow_html=True
+            if st.button("➜ Siguiente", key="battle_next",
+                         use_container_width=True, type="primary"):
+                st.session_state.battle_feedback = None
+                # Si fue la última, marcar batalla como terminada
+                if st.session_state.battle_index >= b_total or st.session_state.battle_hp <= 0:
+                    st.session_state.battle_finished = True
+                st.rerun()
+
+        # Si no hay feedback pendiente y aún quedan preguntas, mostrar la actual
+        elif b_idx < b_total and b_hp > 0:
+            q = b_questions[b_idx]
+            q_type_label = "Multiple Choice" if q["type"] == "mc" else "Fill the Blank"
+            q_text = q["q"]
+            if q["type"] == "fitb":
+                q_text = q_text.replace("___", "**___**")
+
+            st.markdown(
+                f"<div class='battle-question'>"
+                f"<div class='battle-q-meta'>"
+                f"  <span class='battle-q-num'>► Pregunta {b_idx + 1}</span>"
+                f"  <span class='battle-q-type'>{q_type_label}</span>"
+                f"</div>"
+                f"<div class='battle-q-text'>{q_text}</div>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+            with st.form(key=f"battle_form_{b_idx}", clear_on_submit=True):
+                user_answer = ""
+                if q["type"] == "mc":
+                    options = ["— Selecciona —"] + q.get("options", [])
+                    pick = st.radio("Respuesta",
+                                    options=options, index=0,
+                                    label_visibility="collapsed",
+                                    key=f"battle_mc_{b_idx}")
+                    user_answer = "" if pick == "— Selecciona —" else pick
+                else:  # fitb
+                    user_answer = st.text_input(
+                        "Respuesta",
+                        placeholder="Escribe la palabra...",
+                        label_visibility="collapsed",
+                        key=f"battle_fitb_{b_idx}"
+                    )
+
+                submitted = st.form_submit_button(
+                    "⚡ ¡Atacar!",
+                    use_container_width=True,
+                    type="primary"
+                )
+
+            if submitted:
+                correct_ans = q.get("answer", "")
+                if q["type"] == "mc":
+                    is_correct = (user_answer.strip() == correct_ans.strip())
+                else:
+                    is_correct = (user_answer.strip().lower() ==
+                                  correct_ans.strip().lower())
+
+                if is_correct:
+                    st.session_state.battle_correct += 1
+                    st.session_state.battle_streak  += 1
+                    st.session_state.battle_max_streak = max(
+                        st.session_state.battle_max_streak,
+                        st.session_state.battle_streak
+                    )
+                    xp_gain = 10 + min(st.session_state.battle_streak - 1, 5) * 2
+                    st.session_state.battle_feedback = {
+                        "is_correct": True, "xp_gained": xp_gain,
+                        "streak": st.session_state.battle_streak,
+                    }
+                else:
+                    hp_lost = 20
+                    st.session_state.battle_hp -= hp_lost
+                    st.session_state.battle_streak = 0
+                    st.session_state.battle_feedback = {
+                        "is_correct": False,
+                        "your_answer": user_answer or "(sin respuesta)",
+                        "correct_answer": correct_ans,
+                        "hp_lost": hp_lost,
+                    }
+
+                st.session_state.battle_history = (st.session_state.battle_history or []) + [{
+                    "q": q.get("q", ""),
+                    "your_answer": user_answer,
+                    "correct_answer": correct_ans,
+                    "is_correct": is_correct,
+                    "type": q["type"],
+                }]
+                st.session_state.battle_total += 1
+                st.session_state.battle_index += 1
+                st.rerun()
+        else:
+            # Sin feedback y sin más preguntas → terminar batalla
+            st.session_state.battle_finished = True
+            st.rerun()
+
+        if st.button("✕ Abandonar batalla", key="battle_abandon",
+                     type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2) BATTLE MODE: pantalla final (victoria / derrota) ──────────
+    if st.session_state.battle_finished:
+        b_total   = st.session_state.battle_total
+        b_correct = st.session_state.battle_correct
+        b_max_streak = st.session_state.battle_max_streak
+        b_hp_left = max(0, st.session_state.battle_hp)
+        victory   = (b_hp_left > 0 and b_correct >= max(1, b_total // 2))
+
+        score_pct = (b_correct / b_total) if b_total else 0.0
+
+        if victory:
+            xp_award = XP_PER_LESSON
+            if b_max_streak >= 5:
+                xp_award += 10
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory'>
+                    <div class='battle-end-emoji' style='color:#39ff14;'>🏆</div>
+                    <h1 class='battle-end-title'>¡VICTORIA!</h1>
+                    <p style='color:#a8acb3; margin:6px 0 0; font-size:1rem;'>
+                        Has dominado este combate. La gloria es tuya.
+                    </p>
+                    <div class='battle-end-stats'>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#39ff14; text-shadow:0 0 14px #39ff14;'>
+                                {b_correct}/{b_total}
+                            </div>
+                            <div class='battle-end-stat-label'>Aciertos</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ffd400; text-shadow:0 0 14px #ffd400;'>
+                                🔥{b_max_streak}
+                            </div>
+                            <div class='battle-end-stat-label'>Mejor streak</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#00eefc; text-shadow:0 0 14px #00eefc;'>
+                                {b_hp_left}
+                            </div>
+                            <div class='battle-end-stat-label'>HP restante</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ff66c4; text-shadow:0 0 14px #ff66c4;'>
+                                +{xp_award}
+                            </div>
+                            <div class='battle-end-stat-label'>XP ganado</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            xp_award = max(10, b_correct * 5)
+            st.markdown(f"""
+                <div class='battle-end battle-end-defeat'>
+                    <div class='battle-end-emoji' style='color:#ff5351;'>💔</div>
+                    <h1 class='battle-end-title'>DERROTA</h1>
+                    <p style='color:#a8acb3; margin:6px 0 0; font-size:1rem;'>
+                        Esta vez no fue. ¡Pero el conocimiento se construye con cada intento!
+                    </p>
+                    <div class='battle-end-stats'>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ffd400; text-shadow:0 0 14px #ffd400;'>
+                                {b_correct}/{b_total}
+                            </div>
+                            <div class='battle-end-stat-label'>Aciertos</div>
+                        </div>
+                        <div>
+                            <div class='battle-end-stat-num' style='color:#ff66c4; text-shadow:0 0 14px #ff66c4;'>
+                                +{xp_award}
+                            </div>
+                            <div class='battle-end-stat-label'>XP consuelo</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        # Botón para confirmar y guardar
+        st.write("")
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            if st.button("✅ Reclamar XP",
+                         use_container_width=True, type="primary",
+                         key="battle_claim"):
+                st.session_state.xp += xp_award
+                world_key = st.session_state.get("current_world", "")
+                saved, save_error = save_xp_to_sheet(
+                    user, xp_award, score_pct, attempts=1,
+                    world=world_key, lesson_type="battle"
+                )
+                if not saved:
+                    show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
+                if victory:
+                    st.balloons()
+                    st.success(f"¡Increíble batalla, {user}! +{xp_award} XP en tu cuenta.")
+                else:
+                    st.info(f"Buen intento. Recibes {xp_award} XP de consolación.")
+                reset_to_worlds()
+                st.rerun()
+        with col_b2:
+            if st.button("🏠 Volver al mapa",
+                         use_container_width=True, type="secondary",
+                         key="battle_back"):
+                reset_to_worlds()
+                st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 3) WORLD ENTRY PAGE ──────────────────────────────────────────
+    if (st.session_state.selected_world is not None
+            and not st.session_state.lesson_pending
+            and st.session_state.quiz_data is None):
+
+        wkey = st.session_state.selected_world
+        wmeta = get_world_meta(wkey, user)
+        wcolor = wmeta["accent"]
+
+        # Inyectar accent del mundo en CSS variable global
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {wcolor}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        # Hex → rgba helper inline
+        def _hex_to_rgba(hex_str: str, alpha: float) -> str:
+            h = hex_str.lstrip("#")
+            if len(h) == 3:
+                h = "".join(c*2 for c in h)
+            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+            return f"rgba({r}, {g}, {b}, {alpha})"
+        wglow = _hex_to_rgba(wcolor, 0.35)
+        wsoft = _hex_to_rgba(wcolor, 0.18)
+
+        st.markdown(
+            f"<div class='world-hero' style='--world-accent: {wcolor};"
+            f" --world-accent-soft: {wsoft}; --world-accent-glow: {wglow};'>"
+            f"<p class='world-hero-breadcrumb'>"
+            f"  Mapa de Mundos <b>›</b> <b>{wmeta['name']}</b>"
+            f"</p>"
+            f"<div class='world-hero-emoji'>{wmeta['emoji']}</div>"
+            f"<h1 class='world-hero-title'>{wmeta['name']}</h1>"
+            f"<p class='world-hero-tagline'>{wmeta['intro']}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<p class='worlds-section-title'>ELIGE TU MODO</p>",
+            unsafe_allow_html=True
+        )
+
+        # Dos cartas: Lección + Quiz vs Modo Batalla
+        modes = [
+            {
+                "key":    "lesson_quiz",
+                "icon":   "🧠",
+                "name":   "Lección + Quiz",
+                "desc":   "Aprende con una explicación guiada y luego responde un quiz a tu ritmo.",
+                "btn":    "Iniciar Lección",
+                "accent": "#00eefc",
+            },
+            {
+                "key":    "battle",
+                "icon":   "⚔️",
+                "name":   "Modo Batalla",
+                "desc":   "Combate intenso: 8 preguntas, HP limitado, aciertos en cadena. Sin lección previa.",
+                "btn":    "¡Combatir!",
+                "accent": "#ff5351",
+            },
+        ]
+
+        mode_cols = st.columns(2)
+        for i, m in enumerate(modes):
+            m_accent = m["accent"]
+            m_icon   = m["icon"]
+            m_name   = m["name"]
+            m_desc   = m["desc"]
+            with mode_cols[i]:
+                st.markdown(
+                    f"<div class='mode-card' style='--mode-accent: {m_accent};'>"
+                    f"<div class='mode-icon'>{m_icon}</div>"
+                    f"<p class='mode-name'>{m_name}</p>"
+                    f"<p class='mode-desc'>{m_desc}</p>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+                if st.button(m["btn"], key=f"mode_{m['key']}",
+                             use_container_width=True,
+                             type="primary" if m["key"] == "battle" else "secondary"):
+                    start_lesson(wmeta["topic"], world=wkey, lesson_type=m["key"])
+                    st.rerun()
+
+        st.write("")
+        if st.button("← Volver al mapa de mundos", key="world_back",
+                     type="secondary"):
+            st.session_state.selected_world = None
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 4) Mapa de mundos por defecto ──────────────────────────────
+    # Solo se renderiza cuando no hay lección/quiz/result en curso.
+    # Si hay lección activa, saltamos el grid y vamos directo a su render.
+    in_lesson_flow = (
+        st.session_state.quiz_data is not None
+        or st.session_state.quiz_result is not None
+        or st.session_state.lesson_pending
     )
 
-    col_v1, col_v2 = st.columns([1, 3])
-    with col_v1:
-        audio_bytes = audio_recorder(
-            text="Hablar", recording_color="#ff5351",
-            neutral_color=color, icon_size="2x"
+    if not in_lesson_flow:
+        st.markdown(
+            "<p class='worlds-section-title'>MAPA DE MUNDOS</p>",
+            unsafe_allow_html=True
         )
-    with col_v2:
-        if audio_bytes and not st.session_state.lesson_pending:
-            with st.spinner("Escuchando tu voz... 🎙️"):
-                text, t_error = transcribe_audio(audio_bytes)
-            if t_error:
-                show_error(t_error)
-            elif text:
-                st.success(f"Te escuché decir: *'{text}'*")
-                start_lesson("Tema del Colegio", text, world="voice")
 
-    text_input = st.chat_input(f"Escribe tu tema personalizado aquí, {user}...")
-    if (text_input
-            and text_input != st.session_state.last_text_input
-            and not st.session_state.lesson_pending):
-        st.session_state.last_text_input = text_input
-        start_lesson("Tema del Colegio", text_input, world="custom")
+        # ── Mundos disponibles para esta sesión ──
+        personal_world = PERSONAL_WORLDS.get(user, {
+            "emoji": "⭐", "name": "Mi Mundo", "tagline": "Personalizado para ti",
+            "topic": "Vocabulario práctico de la vida diaria"
+        })
+
+        worlds = [
+            {
+                "key":     "grammar",
+                "emoji":   "🌌",
+                "name":    "Galaxia Gramatical",
+                "tagline": "Reglas, estructuras y patrones del inglés",
+                "accent":  "#c464ff",
+                "topic":   "Aventura Diaria (Reglas gramaticales divertidas y estructuradas)",
+                "btn":     "Iniciar Misión",
+            },
+            {
+                "key":     "vocab",
+                "emoji":   "📚",
+                "name":    "Bóveda de Vocabulario",
+                "tagline": "Palabras nuevas, adjetivos, objetos cotidianos",
+                "accent":  "#00eefc",
+                "topic":   ("Vocabulario Práctico (Aprender palabras nuevas, adjetivos, "
+                            "objetos de la casa, direcciones como arriba/abajo o verbos de "
+                            "acción simple. PROHIBIDO usar gramática compleja o densa, "
+                            "enfócate 100% en ampliar su vocabulario y mostrar el "
+                            "significado de las palabras)"),
+                "btn":     "Iniciar Misión",
+            },
+            {
+                "key":     "personal",
+                "emoji":   personal_world["emoji"],
+                "name":    personal_world["name"],
+                "tagline": personal_world["tagline"],
+                "accent":  color,
+                "topic":   personal_world["topic"],
+                "btn":     "Entrar a mi mundo",
+            },
+            {
+                "key":     "challenge",
+                "emoji":   "⚔️",
+                "name":    "Desafío Sorpresa",
+                "tagline": "La IA elige el reto perfecto para hoy",
+                "accent":  "#ff5351",
+                "topic":   ("Reto Sorpresa: la IA elige libremente entre gramática avanzada, "
+                            "vocabulario temático, expresiones idiomáticas o phrasal verbs. "
+                            "Debe ser un tema que sorprenda, sea desafiante pero alcanzable, "
+                            "y conectado con la edad e intereses del/la alumno/a."),
+                "btn":     "Aceptar Desafío",
+            },
+        ]
+
+        # Grid 2x2 de mundos
+        for row_start in (0, 2):
+            cols = st.columns(2)
+            for j, w in enumerate(worlds[row_start:row_start+2]):
+                with cols[j]:
+                    st.markdown(
+                        f"<div class='world-card' style='--world-accent: {w['accent']};'>"
+                        f"  <div class='world-card-header'>"
+                        f"    <div class='world-icon'>{w['emoji']}</div>"
+                        f"    <div>"
+                        f"      <p class='world-name'>{w['name']}</p>"
+                        f"      <p class='world-tagline'>{w['tagline']}</p>"
+                        f"    </div>"
+                        f"  </div>",
+                        unsafe_allow_html=True
+                    )
+                    if st.button(w["btn"], key=f"world_{w['key']}",
+                                 use_container_width=True, type="secondary"):
+                        st.session_state.selected_world = w["key"]
+                        st.session_state.view = "home"
+                        st.rerun()
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+        # ── Voice Comm Panel (audio + texto libre) ──
+        st.markdown(
+            "<div class='voice-comm'>"
+            "<p class='voice-comm-title'>📡 Misión Personalizada</p>"
+            "<p class='voice-comm-sub'>Habla o escribe el tema que estás viendo en el colegio:</p>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+
+        col_v1, col_v2 = st.columns([1, 3])
+        with col_v1:
+            audio_bytes = audio_recorder(
+                text="Hablar", recording_color="#ff5351",
+                neutral_color=color, icon_size="2x"
+            )
+        with col_v2:
+            if audio_bytes and not st.session_state.lesson_pending:
+                with st.spinner("Escuchando tu voz... 🎙️"):
+                    text, t_error = transcribe_audio(audio_bytes)
+                if t_error:
+                    show_error(t_error)
+                elif text:
+                    st.success(f"Te escuché decir: *'{text}'*")
+                    start_lesson("Tema del Colegio", text, world="voice")
+
+        text_input = st.chat_input(f"Escribe tu tema personalizado aquí, {user}...")
+        if (text_input
+                and text_input != st.session_state.last_text_input
+                and not st.session_state.lesson_pending):
+            st.session_state.last_text_input = text_input
+            start_lesson("Tema del Colegio", text_input, world="custom")
 
     # --- GENERAR LECCIÓN ---
     if st.session_state.lesson_pending:
         topic       = st.session_state.get("lesson_topic", "Aventura Diaria")
         custom_text = st.session_state.get("lesson_text", None)
+        is_battle   = st.session_state.get("current_lesson_type", "") == "battle"
 
-        with st.spinner("✨ Preparando tu lección y quiz con Llama 3.1... (~10 segundos)"):
+        spinner_text = ("⚔️ Cargando arena de combate..."
+                        if is_battle
+                        else "✨ Preparando tu lección y quiz... (~10 segundos)")
+        with st.spinner(spinner_text):
             data_parsed, error = generate_lesson_and_quiz(user, topic, custom_text)
 
-        st.session_state.quiz_data      = data_parsed
         st.session_state.lesson_error   = error
         st.session_state.lesson_pending = False
         st.session_state.lesson_text    = None
+
+        if data_parsed and is_battle:
+            # En modo batalla: convertir el JSON a battle_questions y NO mostrar lesson
+            st.session_state.battle_questions  = build_battle_questions(data_parsed)
+            st.session_state.battle_finished   = False
+            st.session_state.battle_index      = 0
+            st.session_state.battle_hp         = st.session_state.battle_max_hp
+            st.session_state.battle_streak     = 0
+            st.session_state.battle_max_streak = 0
+            st.session_state.battle_correct    = 0
+            st.session_state.battle_total      = 0
+            st.session_state.battle_history    = []
+            st.session_state.battle_feedback   = None
+            st.session_state.quiz_data         = None
+            st.rerun()
+        else:
+            # Flujo clásico (lesson + quiz)
+            st.session_state.quiz_data = data_parsed
 
     if st.session_state.lesson_error:
         show_error(f"Error al generar la lección: {st.session_state.lesson_error}")
@@ -2498,7 +3438,25 @@ else:
         academic_topic = quiz_data.get("academic_topic", "General English")
         lesson_text    = quiz_data.get("lesson", "")
 
-        st.write("---")
+        # Re-inyectar accent del mundo activo para que lesson + quiz lo usen
+        cur_world_key = st.session_state.get("current_world", "")
+        if cur_world_key:
+            cur_world_meta = get_world_meta(cur_world_key, user)
+            cur_world_accent = cur_world_meta.get("accent", color)
+            st.markdown(
+                f"<style>:root, .stApp {{ --profile-accent: {cur_world_accent}; }}</style>",
+                unsafe_allow_html=True
+            )
+            # Breadcrumb del mundo activo
+            st.markdown(
+                f"<p style='text-align:center; margin: 14px 0 6px; font-size: 0.78rem;"
+                f" letter-spacing:2px; text-transform:uppercase; color:#6b7280;'>"
+                f"<span style='color:{cur_world_accent}; text-shadow:0 0 10px {cur_world_accent};'>"
+                f"{cur_world_meta.get('emoji','⭐')} {cur_world_meta.get('name','Mundo')}</span>"
+                f" &nbsp;›&nbsp; Lección activa</p>",
+                unsafe_allow_html=True
+            )
+
         st.markdown(f"### 📚 {lesson_title}")
         st.markdown(f"**🎯 Enfoque Académico:** {academic_topic}")
 
