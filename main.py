@@ -201,7 +201,7 @@ st.markdown("""
     }
     .profile-card::before {
         content: ""; position: absolute; inset: 0; border-radius: var(--radius-xl);
-        padding: 1px; pointer-events: none;
+        padding: 1px; pointer-events: none; z-index: 0;
         background: linear-gradient(135deg, var(--profile-accent, #ff5351) 0%, transparent 50%);
         -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
         -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.7;
@@ -214,6 +214,7 @@ st.markdown("""
         background: conic-gradient(from 180deg, var(--profile-accent, #ff5351), transparent 60%, var(--profile-accent, #ff5351));
         box-shadow: 0 0 18px var(--profile-accent, #ff5351);
         animation: spin 12s linear infinite;
+        position: relative; z-index: 1;
     }
     .profile-card .avatar-ring img {
         width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
@@ -226,18 +227,21 @@ st.markdown("""
         font-size: 2.4rem; background: var(--bg-mid);
         border: 2px solid var(--profile-accent, #ff5351);
         box-shadow: 0 0 18px var(--profile-accent, #ff5351);
+        position: relative; z-index: 1;
     }
     .profile-card h2 {
         margin: 4px 0 2px;
         font-size: 1.25rem; font-weight: 800;
         color: var(--profile-accent, #ffb3ae) !important;
         text-shadow: 0 0 12px var(--profile-accent, #ff5351);
+        position: relative; z-index: 1;
     }
     .profile-card p {
         margin: 0; font-size: 0.78rem;
         color: var(--text-secondary) !important;
         text-transform: uppercase; letter-spacing: 1px;
         font-weight: 600;
+        position: relative; z-index: 1;
     }
 
     /* --- WORLD ENTRY HERO (página themed por mundo) --- */
