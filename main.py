@@ -45,10 +45,9 @@ st.markdown("""
        CYBER-LINGUIST HUD — Sistema de diseño dark + glassmorphism
        ============================================================ */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
-    /* Ocultar el ícono del expander que aparece como texto "_arrov_rights"
-       cuando la fuente Material Symbols no carga en Streamlit Cloud */
-    [data-testid="stExpander"] summary .material-symbols-rounded,
-    [data-testid="stExpander"] summary span.material-symbols-rounded {
+    /* Ocultar el ícono roto "_arrov_rights" del expander de Streamlit.
+       stExpanderToggleIcon es el testid exacto del contenedor del ícono. */
+    [data-testid="stExpanderToggleIcon"] {
         display: none !important;
     }
 
@@ -1538,11 +1537,6 @@ st.markdown("""
         border-radius: var(--radius-sm) !important;
     }
     [data-testid="stExpander"] summary { color: var(--neon-cyan) !important; }
-    /* Ocultar el ícono "_arrov_rights" que aparece cuando Material Symbols no carga */
-    [data-testid="stExpander"] summary .material-symbols-rounded,
-    [data-testid="stExpander"] summary span[data-testid="stExpanderToggleIcon"] {
-        display: none !important;
-    }
 
     .stCaption, [data-testid="stCaptionContainer"], small {
         color: var(--text-dim) !important;
