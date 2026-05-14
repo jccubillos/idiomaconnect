@@ -1399,6 +1399,68 @@ st.markdown("""
         box-shadow: 0 0 12px currentColor;
     }
 
+    /* --- SAVE ERROR BANNER (cuando falla guardar en Sheets) --- */
+    .save-error-banner {
+        background: rgba(255,83,81,0.10);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--neon-red);
+        border-radius: var(--radius-lg);
+        padding: 22px 24px;
+        margin: 14px 0;
+        box-shadow: 0 0 32px rgba(255,83,81,0.35);
+        animation: cardReveal 0.5s ease both;
+    }
+    .save-error-banner h3 {
+        color: var(--neon-red) !important;
+        text-shadow: 0 0 12px rgba(255,83,81,0.6);
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+    }
+    .save-error-banner p, .save-error-banner li {
+        color: var(--text-primary) !important;
+        line-height: 1.5;
+    }
+    .save-error-banner code {
+        background: var(--bg-high);
+        color: var(--neon-cyan) !important;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    .save-error-banner .sa-email {
+        display: inline-block;
+        background: rgba(0,238,252,0.10);
+        border: 1px solid var(--border-cyan);
+        color: var(--neon-cyan) !important;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.92rem;
+        margin: 4px 0;
+        text-shadow: 0 0 8px rgba(0,238,252,0.4);
+        word-break: break-all;
+    }
+
+    /* --- CONNECTION STATUS PILL --- */
+    .conn-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: 50px;
+        padding: 4px 12px;
+        font-size: 0.74rem;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin: 4px 4px 4px 0;
+    }
+    .conn-pill.ok    { color: var(--neon-green) !important; border-color: rgba(57,255,20,0.4); box-shadow: 0 0 8px rgba(57,255,20,0.18); }
+    .conn-pill.fail  { color: var(--neon-red)   !important; border-color: rgba(255,83,81,0.5);  box-shadow: 0 0 8px rgba(255,83,81,0.22); }
+    .conn-pill.warn  { color: var(--neon-yellow)!important; border-color: rgba(255,212,0,0.5);  box-shadow: 0 0 8px rgba(255,212,0,0.22); }
+
     /* --- BANNERS --- */
     .error-banner {
         background: rgba(255,83,81,0.08);
@@ -2216,30 +2278,146 @@ def get_user_stats(profile_name: str) -> dict:
 def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attempts: int,
                       world: str = "", skill: str = "", lesson_type: str = ""):
     """
-    Registra una sesion completada en Google Sheets.
+    Registra una sesion completada en Google Sheets, con reintento automático.
     Columnas: Timestamp | profile | xp | score_pct | attempts
               | world | skill | lesson_type | streak_date | trophies
+
+    Si el primer intento falla, limpia el caché de conexión y reintenta UNA vez.
+    Devuelve (saved: bool, error: str|None).
     """
-    sheet, db_error = get_db_connection()
-    if db_error or not sheet:
-        logger.warning(f"No se pudo guardar XP: {db_error}")
-        return False, db_error
+    last_error = None
+    for attempt_idx in range(2):
+        if attempt_idx == 1:
+            # En reintento: limpiar caché de conexión y forzar reauth
+            try:
+                get_db_connection.clear()
+            except Exception:
+                pass
+
+        sheet, db_error = get_db_connection()
+        if db_error or not sheet:
+            last_error = db_error or "Conexión no disponible"
+            logger.warning(f"⚠️ save_xp intento {attempt_idx+1}: sin conexión ({last_error})")
+            continue
+
+        try:
+            now       = datetime.datetime.now()
+            timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+            streak_dt = now.strftime("%Y-%m-%d")
+            score_str = f"{score_pct:.1%}"
+            sheet.append_row([
+                timestamp, profile_name, xp_gained, score_str, attempts,
+                world, skill, lesson_type, streak_dt, ""
+            ])
+            # Invalidar cachés que dependen del sheet
+            get_user_stats.clear()
+            get_leaderboard.clear()
+            logger.info(f"✅ XP guardado: {profile_name} +{xp_gained} XP "
+                        f"(world={world}, type={lesson_type}, intento #{attempt_idx+1})")
+            return True, None
+        except Exception as e:
+            last_error = str(e)
+            logger.error(f"❌ Error guardando en Sheets (intento #{attempt_idx+1}): {e}")
+
+    return False, last_error or "Error desconocido al guardar"
+
+
+def get_service_account_email() -> str:
+    """Devuelve el email del service account desde secrets, o un placeholder."""
     try:
-        now       = datetime.datetime.now()
-        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
-        streak_dt = now.strftime("%Y-%m-%d")
-        score_str = f"{score_pct:.1%}"
-        sheet.append_row([
-            timestamp, profile_name, xp_gained, score_str, attempts,
-            world, skill, lesson_type, streak_dt, ""
-        ])
-        # Invalidar cachés que dependen del sheet
-        get_user_stats.clear()
-        get_leaderboard.clear()
-        return True, None
+        return st.secrets["gcp_service_account"]["client_email"]
+    except (KeyError, FileNotFoundError, AttributeError):
+        return "(no se pudo leer del secrets.toml)"
+    except Exception:
+        return "(error al leer credenciales)"
+
+
+def render_save_failure(error: str, xp_award: int):
+    """Muestra un banner prominente cuando falla guardar en Sheets,
+    con el email del service account que el usuario debe agregar como Editor."""
+    sa_email = get_service_account_email()
+    safe_error = (str(error) or "Desconocido")[:300]
+    st.markdown(f"""
+        <div class='save-error-banner'>
+            <h3>⚠️ Tus +{xp_award} XP NO se guardaron en la nube</h3>
+            <p style='margin:0 0 10px;'>
+                Los puntos NO se sumarán a tu cuenta hasta que arreglemos la conexión.
+                Si cierras la app ahora, este progreso se perderá.
+            </p>
+            <p style='margin:0 0 6px;'><b>Error técnico:</b></p>
+            <p style='margin:0 0 14px;'><code>{safe_error}</code></p>
+            <hr style='border-color: rgba(255,255,255,0.1); margin: 14px 0;'>
+            <p style='margin:0 0 8px;'><b>🔧 CÓMO ARREGLARLO (1 minuto):</b></p>
+            <ol style='margin:0 0 8px; padding-left:22px;'>
+                <li>Abre tu Google Sheets <b>Idiomaconnect_DB</b></li>
+                <li>Click el botón <b>Compartir</b> (arriba a la derecha)</li>
+                <li>Agrega este correo con permiso <b>Editor</b>:</li>
+            </ol>
+            <div style='text-align:center; margin: 8px 0;'>
+                <span class='sa-email'>{sa_email}</span>
+            </div>
+            <ol start='4' style='margin:0 0 8px; padding-left:22px;'>
+                <li>Vuelve a esta app y aprieta <b>"🔁 Reintentar guardar"</b> abajo</li>
+            </ol>
+        </div>
+    """, unsafe_allow_html=True)
+
+
+def attempt_xp_save():
+    """Centraliza el intento de guardar XP. Lee pending_xp_save_args,
+    si tiene éxito incrementa session_state.xp y resetea; si falla,
+    setea last_save_error para que el overlay lo muestre."""
+    args = st.session_state.get("pending_xp_save_args")
+    if not args:
+        return
+    saved, err = save_xp_to_sheet(
+        args["user"], args["xp_award"], args["score_pct"], args["attempts"],
+        world=args.get("world", ""),
+        skill=args.get("skill", ""),
+        lesson_type=args.get("lesson_type", "")
+    )
+    if saved:
+        st.session_state.xp += args["xp_award"]
+        st.session_state.flash_success = args.get("success_msg",
+            f"¡+{args['xp_award']} XP guardados!")
+        st.session_state.pending_xp_save_args = None
+        st.session_state.last_save_error = None
+        reset_to_worlds()
+    else:
+        st.session_state.last_save_error = err
+
+
+def queue_xp_save(user: str, xp_award: int, score_pct: float, attempts: int,
+                   world: str = "", skill: str = "",
+                   lesson_type: str = "lesson_quiz",
+                   success_msg: str = ""):
+    """Encola los datos del save y ejecuta el primer intento de inmediato."""
+    st.session_state.pending_xp_save_args = {
+        "user": user,
+        "xp_award": xp_award,
+        "score_pct": score_pct,
+        "attempts": attempts,
+        "world": world,
+        "skill": skill,
+        "lesson_type": lesson_type,
+        "success_msg": success_msg or f"¡{user}! +{xp_award} XP en tu cuenta.",
+    }
+    attempt_xp_save()
+
+
+def check_db_status() -> tuple:
+    """Diagnóstico rápido de la conexión.
+    Devuelve (status: 'ok'|'fail'|'warn', message, sa_email)."""
+    sa_email = get_service_account_email()
+    sheet, err = get_db_connection()
+    if err or sheet is None:
+        return ("fail", err or "Sin conexión", sa_email)
+    # Intentar lectura mínima
+    try:
+        _ = sheet.row_values(1)
+        return ("ok", "Conectado a Google Sheets", sa_email)
     except Exception as e:
-        logger.error(f"Error guardando en Sheets: {e}")
-        return False, f"Error de Google Sheets: {e}"
+        return ("warn", f"Conectado pero error leyendo: {e}", sa_email)
 
 
 # ==========================================
@@ -3286,6 +3464,10 @@ _STATE_DEFAULTS = {
     "srs_correct":   0,
     "srs_attempted": 0,
     "srs_finished":  False,
+    # Save-to-Sheets pipeline (anti-XP-fantasma)
+    "pending_xp_save_args": None,  # dict con args para reintento
+    "last_save_error":      None,  # último error string si la última save falló
+    "flash_success":        None,  # mensaje de éxito a mostrar tras el rerun
 }
 for key, default in _STATE_DEFAULTS.items():
     if key not in st.session_state:
@@ -3302,6 +3484,51 @@ if st.session_state.current_user is None:
             <p>Elige tu perfil de combate · Sistema de aprendizaje activado</p>
         </div>
     """, unsafe_allow_html=True)
+
+    # ── Diagnóstico de conexión (compacto) ──
+    with st.expander("🛠️ Diagnóstico de conexión", expanded=False):
+        st.markdown(
+            "<p style='font-size:0.85rem; color:#a8acb3; margin:0 0 8px;'>"
+            "Si el XP no se guarda entre sesiones, revisa aquí.</p>",
+            unsafe_allow_html=True
+        )
+        status, msg, sa_email = check_db_status()
+
+        if status == "ok":
+            st.markdown(
+                f"<span class='conn-pill ok'>✅ {msg}</span>",
+                unsafe_allow_html=True
+            )
+        elif status == "warn":
+            st.markdown(
+                f"<span class='conn-pill warn'>⚠ {msg}</span>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"<span class='conn-pill fail'>✗ {msg}</span>",
+                unsafe_allow_html=True
+            )
+            st.markdown(
+                f"<p style='margin: 10px 0 6px; font-size:0.85rem;'>"
+                f"<b>Acción:</b> agrega este email como Editor en tu Google Sheets "
+                f"<i>Idiomaconnect_DB</i>:</p>"
+                f"<div style='text-align:center; margin: 6px 0;'>"
+                f"<span class='sa-email'>{sa_email}</span></div>",
+                unsafe_allow_html=True
+            )
+
+        col_d1, col_d2 = st.columns([1, 2])
+        with col_d1:
+            if st.button("🔁 Reintentar conexión", key="diag_retry",
+                         use_container_width=True, type="secondary"):
+                try:
+                    get_db_connection.clear()
+                except Exception:
+                    pass
+                st.rerun()
+        with col_d2:
+            st.caption(f"Service account: `{sa_email}`")
 
     profile_list = list(PROFILES.items())
     groups = [profile_list[:3], profile_list[3:]]
@@ -3655,6 +3882,44 @@ else:
     # VISTA: HOME (puede mostrar: world entry, battle, lesson+quiz, o worlds grid)
     # ════════════════════════════════════════════════════════════════
 
+    # ── 0a) FLASH SUCCESS (mensaje tras un save exitoso) ─────────────
+    flash_msg = st.session_state.get("flash_success")
+    if flash_msg:
+        st.success(flash_msg)
+        st.balloons()
+        st.session_state.flash_success = None
+
+    # ── 0b) SAVE-ERROR OVERLAY (cuando falló guardar XP) ─────────────
+    if st.session_state.get("last_save_error"):
+        pending = st.session_state.get("pending_xp_save_args") or {}
+        render_save_failure(
+            st.session_state.last_save_error,
+            pending.get("xp_award", 0)
+        )
+        st.write("")
+        col_re1, col_re2 = st.columns(2)
+        with col_re1:
+            if st.button("🔁 Reintentar guardar", key="retry_xp_save",
+                         use_container_width=True, type="primary"):
+                # Forzar refresh de la conexión y reintentar
+                try:
+                    get_db_connection.clear()
+                except Exception:
+                    pass
+                attempt_xp_save()
+                st.rerun()
+        with col_re2:
+            if st.button("🏠 Continuar sin guardar (perder XP)",
+                         key="abandon_xp_save",
+                         use_container_width=True, type="secondary"):
+                st.session_state.pending_xp_save_args = None
+                st.session_state.last_save_error = None
+                reset_to_worlds()
+                st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 1) BATTLE MODE: pregunta activa ──────────────────────────────
     if (st.session_state.battle_questions
             and not st.session_state.battle_finished):
@@ -3918,20 +4183,17 @@ else:
             if st.button("✅ Reclamar XP",
                          use_container_width=True, type="primary",
                          key="battle_claim"):
-                st.session_state.xp += xp_award
                 world_key = st.session_state.get("current_world", "")
-                saved, save_error = save_xp_to_sheet(
-                    user, xp_award, score_pct, attempts=1,
-                    world=world_key, lesson_type="battle"
-                )
-                if not saved:
-                    show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
                 if victory:
-                    st.balloons()
-                    st.success(f"¡Increíble batalla, {user}! +{xp_award} XP en tu cuenta.")
+                    success_msg = f"¡Increíble batalla, {user}! +{xp_award} XP en tu cuenta."
                 else:
-                    st.info(f"Buen intento. Recibes {xp_award} XP de consolación.")
-                reset_to_worlds()
+                    success_msg = f"Buen intento. Recibes {xp_award} XP de consolación."
+                queue_xp_save(
+                    user, xp_award, score_pct, attempts=1,
+                    world=world_key, skill="battle",
+                    lesson_type="battle",
+                    success_msg=success_msg
+                )
                 st.rerun()
         with col_b2:
             if st.button("🏠 Volver al mapa",
@@ -4011,16 +4273,13 @@ else:
             with col_p1:
                 if st.button("✅ Reclamar XP", key="pron_claim",
                              use_container_width=True, type="primary"):
-                    st.session_state.xp += xp_award
-                    saved, _ = save_xp_to_sheet(
+                    queue_xp_save(
                         user, xp_award, avg_score / 100.0, attempts=1,
                         world=st.session_state.get("current_world", ""),
                         skill="pronunciation",
-                        lesson_type="pronunciation"
+                        lesson_type="pronunciation",
+                        success_msg=f"¡Buena pronunciación, {user}! +{xp_award} XP."
                     )
-                    if saved:
-                        st.success(f"¡Buena pronunciación, {user}! +{xp_award} XP.")
-                    reset_to_worlds()
                     st.rerun()
             with col_p2:
                 if st.button("🏠 Volver al mapa", key="pron_back_end",
@@ -4266,16 +4525,13 @@ else:
                 disabled=not can_claim
             ):
                 xp_award = min(60, 20 + turn_count * 5)
-                st.session_state.xp += xp_award
-                saved, _ = save_xp_to_sheet(
+                queue_xp_save(
                     user, xp_award, 1.0, attempts=1,
                     world=st.session_state.get("current_world", ""),
                     skill="conversation",
-                    lesson_type="conversation"
+                    lesson_type="conversation",
+                    success_msg=f"¡Gran conversación, {user}! +{xp_award} XP."
                 )
-                if saved:
-                    st.success(f"¡Gran conversación, {user}! +{xp_award} XP.")
-                reset_to_worlds()
                 st.rerun()
         with col_e2:
             if st.button("✕ Salir", key="conv_abandon",
@@ -4350,15 +4606,12 @@ else:
             st.write("")
             if st.button("✅ Terminar y guardar", key="srs_finish_claim",
                          use_container_width=True, type="primary"):
-                st.session_state.xp += xp_award
-                saved, _ = save_xp_to_sheet(
+                queue_xp_save(
                     user, xp_award, pct, attempts=1,
                     world="srs", skill="vocabulary",
-                    lesson_type="srs_review"
+                    lesson_type="srs_review",
+                    success_msg=f"¡Excelente memoria, {user}! +{xp_award} XP."
                 )
-                if saved:
-                    st.success(f"¡Excelente memoria, {user}! +{xp_award} XP.")
-                reset_to_worlds()
                 st.rerun()
 
             send_weekly_report()
@@ -5005,37 +5258,31 @@ else:
                 use_container_width=True,
                 type="primary"
             ):
-                st.session_state.xp += XP_PER_LESSON
-
-                saved, save_error = save_xp_to_sheet(
-                    user, XP_PER_LESSON, pct, attempts,
-                    world=st.session_state.get("current_world", ""),
-                    lesson_type=st.session_state.get("current_lesson_type", ""),
-                )
-                if not saved:
-                    show_warning(f"XP guardado localmente, pero no en la nube: {save_error}")
-
-                # Auto-añadir vocabulario de la lección al mazo SRS
+                # Auto-añadir vocabulario al mazo SRS antes de intentar el save
+                added = 0
                 if st.session_state.quiz_data:
                     lesson_md = st.session_state.quiz_data.get("lesson", "")
                     vocab_items = extract_vocab_from_lesson(lesson_md)
-                    added = 0
                     for v in vocab_items:
-                        if add_srs_card(user, v["word"], v["translation"], v.get("emoji", "📝")):
+                        if add_srs_card(user, v["word"], v["translation"],
+                                         v.get("emoji", "📝")):
                             added += 1
-                    if added > 0:
-                        st.info(f"📚 +{added} palabra{'s' if added != 1 else ''} agregada{'s' if added != 1 else ''} a tu mazo de repaso.")
 
-                st.session_state.quiz_data     = None
-                st.session_state.quiz_result   = None
-                st.session_state.quiz_attempts = 0
-                st.session_state.lesson_error  = None
-                st.session_state.lesson_audio  = None
-
-                st.balloons()
-                st.success(
-                    f"¡Increíble, {user}! Obtuviste {pct:.0%} y ganaste +{XP_PER_LESSON} XP. ¡Sigue así!"
+                vocab_msg = (
+                    f" 📚 +{added} palabra{'s' if added != 1 else ''} al mazo de repaso."
+                    if added > 0 else ""
                 )
+                queue_xp_save(
+                    user, XP_PER_LESSON, pct, attempts,
+                    world=st.session_state.get("current_world", ""),
+                    skill="",
+                    lesson_type=st.session_state.get("current_lesson_type", "lesson_quiz"),
+                    success_msg=(
+                        f"¡Increíble, {user}! Obtuviste {pct:.0%} y ganaste "
+                        f"+{XP_PER_LESSON} XP. ¡Sigue así!" + vocab_msg
+                    )
+                )
+                st.rerun()
 
         elif attempts_exhausted:
             # Se agotaron los intentos: solo opción de nueva lección
