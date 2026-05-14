@@ -420,6 +420,76 @@ st.markdown("""
         100% { transform: scale(1); opacity: 1; }
     }
 
+    /* --- SENTENCE BUILDER --- */
+    .sb-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--sb-accent, #c464ff);
+        border-radius: var(--radius-lg);
+        padding: 18px 18px 14px;
+        text-align: center;
+        margin: 4px 0 12px;
+        box-shadow: 0 0 22px var(--sb-accent, #c464ff);
+        animation: cardReveal 0.4s ease both;
+    }
+    .sb-hint {
+        color: var(--text-secondary) !important;
+        font-size: 0.82rem;
+        margin: 0 0 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+    .sb-spanish {
+        color: #e0e2e6 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .sb-slot {
+        min-height: 60px;
+        border: 2px dashed #3a3d40;
+        border-radius: var(--radius-md);
+        padding: 14px 12px;
+        margin: 10px 0 14px;
+        background: rgba(29, 32, 35, 0.5);
+        display: flex; align-items: center; justify-content: center;
+        transition: var(--t-base);
+    }
+    .sb-slot-text {
+        color: #e0e2e6 !important;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        text-align: center;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    .sb-section-label {
+        color: var(--text-secondary) !important;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin: 6px 0 4px;
+    }
+
+    /* --- MEMORY MATCH --- */
+    .mm-card {
+        border-radius: var(--radius-md);
+        padding: 18px 6px;
+        text-align: center;
+        font-weight: 700;
+        line-height: 1;
+        min-height: 56px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 8px;
+        animation: bounceIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .mm-face {
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
     /* --- BATTLE MODE HUD --- */
     .battle-hud {
         background: var(--bg-glass-strong);
@@ -2448,7 +2518,14 @@ def attempt_xp_save():
         lesson_type=args.get("lesson_type", "")
     )
     if saved:
-        st.session_state.xp += args["xp_award"]
+        # XP YA está en Sheets. Reseteamos session_state.xp a 0 y limpiamos
+        # la caché de stats para que el encabezado refleje el nuevo total
+        # desde la fuente única de verdad (Google Sheets) sin doble conteo.
+        st.session_state.xp = 0
+        try:
+            get_user_stats.clear()
+        except Exception:
+            pass
         st.session_state.flash_success = args.get("success_msg",
             f"¡+{args['xp_award']} XP guardados!")
         st.session_state.pending_xp_save_args = None
@@ -2986,6 +3063,12 @@ def reset_to_worlds():
         # Flashcards
         "fc_cards", "fc_index", "fc_correct", "fc_attempted",
         "fc_finished", "fc_chosen", "fc_audio",
+        # Sentence Builder
+        "sb_sentences", "sb_index", "sb_placed", "sb_correct",
+        "sb_attempted", "sb_finished", "sb_revealed", "sb_last_ok",
+        # Memory Match
+        "mm_pairs", "mm_flipped", "mm_matched", "mm_attempts",
+        "mm_first", "mm_finished",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -3085,6 +3168,95 @@ def start_flashcards(world_key: str, world_topic: str):
     st.session_state.fc_finished    = False
     st.session_state.fc_chosen      = None
     st.session_state.fc_audio       = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_sentence_builder(world_key: str, world_topic: str):
+    """Inicia el modo Constructor de Oraciones (exclusivo de Galaxia Gramatical):
+    el niño tiene palabras desordenadas y debe ordenarlas tocándolas en secuencia."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🧩 Preparando oraciones para armar..."):
+        sents, err = generate_sentences(profile_name, world_topic, cefr)
+
+    if err or not sents:
+        st.error(f"⚠️ No pude generar oraciones: {err or 'sin datos'}")
+        return
+
+    import random as _rand
+    prepared = []
+    for s in sents:
+        words = s["english"].split()
+        target = list(words)
+        scrambled = list(words)
+        # Asegurar que el orden mezclado sea distinto del orden correcto
+        for _ in range(8):
+            _rand.shuffle(scrambled)
+            if scrambled != target:
+                break
+        prepared.append({
+            "spanish":   s["spanish"],
+            "english":   s["english"],
+            "scrambled": scrambled,
+            "target":    target,
+        })
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "sentence_builder"
+    st.session_state.sb_sentences   = prepared
+    st.session_state.sb_index       = 0
+    st.session_state.sb_placed      = []
+    st.session_state.sb_correct     = 0
+    st.session_state.sb_attempted   = 0
+    st.session_state.sb_finished    = False
+    st.session_state.sb_revealed    = False
+    st.session_state.sb_last_ok     = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_memory_match(world_key: str, world_topic: str):
+    """Inicia Memory Match (exclusivo de Bóveda de Vocabulario): genera 6
+    parejas palabra-emoji, las mezcla en 12 cartas boca abajo."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🧠 Preparando el tablero de memoria..."):
+        pairs, err = generate_memory_pairs(profile_name, world_topic, cefr)
+
+    if err or not pairs:
+        st.error(f"⚠️ No pude generar parejas: {err or 'sin datos'}")
+        return
+
+    import random as _rand
+    cards = []
+    for pid, p in enumerate(pairs):
+        cards.append({"id": pid * 2,     "kind": "emoji", "value": p["emoji"], "word": p["word"], "meaning": p.get("meaning", ""), "pair_id": pid})
+        cards.append({"id": pid * 2 + 1, "kind": "word",  "value": p["word"],  "word": p["word"], "meaning": p.get("meaning", ""), "pair_id": pid})
+    _rand.shuffle(cards)
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "memory_match"
+    st.session_state.mm_pairs       = cards
+    st.session_state.mm_flipped     = []
+    st.session_state.mm_matched     = []
+    st.session_state.mm_attempts    = 0
+    st.session_state.mm_first       = None
+    st.session_state.mm_finished    = False
     st.session_state.selected_world = None
     st.session_state.view = "home"
 
@@ -3241,6 +3413,134 @@ REGLAS:
     except Exception as e:
         logger.error(f"Error generando palabras de pronunciación: {e}")
         return None, f"Error al generar palabras: {e}"
+
+
+def generate_sentences(profile_name: str, world_topic: str,
+                        cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 5 oraciones cortas con traducción al español para el modo
+    Constructor de Oraciones (mundo Gramatical). Devuelve (lista, error).
+    Cada item: {spanish, english}."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un profesor de inglés que diseña ejercicios de construcción de oraciones para niños hispanohablantes.
+
+Nivel del/la alumno/a: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+Tema gramatical: {world_topic}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "sentences": [
+    {{
+      "spanish": "<oración en español, clara y simple>",
+      "english": "<traducción al inglés, EXACTA, sin signos de puntuación final excepto punto>"
+    }}
+  ]
+}}
+
+REGLAS ESTRICTAS:
+- Genera EXACTAMENTE 5 oraciones.
+- Cada oración en inglés debe tener entre 4 y 7 palabras (ni más ni menos).
+- Las palabras deben estar separadas por UN espacio simple.
+- NO uses comas, comillas, puntos suspensivos. Solo letras y un punto final opcional.
+- Las oraciones deben ser cortas y claras, ideales para reordenar palabras.
+- Acordes al nivel CEFR ({cefr_code}) y al tema gramatical indicado.
+- Variedad: no todas con el mismo verbo o estructura.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": f"Genera 5 oraciones para: {world_topic[:200]}"}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.7,
+            max_tokens=800,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        sents = data.get("sentences", [])
+        # Validación: filtrar oraciones con longitud apropiada
+        valid = []
+        for s in sents:
+            eng = (s.get("english") or "").strip().rstrip(".").strip()
+            esp = (s.get("spanish") or "").strip()
+            if not eng or not esp:
+                continue
+            words = eng.split()
+            if 3 <= len(words) <= 8:
+                valid.append({"spanish": esp, "english": eng})
+        if not valid:
+            return None, "El modelo no devolvió oraciones válidas. Intenta de nuevo."
+        return valid[:5], None
+    except Exception as e:
+        logger.error(f"Error generando oraciones: {e}")
+        return None, f"Error al generar oraciones: {e}"
+
+
+def generate_memory_pairs(profile_name: str, world_topic: str,
+                           cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 6 parejas palabra-emoji para el modo Memory Match.
+    Devuelve (lista de {word, emoji, meaning}, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un experto en enseñanza de vocabulario inglés para niños hispanohablantes.
+
+Nivel del/la alumno/a: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+Tema del mundo: {world_topic}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "pairs": [
+    {{
+      "word": "<palabra simple en inglés (1 palabra, máximo 2)>",
+      "emoji": "<un solo emoji muy visual y CLARO>",
+      "meaning": "<significado breve en español>"
+    }}
+  ]
+}}
+
+REGLAS ESTRICTAS:
+- Genera EXACTAMENTE 6 parejas (12 cartas para el juego).
+- Las palabras deben ser CONCRETAS y VISUALES (objetos, animales, comida, etc).
+- Cada emoji debe representar SIN AMBIGÜEDAD su palabra.
+- 6 emojis DIFERENTES entre sí — no se pueden repetir.
+- 6 palabras DIFERENTES entre sí — no se pueden repetir.
+- Acordes al nivel CEFR ({cefr_code}) y a la temática del mundo.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": f"Genera 6 parejas para: {world_topic[:200]}"}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.7,
+            max_tokens=700,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        pairs = data.get("pairs", [])
+        pairs = [p for p in pairs if p.get("word") and p.get("emoji")]
+        if len(pairs) < 4:
+            return None, "El modelo no devolvió suficientes parejas. Intenta de nuevo."
+        return pairs[:6], None
+    except Exception as e:
+        logger.error(f"Error generando parejas: {e}")
+        return None, f"Error al generar parejas: {e}"
 
 
 def generate_flashcards(profile_name: str, world_topic: str,
@@ -3667,6 +3967,22 @@ _STATE_DEFAULTS = {
     "fc_finished":   False,
     "fc_chosen":     None,    # índice seleccionado en la tarjeta actual (None = aún no contesta)
     "fc_audio":      None,    # bytes MP3 del audio actual
+    # Sentence Builder (Galaxia Gramatical) — palabras desordenadas a ordenar
+    "sb_sentences":  None,    # lista de {spanish, english, scrambled:[words], target:[words]}
+    "sb_index":      0,
+    "sb_placed":     None,    # lista de índices de palabras ya colocadas en orden
+    "sb_correct":    0,
+    "sb_attempted":  0,
+    "sb_finished":   False,
+    "sb_revealed":   False,   # si ya validó la oración actual
+    "sb_last_ok":    None,    # True/False de la última validación
+    # Memory Match (Bóveda de Vocabulario) — parejas imagen-palabra
+    "mm_pairs":      None,    # lista de {id, kind:'emoji'|'word', value, pair_id} (12 items: 6 parejas)
+    "mm_flipped":    None,    # set de ids actualmente boca arriba (no matched)
+    "mm_matched":    None,    # set de pair_ids ya emparejados
+    "mm_attempts":   0,
+    "mm_first":      None,    # id de la primera carta del par en curso
+    "mm_finished":   False,
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -3875,6 +4191,10 @@ else:
         "srs_correct", "srs_attempted", "srs_finished",
         "fc_cards", "fc_index", "fc_correct", "fc_attempted",
         "fc_finished", "fc_chosen", "fc_audio",
+        "sb_sentences", "sb_index", "sb_placed", "sb_correct",
+        "sb_attempted", "sb_finished", "sb_revealed", "sb_last_ok",
+        "mm_pairs", "mm_flipped", "mm_matched", "mm_attempts",
+        "mm_first", "mm_finished",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -4441,6 +4761,303 @@ else:
                          key="battle_back"):
                 reset_to_worlds()
                 st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.03) SENTENCE BUILDER MODE (Galaxia Gramatical) ─────────────
+    if st.session_state.sb_sentences is not None:
+        sb_world_meta = get_world_meta(
+            st.session_state.get("current_world", "grammar"), user
+        )
+        sb_accent = sb_world_meta.get("accent", "#c464ff")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {sb_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        sents = st.session_state.sb_sentences
+        idx   = st.session_state.sb_index
+        total = len(sents)
+
+        # ── Pantalla final ──
+        if st.session_state.sb_finished or idx >= total:
+            attempted = max(1, st.session_state.sb_attempted)
+            correct   = st.session_state.sb_correct
+            score_pct = (correct / attempted) * 100.0
+            xp_award  = max(15, int(score_pct / 2))
+
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🧩</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>{correct} de {total} oraciones correctas</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="sb_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=score_pct / 100.0, attempts=1,
+                        world=st.session_state.get("current_world", "grammar"),
+                        skill="grammar", lesson_type="sentence_builder",
+                        success_msg=f"¡+{xp_award} XP en Constructor!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="sb_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Oración actual ──
+        sent   = sents[idx]
+        placed = st.session_state.sb_placed or []
+        scrambled = sent["scrambled"]
+        target    = sent["target"]
+        revealed  = st.session_state.sb_revealed
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{sb_accent};'>"
+            f"🧩 ORACIÓN {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Tarjeta con la oración en español
+        st.markdown(
+            f"<div class='sb-card' style='--sb-accent: {sb_accent};'>"
+            f"<p class='sb-hint'>Traduce y ordena las palabras:</p>"
+            f"<p class='sb-spanish'>{sent['spanish']}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Área de oración construida
+        built_words = [scrambled[i] for i in placed]
+        built_display = " ".join(built_words) if built_words else "( toca las palabras en orden )"
+        slot_color = sb_accent if built_words else "#3a3d40"
+        st.markdown(
+            f"<div class='sb-slot' style='border-color:{slot_color};'>"
+            f"<p class='sb-slot-text'>{built_display}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Botones de palabras desordenadas (las ya colocadas se ven inactivas)
+        st.markdown("<p class='sb-section-label'>Palabras disponibles:</p>", unsafe_allow_html=True)
+        n_cols = min(4, len(scrambled))
+        word_cols = st.columns(n_cols)
+        for i, w in enumerate(scrambled):
+            with word_cols[i % n_cols]:
+                already_placed = (i in placed)
+                if revealed or already_placed:
+                    st.button(w, key=f"sb_w_{idx}_{i}",
+                              disabled=True, use_container_width=True)
+                else:
+                    if st.button(w, key=f"sb_w_{idx}_{i}",
+                                 use_container_width=True, type="secondary"):
+                        st.session_state.sb_placed = placed + [i]
+                        st.rerun()
+
+        st.write("")
+        col_a, col_b, col_c = st.columns([1, 1, 1])
+        # Deshacer
+        with col_a:
+            if not revealed and placed:
+                if st.button("↶ Quitar última", key=f"sb_undo_{idx}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.sb_placed = placed[:-1]
+                    st.rerun()
+        # Verificar (cuando coloca todas las palabras)
+        with col_b:
+            if not revealed and len(placed) == len(scrambled):
+                if st.button("✓ Verificar", key=f"sb_check_{idx}",
+                             use_container_width=True, type="primary"):
+                    built = [scrambled[i] for i in placed]
+                    ok = (built == target)
+                    st.session_state.sb_attempted += 1
+                    if ok:
+                        st.session_state.sb_correct += 1
+                    st.session_state.sb_revealed = True
+                    st.session_state.sb_last_ok = ok
+                    st.rerun()
+        # Siguiente (después de validar)
+        with col_c:
+            if revealed:
+                next_label = "Siguiente →" if (idx + 1) < total else "Resultados 🏁"
+                if st.button(next_label, key=f"sb_next_{idx}",
+                             use_container_width=True, type="primary"):
+                    st.session_state.sb_index += 1
+                    st.session_state.sb_placed = []
+                    st.session_state.sb_revealed = False
+                    st.session_state.sb_last_ok = None
+                    if st.session_state.sb_index >= total:
+                        st.session_state.sb_finished = True
+                    st.rerun()
+
+        # Feedback de validación
+        if revealed:
+            if st.session_state.sb_last_ok:
+                st.markdown(
+                    f"<div class='fc-feedback ok'>"
+                    f"✓ ¡Correcto! <b>{sent['english']}</b>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"<div class='fc-feedback bad'>"
+                    f"✗ Casi. Era: <b>{sent['english']}</b>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+        st.write("")
+        if st.button("✕ Salir", key="sb_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.04) MEMORY MATCH MODE (Bóveda de Vocabulario) ───────────────
+    if st.session_state.mm_pairs is not None:
+        mm_world_meta = get_world_meta(
+            st.session_state.get("current_world", "vocab"), user
+        )
+        mm_accent = mm_world_meta.get("accent", "#00eefc")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {mm_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        cards = st.session_state.mm_pairs
+        flipped = list(st.session_state.mm_flipped or [])
+        matched = list(st.session_state.mm_matched or [])
+        total_pairs = len(cards) // 2
+
+        # ── Verificar si terminó ──
+        if len(matched) >= total_pairs:
+            st.session_state.mm_finished = True
+
+        # ── Pantalla final ──
+        if st.session_state.mm_finished:
+            attempts = max(1, st.session_state.mm_attempts)
+            # Eficiencia: cuanto más cerca esté de total_pairs, mejor
+            efficiency = min(100.0, (total_pairs / attempts) * 100.0)
+            xp_award = max(15, int(efficiency / 2))
+
+            color_avg = "#39ff14" if efficiency >= 80 else "#ffd400" if efficiency >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🧠</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        ¡Completado!
+                    </h1>
+                    <p class='battle-end-subtitle'>{total_pairs} parejas en {attempts} intentos · eficiencia {int(efficiency)}%</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="mm_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=efficiency / 100.0, attempts=attempts,
+                        world=st.session_state.get("current_world", "vocab"),
+                        skill="vocabulary", lesson_type="memory_match",
+                        success_msg=f"¡+{xp_award} XP en Memory Match!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="mm_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Tablero ──
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{mm_accent};'>"
+            f"🧠 MEMORY MATCH · {len(matched)} / {total_pairs} parejas · intentos: {st.session_state.mm_attempts}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Si hay 2 cartas dadas vuelta que no son pareja, mostrarlas un momento
+        # luego pedirles al usuario que toque "Continuar" para esconderlas
+        pending_mismatch = (
+            len(flipped) == 2
+            and cards[flipped[0]]["pair_id"] != cards[flipped[1]]["pair_id"]
+        )
+
+        n_cols = 4
+        rows = [cards[i:i + n_cols] for i in range(0, len(cards), n_cols)]
+
+        for r_idx, row in enumerate(rows):
+            row_cols = st.columns(n_cols)
+            for c_idx, card in enumerate(row):
+                with row_cols[c_idx]:
+                    card_id = card["id"]
+                    is_matched = (card["pair_id"] in matched)
+                    is_flipped = (card_id in flipped)
+                    show_face = is_matched or is_flipped
+
+                    if show_face:
+                        # Mostrar contenido
+                        emoji_or_word = card["value"]
+                        bg = mm_accent if is_matched else "#272a2d"
+                        fg = "#0a0b1e" if is_matched else "#e0e2e6"
+                        font_size = "2.2rem" if card["kind"] == "emoji" else "1rem"
+                        st.markdown(
+                            f"<div class='mm-card mm-face' style='background:{bg}; color:{fg}; font-size:{font_size};'>"
+                            f"{emoji_or_word}</div>",
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        # Botón "boca abajo": clickeable si no hay mismatch pendiente
+                        disabled = pending_mismatch or len(flipped) >= 2
+                        if st.button("❓", key=f"mm_{card_id}",
+                                     use_container_width=True,
+                                     disabled=disabled, type="secondary"):
+                            new_flipped = flipped + [card_id]
+                            st.session_state.mm_flipped = new_flipped
+                            if len(new_flipped) == 2:
+                                st.session_state.mm_attempts += 1
+                                a_idx, b_idx = new_flipped[0], new_flipped[1]
+                                if cards[a_idx]["pair_id"] == cards[b_idx]["pair_id"]:
+                                    # ¡Match!
+                                    st.session_state.mm_matched = matched + [cards[a_idx]["pair_id"]]
+                                    st.session_state.mm_flipped = []
+                            st.rerun()
+
+        st.write("")
+        if pending_mismatch:
+            if st.button("Continuar →", key="mm_continue",
+                         use_container_width=True, type="primary"):
+                st.session_state.mm_flipped = []
+                st.rerun()
+
+        if st.button("✕ Salir", key="mm_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
 
         send_weekly_report()
         st.stop()
@@ -5153,8 +5770,8 @@ else:
             unsafe_allow_html=True
         )
 
-        # Modos disponibles. En el mundo "vocab" agregamos Flashcards Visuales
-        # como modo destacado (mecánica propia del mundo de vocabulario).
+        # Modos disponibles. Cada mundo tiene sus mecánicas propias destacadas
+        # al inicio, seguidas de los modos genéricos.
         modes = []
         if wkey == "vocab":
             modes.append({
@@ -5163,6 +5780,23 @@ else:
                 "name":   "Flashcards Visuales",
                 "desc":   "Mira el dibujo, escucha y elige la palabra correcta.",
                 "btn":    "Jugar Flashcards",
+                "accent": "#ffd400",
+            })
+            modes.append({
+                "key":    "memory_match",
+                "icon":   "🧠",
+                "name":   "Memory Match",
+                "desc":   "Encuentra las parejas de palabra y dibujo escondidas.",
+                "btn":    "Jugar Memory",
+                "accent": "#ff66c4",
+            })
+        if wkey == "grammar":
+            modes.append({
+                "key":    "sentence_builder",
+                "icon":   "🧩",
+                "name":   "Constructor de Oraciones",
+                "desc":   "Toca las palabras en orden para formar la oración.",
+                "btn":    "Construir Oraciones",
                 "accent": "#ffd400",
             })
         modes += [
@@ -5220,13 +5854,18 @@ else:
                     # El modo destacado del mundo es "primary"
                     is_featured = (
                         (wkey == "vocab" and m["key"] == "flashcards")
-                        or (wkey != "vocab" and m["key"] == "battle")
+                        or (wkey == "grammar" and m["key"] == "sentence_builder")
+                        or (wkey not in ("vocab", "grammar") and m["key"] == "battle")
                     )
                     if st.button(m["btn"], key=f"mode_{m['key']}",
                                  use_container_width=True,
                                  type="primary" if is_featured else "secondary"):
                         if m["key"] == "flashcards":
                             start_flashcards(wkey, wmeta["topic"])
+                        elif m["key"] == "memory_match":
+                            start_memory_match(wkey, wmeta["topic"])
+                        elif m["key"] == "sentence_builder":
+                            start_sentence_builder(wkey, wmeta["topic"])
                         elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
@@ -5253,6 +5892,8 @@ else:
         or st.session_state.quiz_result is not None
         or st.session_state.lesson_pending
         or st.session_state.fc_cards is not None
+        or st.session_state.sb_sentences is not None
+        or st.session_state.mm_pairs is not None
     )
 
     if not in_lesson_flow:
