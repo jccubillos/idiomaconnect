@@ -45,6 +45,12 @@ st.markdown("""
        CYBER-LINGUIST HUD — Sistema de diseño dark + glassmorphism
        ============================================================ */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0');
+    .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded' !important;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48 !important;
+        font-size: 18px !important;
+    }
 
     :root {
         /* Surfaces */
@@ -1532,6 +1538,19 @@ st.markdown("""
         border-radius: var(--radius-sm) !important;
     }
     [data-testid="stExpander"] summary { color: var(--neon-cyan) !important; }
+    /* Asegurar que el ícono del expander use la fuente correcta y no aparezca como texto */
+    [data-testid="stExpander"] summary span[data-testid="stExpanderToggleIcon"],
+    [data-testid="stExpander"] summary .material-symbols-rounded {
+        font-family: 'Material Symbols Rounded' !important;
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48 !important;
+        font-size: 18px !important;
+        color: var(--neon-cyan) !important;
+        overflow: hidden;
+        width: 20px;
+        height: 20px;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
 
     .stCaption, [data-testid="stCaptionContainer"], small {
         color: var(--text-dim) !important;
@@ -3588,6 +3607,11 @@ else:
         unsafe_allow_html=True
     )
 
+    # --- STATS (se carga primero para mostrar XP total en el encabezado) ---
+    stats = get_user_stats(user)
+    # XP a mostrar: total guardado en Sheets + lo ganado en esta sesión (aún no guardado)
+    displayed_xp = stats["total_xp"] + st.session_state.xp
+
     # --- ENCABEZADO ---
     avatar_url = get_avatar_for(user)
     avatar_inline = (
@@ -3603,12 +3627,11 @@ else:
                 {avatar_inline}
                 <span>Hola, {user}</span>
             </h2>
-            <span class='xp-display'>⚡ {st.session_state.xp} XP</span>
+            <span class='xp-display'>⚡ {displayed_xp} XP</span>
         </div>
     """, unsafe_allow_html=True)
 
     # --- PANEL DE PROGRESO ACUMULADO (desde Google Sheets) ---
-    stats = get_user_stats(user)
     if stats["total_sessions"] > 0:
         st.markdown(f"""
             <div class='progress-panel'>
@@ -5299,37 +5322,4 @@ else:
                 use_container_width=True,
                 type="primary"
             ):
-                st.session_state.quiz_data     = None
-                st.session_state.quiz_result   = None
-                st.session_state.quiz_attempts = 0
-                st.session_state.lesson_error  = None
-                st.session_state.lesson_audio  = None
-                st.rerun()
-
-        else:
-            # Todavía le quedan intentos
-            col_retry, col_new = st.columns(2)
-
-            with col_retry:
-                if st.button(
-                    "🔄 Volver a intentar el Quiz",
-                    use_container_width=True,
-                    type="primary"
-                ):
-                    st.session_state.quiz_result = None
-                    st.rerun()
-
-            with col_new:
-                if st.button(
-                    "📖 Nueva Lección",
-                    use_container_width=True,
-                    type="secondary"
-                ):
-                    st.session_state.quiz_data     = None
-                    st.session_state.quiz_result   = None
-                    st.session_state.quiz_attempts = 0
-                    st.session_state.lesson_error  = None
-                    st.session_state.lesson_audio  = None
-                    st.rerun()
-
-send_weekly_report()
+                st.session_state.quiz_data     = No
