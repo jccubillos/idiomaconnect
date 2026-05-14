@@ -538,6 +538,112 @@ st.markdown("""
         margin-right: 4px;
     }
 
+    /* --- ROLEPLAY PICKER (Café Conversación) --- */
+    .rp-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid #c464ff;
+        border-radius: var(--radius-lg);
+        padding: 16px 14px 8px;
+        text-align: center;
+        margin-bottom: 10px;
+        box-shadow: 0 0 16px rgba(196,100,255,0.25);
+        animation: cardReveal 0.45s ease both;
+    }
+    .rp-emoji {
+        font-size: 2.4rem; line-height: 1;
+        filter: drop-shadow(0 0 12px #c464ff);
+        margin-bottom: 4px;
+    }
+    .rp-name {
+        color: #c464ff !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 1.05rem;
+        margin: 4px 0 2px;
+        text-shadow: 0 0 10px rgba(196,100,255,0.7);
+    }
+    .rp-meta {
+        color: var(--text-dim) !important;
+        font-size: 0.75rem;
+        margin: 0 0 4px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .rp-role {
+        color: var(--text-secondary) !important;
+        font-size: 0.8rem;
+        margin: 0 0 8px;
+    }
+    /* Contexto de role-play durante la conversación */
+    .rp-context {
+        background: var(--bg-glass);
+        border: 1px solid var(--rp-accent, #c464ff);
+        border-radius: var(--radius-md);
+        padding: 10px 14px;
+        margin: 0 0 10px;
+        font-size: 0.86rem;
+    }
+    .rp-context-row { margin: 2px 0; color: var(--text-secondary) !important; }
+    .rp-context-row b { color: var(--rp-accent, #c464ff) !important; }
+    /* Panel de misiones */
+    .rp-objectives {
+        background: rgba(196,100,255,0.06);
+        border-left: 3px solid #c464ff;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin: 0 0 14px;
+    }
+    .rp-obj-title {
+        color: #c464ff !important;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 0 0 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .rp-obj-list {
+        list-style: none;
+        padding: 0; margin: 0;
+        font-size: 0.85rem;
+    }
+    .rp-obj-list li {
+        margin: 3px 0;
+        line-height: 1.4;
+    }
+    .obj-pending {
+        color: var(--text-secondary) !important;
+    }
+    .obj-done {
+        color: #39ff14 !important;
+        text-shadow: 0 0 6px rgba(57,255,20,0.4);
+    }
+    .obj-mark {
+        display: inline-block;
+        width: 18px;
+        font-weight: 800;
+        margin-right: 4px;
+    }
+
+    /* --- MINIMAL PAIRS --- */
+    .mp-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--mp-accent, #39ff14);
+        border-radius: var(--radius-lg);
+        padding: 18px 18px 14px;
+        text-align: center;
+        margin: 4px 0 12px;
+        box-shadow: 0 0 22px var(--mp-accent, #39ff14);
+        animation: cardReveal 0.4s ease both;
+    }
+    .mp-hint {
+        color: var(--text-primary) !important;
+        font-size: 1.05rem;
+        margin: 0;
+        font-weight: 700;
+    }
+
     /* --- MEMORY MATCH --- */
     .mm-card {
         border-radius: var(--radius-md);
@@ -2063,6 +2169,29 @@ UNIVERSAL_WORLDS = {
                     "Debe ser un tema que sorprenda, sea desafiante pero alcanzable, "
                     "y conectado con la edad e intereses del/la alumno/a."),
     },
+    "sound": {
+        "emoji":   "🎙",
+        "name":    "Estudio de Sonido",
+        "tagline": "Escucha, distingue y pronuncia sonidos del inglés",
+        "intro":   ("Bienvenida al estudio acústico. Aquí entrenarás tu oído y "
+                    "tu voz: los sonidos que los hispanohablantes confunden, "
+                    "las palabras gemelas, y las pronunciaciones difíciles."),
+        "accent":  "#39ff14",
+        "topic":   ("Pronunciación y comprensión auditiva: sonidos difíciles del inglés "
+                    "(th, r final, vocales i/ee), pares mínimos, palabras de uso cotidiano "
+                    "para entrenar el oído y la voz."),
+    },
+    "chat": {
+        "emoji":   "💬",
+        "name":    "Café Conversación",
+        "tagline": "Practica situaciones reales con misiones de role-play",
+        "intro":   ("Bienvenida al café donde se habla inglés. Elige un escenario "
+                    "real (pedir comida, viajar, conocer gente) y completa misiones "
+                    "conversando con la IA."),
+        "accent":  "#c464ff",
+        "topic":   ("Conversación práctica en situaciones cotidianas: restaurantes, "
+                    "viajes, escuela, presentaciones, opiniones simples."),
+    },
 }
 
 
@@ -3164,6 +3293,14 @@ def reset_to_worlds():
         # Story Fill
         "sf_story", "sf_index", "sf_picked", "sf_revealed",
         "sf_correct", "sf_finished",
+        # Role-Play
+        "rp_scenario", "rp_done_objs", "rp_picker",
+        # Minimal Pairs
+        "mp_pairs", "mp_index", "mp_correct", "mp_chosen",
+        "mp_finished", "mp_audio",
+        # Listen ID
+        "li_cards", "li_index", "li_correct", "li_chosen",
+        "li_finished", "li_audio",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -3202,15 +3339,35 @@ def start_pronunciation(world_key: str, world_topic: str):
     st.session_state.view = "home"
 
 
-def start_conversation(world_key: str):
-    """Inicia el modo conversación con la IA."""
+def start_conversation(world_key: str, scenario_key: str = None):
+    """Inicia el modo conversación con la IA. Si scenario_key se da,
+    arranca un role-play con ese escenario."""
     st.session_state.current_world  = world_key
     st.session_state.current_lesson_type = "conversation"
     st.session_state.conv_active     = True
     st.session_state.conv_history    = []
     st.session_state.conv_turn_count = 0
     st.session_state.conv_pending_user_input = ""
+    if scenario_key:
+        st.session_state.rp_scenario = get_scenario_by_key(scenario_key)
+        st.session_state.rp_done_objs = []
+    else:
+        st.session_state.rp_scenario = None
+        st.session_state.rp_done_objs = None
+    st.session_state.rp_picker = False
     st.session_state.selected_world  = None
+    st.session_state.view = "home"
+
+
+def open_roleplay_picker(world_key: str):
+    """Abre la pantalla de selección de escenario role-play."""
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "roleplay_picker"
+    st.session_state.rp_picker = True
+    st.session_state.rp_scenario = None
+    st.session_state.rp_done_objs = None
+    st.session_state.conv_active = False
+    st.session_state.selected_world = None
     st.session_state.view = "home"
 
 
@@ -3354,6 +3511,95 @@ def start_story_fill(world_key: str, world_topic: str):
     st.session_state.view = "home"
 
 
+def start_minimal_pairs(world_key: str, world_topic: str):
+    """Inicia el modo Pares Mínimos (Estudio de Sonido)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("👂 Preparando pares mínimos..."):
+        pairs, err = generate_minimal_pairs(profile_name, cefr)
+
+    if err or not pairs:
+        st.error(f"⚠️ No pude generar pares: {err or 'sin datos'}")
+        return
+
+    # Para cada par, elegir aleatoriamente cuál palabra "se dice" (correct_idx 0 o 1)
+    import random as _rand
+    prepared = []
+    for p in pairs:
+        correct_idx = _rand.choice([0, 1])
+        prepared.append({
+            "word_a": p["word_a"], "meaning_a": p.get("meaning_a", ""),
+            "word_b": p["word_b"], "meaning_b": p.get("meaning_b", ""),
+            "correct_idx": correct_idx,
+        })
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "min_pairs"
+    st.session_state.mp_pairs       = prepared
+    st.session_state.mp_index       = 0
+    st.session_state.mp_correct     = 0
+    st.session_state.mp_chosen      = None
+    st.session_state.mp_finished    = False
+    st.session_state.mp_audio       = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_listen_id(world_key: str, world_topic: str):
+    """Inicia el modo ¿Qué escuché? — escucha la palabra correcta y elige
+    entre 4 tarjetas escritas. Reutiliza flashcards pero AL REVÉS (audio→texto)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("👂 Preparando ejercicio de escucha..."):
+        cards, err = generate_listen_id_cards(profile_name, world_topic, cefr)
+
+    if err or not cards:
+        st.error(f"⚠️ No pude generar tarjetas: {err or 'sin datos'}")
+        return
+
+    import random as _rand
+    prepared = []
+    for c in cards:
+        opts = [c["word"]] + (c.get("distractors") or [])[:3]
+        while len(opts) < 4:
+            opts.append("???")
+        opts = opts[:4]
+        _rand.shuffle(opts)
+        correct_idx = opts.index(c["word"]) if c["word"] in opts else 0
+        prepared.append({
+            "word":        c["word"],
+            "meaning":     c.get("meaning", ""),
+            "emoji":       c.get("emoji", "🔊"),
+            "options":     opts,
+            "correct_idx": correct_idx,
+        })
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "listen_id"
+    st.session_state.li_cards       = prepared
+    st.session_state.li_index       = 0
+    st.session_state.li_correct     = 0
+    st.session_state.li_chosen      = None
+    st.session_state.li_finished    = False
+    st.session_state.li_audio       = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
 def start_memory_match(world_key: str, world_topic: str):
     """Inicia Memory Match (exclusivo de Bóveda de Vocabulario): genera 6
     parejas palabra-emoji, las mezcla en 12 cartas boca abajo."""
@@ -3412,10 +3658,147 @@ def start_srs_review(profile_name: str):
 # CONVERSATION MODE HELPERS
 # ==========================================
 
+# ==========================================
+# ROLE-PLAY SCENARIOS (Café Conversación)
+# ==========================================
+ROLEPLAY_SCENARIOS = [
+    {
+        "key": "cafe_order", "emoji": "🍔", "cefr": "A1",
+        "name": "Pedir en un café",
+        "context": "You are a waiter at a friendly café. The student is a hungry customer.",
+        "role_user": "Cliente hambriento en un café",
+        "role_ai":   "Mesera/o amable del café",
+        "objectives": [
+            "Saludar (Hi / Hello)",
+            "Pedir algo de comer",
+            "Pedir algo de beber",
+            "Pedir la cuenta",
+            "Despedirse amablemente",
+        ],
+    },
+    {
+        "key": "new_friend", "emoji": "🎒", "cefr": "A1",
+        "name": "Conocer a alguien en la escuela",
+        "context": "You are a friendly classmate meeting the student for the first time at school.",
+        "role_user": "Estudiante nuevo en la escuela",
+        "role_ai":   "Compañero/a curioso/a y amable",
+        "objectives": [
+            "Saludar y presentarte (decir tu nombre)",
+            "Decir tu edad o de dónde vienes",
+            "Mencionar UN hobby tuyo",
+            "Preguntar UN hobby al otro",
+            "Quedar en verse otra vez",
+        ],
+    },
+    {
+        "key": "doctor", "emoji": "🏥", "cefr": "A2",
+        "name": "Visita al doctor",
+        "context": "You are a kind doctor. The student is a patient who is not feeling well.",
+        "role_user": "Paciente con molestias",
+        "role_ai":   "Doctor/a paciente y profesional",
+        "objectives": [
+            "Saludar al doctor",
+            "Decir qué te duele (dolor de cabeza, garganta, etc.)",
+            "Decir hace cuánto tiempo lo sientes",
+            "Hacer UNA pregunta al doctor",
+            "Despedirte y agradecer",
+        ],
+    },
+    {
+        "key": "shopping", "emoji": "🛒", "cefr": "A2",
+        "name": "Comprar ropa",
+        "context": "You are a shop assistant in a clothing store. The student is a customer looking for something.",
+        "role_user": "Cliente buscando ropa",
+        "role_ai":   "Vendedor/a servicial de la tienda",
+        "objectives": [
+            "Saludar a la vendedora",
+            "Decir qué tipo de prenda buscas",
+            "Decir el color o talla que quieres",
+            "Preguntar el precio",
+            "Decidir si lo compras o no",
+        ],
+    },
+    {
+        "key": "airport", "emoji": "✈️", "cefr": "B1",
+        "name": "Pasar por el aeropuerto",
+        "context": "You are an airport security officer. The student is a traveler going through security.",
+        "role_user": "Viajero/a en seguridad del aeropuerto",
+        "role_ai":   "Oficial educado/a de seguridad",
+        "objectives": [
+            "Saludar al oficial",
+            "Mostrar/mencionar tu pasaporte y boleto",
+            "Responder qué llevas en la mochila",
+            "Decir el motivo del viaje",
+            "Despedirte y desear buen día",
+        ],
+    },
+    {
+        "key": "movie_chat", "emoji": "🎬", "cefr": "B1",
+        "name": "Recomendar una película",
+        "context": "You are a friend who loves movies. The student wants a recommendation.",
+        "role_user": "Amigo/a aburrido/a buscando peli",
+        "role_ai":   "Amigo/a cinéfilo/a entusiasta",
+        "objectives": [
+            "Saludar y decir qué te apetece ver",
+            "Decir UN género que te gusta (acción, comedia, etc.)",
+            "Decir UN género que NO te gusta",
+            "Preguntar de qué trata la peli recomendada",
+            "Aceptar o rechazar la recomendación",
+        ],
+    },
+]
+
+
+def get_scenario_by_key(key: str):
+    for s in ROLEPLAY_SCENARIOS:
+        if s["key"] == key:
+            return s
+    return None
+
+
 def _build_conversation_system_prompt(profile_name: str, world_meta: dict,
-                                       cefr_code: str = "A1") -> str:
+                                       cefr_code: str = "A1",
+                                       scenario: dict = None) -> str:
     """System prompt para modo conversación. La IA actúa como personaje
-    temático del mundo y conversa en inglés al nivel CEFR de la alumna/o."""
+    temático del mundo y conversa en inglés al nivel CEFR de la alumna/o.
+    Si hay scenario activo, la IA actúa según ese rol de role-play."""
+    profile  = PROFILES[profile_name]
+    gender   = profile.get("gender", "niña")
+    age_desc = profile.get("age_desc", "13 años")
+
+    # Si hay role-play scenario activo, usar ese contexto
+    if scenario:
+        objs_list = "\n".join(
+            f"  {i+1}. {o}" for i, o in enumerate(scenario["objectives"])
+        )
+        return f"""
+You are role-playing: {scenario['role_ai']}.
+Scene: {scenario['context']}
+
+You are talking with {profile_name}, a {gender} of {age_desc}, who is playing the role of: {scenario['role_user']}.
+
+CEFR LEVEL: {cefr_code} — adjust your English accordingly (simple grammar/vocab for A1, more complex for B1+).
+
+OBJECTIVES the student should complete during the conversation:
+{objs_list}
+
+CONVERSATION RULES:
+1. ALWAYS answer in English first, in 1-3 short sentences appropriate to the level.
+2. Then add a single line in Spanish prefixed with "🇪🇸:" giving a brief gloss/help.
+3. End every response with ONE follow-up question or prompt that PUSHES the student
+   toward completing the next objective.
+4. If the student makes a grammar mistake, gently correct it BEFORE your main reply,
+   like: "(Quick fix: 'I am' not 'I be') Now, ..."
+5. STAY IN CHARACTER — you are {scenario['role_ai']}, not a teacher.
+6. Be encouraging and patient. The student is a teen learning English.
+7. NEVER give a paragraph longer than 4 lines.
+8. NO markdown headers, just plain text + the Spanish gloss line.
+
+START: Greet the student in English warmly, in character, and ask the FIRST opening
+question that fits the scenario (e.g., a waiter would say "Welcome! What can I get you?").
+"""
+
+    # Conversación libre (modo legacy sin scenario)
     profile  = PROFILES[profile_name]
     gender   = profile.get("gender", "niña")
     age_desc = profile.get("age_desc", "13 años")
@@ -3458,14 +3841,16 @@ START: Greet {profile_name} in English warmly and ask an opening question relate
 
 
 def conversation_send(profile_name: str, world_meta: dict,
-                       cefr_code: str, history: list) -> tuple:
-    """Envía la conversación a Groq y devuelve (response_text, error)."""
+                       cefr_code: str, history: list,
+                       scenario: dict = None) -> tuple:
+    """Envía la conversación a Groq y devuelve (response_text, error).
+    Si scenario está dado, la IA actúa según el rol del escenario."""
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
         return None, f"⚠️ {init_error}"
 
     system_prompt = _build_conversation_system_prompt(
-        profile_name, world_meta, cefr_code
+        profile_name, world_meta, cefr_code, scenario=scenario
     )
     messages = [{"role": "system", "content": system_prompt}] + history
 
@@ -3480,6 +3865,54 @@ def conversation_send(profile_name: str, world_meta: dict,
     except Exception as e:
         logger.error(f"Conversación Groq error: {e}")
         return None, f"Error de la API: {e}"
+
+
+def check_scenario_objectives(scenario: dict, history: list) -> list:
+    """Pide al LLM evaluar qué objetivos del escenario ya se cumplieron
+    según la historia del usuario. Devuelve lista de índices completados."""
+    if not scenario or not history:
+        return []
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return []
+
+    # Construir transcripción del usuario (solo sus turnos)
+    user_turns = [m["content"] for m in history if m["role"] == "user"]
+    if not user_turns:
+        return []
+
+    objs_list = "\n".join(
+        f"{i}. {o}" for i, o in enumerate(scenario["objectives"])
+    )
+    transcript = "\n".join(f"- {t}" for t in user_turns[-12:])
+
+    sys_prompt = f"""You are a strict pedagogical evaluator. Determine which of the
+student's objectives were already attempted/completed based on their messages.
+
+OBJECTIVES (numbered):
+{objs_list}
+
+STUDENT MESSAGES:
+{transcript}
+
+Return ONLY a JSON object like {{"completed": [0, 2, 4]}} with the indices of objectives
+that have been attempted by the student. Be GENEROUS: if they tried in English (even with errors), count it.
+Do NOT count objectives that have not appeared at all in the messages."""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[{"role": "system", "content": sys_prompt}],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.2,
+            max_tokens=120,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw)
+        return [int(i) for i in data.get("completed", []) if isinstance(i, (int, str))]
+    except Exception as e:
+        logger.error(f"Error eval objectives: {e}")
+        return []
 
 
 # ==========================================
@@ -3613,6 +4046,76 @@ REGLAS ESTRICTAS:
     except Exception as e:
         logger.error(f"Error generando oraciones: {e}")
         return None, f"Error al generar oraciones: {e}"
+
+
+def generate_minimal_pairs(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 5 pares mínimos clásicos para hispanohablantes.
+    Devuelve (lista de {pair:[w1,w2], meanings:[m1,m2]}, error).
+    Ejemplos: ship/sheep, beach/peach, live/leave, bit/beat."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    sys_prompt = f"""
+You are an expert ESL phonetics teacher specialized in Spanish-speaking learners.
+Generate 5 MINIMAL PAIRS in English that Spanish speakers commonly confuse:
+- Long vs short vowels: ship/sheep, bit/beat, live/leave, full/fool
+- /b/ vs /v/: berry/very, bat/vat
+- /s/ vs /th/: sin/thin, sink/think
+- Final consonants: cap/cab, back/bag
+- Other tricky pairs
+
+CEFR LEVEL: {cefr_code} (keep words simple, A1-A2 vocab preferred).
+
+Return ONLY a JSON with this exact structure:
+{{
+  "pairs": [
+    {{
+      "word_a":    "<first word>",
+      "meaning_a": "<short Spanish meaning>",
+      "word_b":    "<second word>",
+      "meaning_b": "<short Spanish meaning>"
+    }}
+  ]
+}}
+
+RULES:
+- EXACTLY 5 pairs.
+- Each pair must differ by ONE sound only.
+- Both words must be REAL English words with clear Spanish meanings.
+- Variety: cover different sound contrasts across the 5 pairs.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Generate 5 minimal pairs."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.6,
+            max_tokens=600,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        pairs = data.get("pairs", [])
+        valid = [p for p in pairs
+                 if p.get("word_a") and p.get("word_b")
+                 and p["word_a"].lower() != p["word_b"].lower()]
+        if not valid:
+            return None, "El modelo no devolvió pares válidos."
+        return valid[:5], None
+    except Exception as e:
+        logger.error(f"Error generando minimal pairs: {e}")
+        return None, f"Error al generar pares: {e}"
+
+
+def generate_listen_id_cards(profile_name: str, world_topic: str,
+                              cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 6 palabras para el modo ¿Qué Escuché? (audio + 4 opciones).
+    Reutiliza generate_flashcards (que ya devuelve word + 3 distractores)."""
+    return generate_flashcards(profile_name, world_topic, cefr_code)
 
 
 def generate_story_fill(profile_name: str, world_topic: str,
@@ -4209,6 +4712,24 @@ _STATE_DEFAULTS = {
     "sf_revealed":   False,   # si ya validó todas las elecciones (pantalla final)
     "sf_correct":    0,
     "sf_finished":   False,
+    # Role-Play en Café Conversación
+    "rp_scenario":   None,    # dict del escenario activo (key, name, role_user, role_ai, objectives, emoji)
+    "rp_done_objs":  None,    # set de índices de objetivos completados
+    "rp_picker":     False,   # True cuando se muestra el selector de escenarios
+    # Pares Mínimos (Estudio de Sonido)
+    "mp_pairs":      None,    # lista de {pair: [w1, w2], correct_idx (0 o 1), meaning_a, meaning_b}
+    "mp_index":      0,
+    "mp_correct":    0,
+    "mp_chosen":     None,    # 0|1 o None
+    "mp_finished":   False,
+    "mp_audio":      None,
+    # Listen ID (¿Qué escuché?) en Estudio de Sonido
+    "li_cards":      None,    # lista de {word, meaning, emoji, options:[4 strings], correct_idx, audio}
+    "li_index":      0,
+    "li_correct":    0,
+    "li_chosen":     None,
+    "li_finished":   False,
+    "li_audio":      None,
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -4423,6 +4944,11 @@ else:
         "mm_first", "mm_finished",
         "sf_story", "sf_index", "sf_picked", "sf_revealed",
         "sf_correct", "sf_finished",
+        "rp_scenario", "rp_done_objs", "rp_picker",
+        "mp_pairs", "mp_index", "mp_correct", "mp_chosen",
+        "mp_finished", "mp_audio",
+        "li_cards", "li_index", "li_correct", "li_chosen",
+        "li_finished", "li_audio",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -5815,6 +6341,352 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.15) ROLEPLAY PICKER (selector de escenarios) ────────────────
+    if st.session_state.rp_picker:
+        rp_world_meta = get_world_meta("chat", user)
+        rp_accent = rp_world_meta.get("accent", "#c464ff")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {rp_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{rp_accent};'>"
+            f"🎭 ELIGE TU ESCENARIO DE ROLE-PLAY</p>",
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            "<p style='text-align:center; color:#a8acb3; font-size:0.92rem; margin: 4px 0 14px;'>"
+            "Cada escenario tiene misiones que debes completar conversando en inglés.</p>",
+            unsafe_allow_html=True
+        )
+
+        # Filtrar escenarios por nivel CEFR del usuario (mostrar todos pero marcar)
+        for row_start in range(0, len(ROLEPLAY_SCENARIOS), 2):
+            cols_rp = st.columns(2)
+            for j, sc in enumerate(ROLEPLAY_SCENARIOS[row_start:row_start + 2]):
+                with cols_rp[j]:
+                    st.markdown(
+                        f"<div class='rp-card'>"
+                        f"<div class='rp-emoji'>{sc['emoji']}</div>"
+                        f"<p class='rp-name'>{sc['name']}</p>"
+                        f"<p class='rp-meta'>{sc['cefr']} · {len(sc['objectives'])} misiones</p>"
+                        f"<p class='rp-role'>Tu rol: <i>{sc['role_user']}</i></p>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+                    if st.button(f"Empezar →", key=f"rp_pick_{sc['key']}",
+                                 use_container_width=True, type="primary"):
+                        start_conversation("chat", scenario_key=sc["key"])
+                        st.rerun()
+
+        st.write("")
+        if st.button("← Volver", key="rp_back", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.16) MINIMAL PAIRS MODE (Estudio de Sonido) ──────────────────
+    if st.session_state.mp_pairs is not None:
+        mp_world_meta = get_world_meta(
+            st.session_state.get("current_world", "sound"), user
+        )
+        mp_accent = mp_world_meta.get("accent", "#39ff14")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {mp_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        pairs = st.session_state.mp_pairs
+        idx   = st.session_state.mp_index
+        total = len(pairs)
+
+        # Pantalla final
+        if st.session_state.mp_finished or idx >= total:
+            correct = st.session_state.mp_correct
+            score_pct = (correct / total) * 100.0 if total else 0
+            xp_award = max(15, int(score_pct / 2))
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>👯</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>{correct} de {total} pares correctos</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="mp_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=score_pct / 100.0, attempts=1,
+                        world="sound", skill="listening", lesson_type="min_pairs",
+                        success_msg=f"¡+{xp_award} XP en Pares Mínimos!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="mp_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # Par actual
+        pair = pairs[idx]
+        chosen = st.session_state.mp_chosen
+        correct_idx = pair["correct_idx"]
+        correct_word = pair["word_a"] if correct_idx == 0 else pair["word_b"]
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{mp_accent};'>"
+            f"👯 PAR {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"<div class='mp-card' style='--mp-accent: {mp_accent};'>"
+            f"<p class='mp-hint'>Escucha atentamente: ¿cuál palabra se dijo?</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Botón de audio
+        col_al, col_ac, col_ar = st.columns([1, 2, 1])
+        with col_ac:
+            if st.button("🔊 Escuchar palabra", key=f"mp_audio_{idx}",
+                         use_container_width=True, type="secondary"):
+                with st.spinner("Generando audio..."):
+                    audio_bytes = generate_lesson_audio(correct_word)
+                if audio_bytes:
+                    st.session_state.mp_audio = audio_bytes
+                else:
+                    st.warning("No pude generar el audio.")
+        if st.session_state.mp_audio:
+            st.audio(st.session_state.mp_audio, format="audio/mp3")
+
+        st.write("")
+
+        # 2 opciones grandes
+        if chosen is None:
+            col_o1, col_o2 = st.columns(2)
+            with col_o1:
+                if st.button(f"🅰️  {pair['word_a']}", key=f"mp_a_{idx}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.mp_chosen = 0
+                    if correct_idx == 0:
+                        st.session_state.mp_correct += 1
+                    st.rerun()
+            with col_o2:
+                if st.button(f"🅱️  {pair['word_b']}", key=f"mp_b_{idx}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.mp_chosen = 1
+                    if correct_idx == 1:
+                        st.session_state.mp_correct += 1
+                    st.rerun()
+        else:
+            is_correct = (chosen == correct_idx)
+            # Pintar ambas
+            col_o1, col_o2 = st.columns(2)
+            for opt_idx, (col, w, m) in enumerate([
+                (col_o1, pair["word_a"], pair.get("meaning_a", "")),
+                (col_o2, pair["word_b"], pair.get("meaning_b", "")),
+            ]):
+                if opt_idx == correct_idx:
+                    bg = "#39ff14"; fg = "#0a0b1e"; mark = "✓"
+                elif opt_idx == chosen:
+                    bg = "#ff5351"; fg = "#fff"; mark = "✗"
+                else:
+                    bg = "transparent"; fg = "#a8acb3"; mark = ""
+                with col:
+                    st.markdown(
+                        f"<div style='padding:16px 12px; border-radius:8px; "
+                        f"background:{bg}; color:{fg}; text-align:center; "
+                        f"font-weight:700;'>{mark} {w}<br>"
+                        f"<span style='font-size:0.78rem; font-weight:400; opacity:0.85;'>{m}</span></div>",
+                        unsafe_allow_html=True
+                    )
+
+            if is_correct:
+                st.markdown(
+                    f"<div class='fc-feedback ok'>✓ ¡Correcto! Se dijo <b>{correct_word}</b>.</div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"<div class='fc-feedback bad'>✗ La palabra era <b>{correct_word}</b>. Escúchala de nuevo.</div>",
+                    unsafe_allow_html=True
+                )
+
+            next_label = "Siguiente par →" if (idx + 1) < total else "Resultados 🏁"
+            if st.button(next_label, key=f"mp_next_{idx}",
+                         use_container_width=True, type="primary"):
+                st.session_state.mp_index += 1
+                st.session_state.mp_chosen = None
+                st.session_state.mp_audio = None
+                if st.session_state.mp_index >= total:
+                    st.session_state.mp_finished = True
+                st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="mp_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.17) LISTEN ID MODE (¿Qué Escuché?) en Estudio de Sonido ────
+    if st.session_state.li_cards is not None:
+        li_world_meta = get_world_meta(
+            st.session_state.get("current_world", "sound"), user
+        )
+        li_accent = li_world_meta.get("accent", "#00eefc")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {li_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        li_cards = st.session_state.li_cards
+        idx   = st.session_state.li_index
+        total = len(li_cards)
+
+        if st.session_state.li_finished or idx >= total:
+            correct = st.session_state.li_correct
+            score_pct = (correct / total) * 100.0 if total else 0
+            xp_award = max(15, int(score_pct / 2))
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>👂</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>{correct} de {total} palabras identificadas</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="li_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=score_pct / 100.0, attempts=1,
+                        world="sound", skill="listening", lesson_type="listen_id",
+                        success_msg=f"¡+{xp_award} XP en Listen ID!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="li_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        card = li_cards[idx]
+        chosen = st.session_state.li_chosen
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{li_accent};'>"
+            f"👂 PALABRA {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"<div class='fc-card' style='--fc-accent: {li_accent};'>"
+            f"<div class='fc-emoji' style='font-size:5rem;'>🔊</div>"
+            f"<p class='fc-hint'>Escucha la palabra y elige cuál es</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        col_al, col_ac, col_ar = st.columns([1, 2, 1])
+        with col_ac:
+            if st.button("🔊 Escuchar", key=f"li_audio_{idx}",
+                         use_container_width=True, type="secondary"):
+                with st.spinner("Generando audio..."):
+                    audio_bytes = generate_lesson_audio(card["word"])
+                if audio_bytes:
+                    st.session_state.li_audio = audio_bytes
+        if st.session_state.li_audio:
+            st.audio(st.session_state.li_audio, format="audio/mp3")
+
+        st.write("")
+
+        if chosen is None:
+            opt_cols = st.columns(2)
+            for i, opt in enumerate(card["options"]):
+                with opt_cols[i % 2]:
+                    if st.button(opt, key=f"li_opt_{idx}_{i}",
+                                 use_container_width=True, type="secondary"):
+                        st.session_state.li_chosen = i
+                        if i == card["correct_idx"]:
+                            st.session_state.li_correct += 1
+                        st.rerun()
+        else:
+            is_correct = (chosen == card["correct_idx"])
+            opt_cols = st.columns(2)
+            for i, opt in enumerate(card["options"]):
+                with opt_cols[i % 2]:
+                    if i == card["correct_idx"]:
+                        bg = "#39ff14"; fg = "#0a0b1e"; mark = "✓"
+                    elif i == chosen:
+                        bg = "#ff5351"; fg = "#fff"; mark = "✗"
+                    else:
+                        bg = "transparent"; fg = "#a8acb3"; mark = ""
+                    st.markdown(
+                        f"<div style='padding:14px 12px; border-radius:8px; "
+                        f"background:{bg}; color:{fg}; text-align:center; "
+                        f"font-weight:700; margin-bottom:8px;'>{mark} {opt}</div>",
+                        unsafe_allow_html=True
+                    )
+
+            if is_correct:
+                st.markdown(
+                    f"<div class='fc-feedback ok'>"
+                    f"✓ ¡Correcto! Era <b>{card['word']}</b> ({card['meaning']})</div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"<div class='fc-feedback bad'>"
+                    f"✗ Era <b>{card['word']}</b> ({card['meaning']}).</div>",
+                    unsafe_allow_html=True
+                )
+
+            next_label = "Siguiente →" if (idx + 1) < total else "Resultados 🏁"
+            if st.button(next_label, key=f"li_next_{idx}",
+                         use_container_width=True, type="primary"):
+                st.session_state.li_index += 1
+                st.session_state.li_chosen = None
+                st.session_state.li_audio = None
+                if st.session_state.li_index >= total:
+                    st.session_state.li_finished = True
+                st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="li_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.2) CONVERSATION MODE ───────────────────────────────────────
     if st.session_state.conv_active:
         conv_world_meta = get_world_meta(
@@ -5826,13 +6698,46 @@ else:
             unsafe_allow_html=True
         )
 
+        # Escenario activo (si lo hay)
+        scenario = st.session_state.get("rp_scenario")
+
         # Header
-        st.markdown(
-            f"<p class='worlds-section-title' style='color:{conv_accent};"
-            f" text-shadow:0 0 10px {conv_accent};'>"
-            f"💬 Conversación · {conv_world_meta.get('name','Mundo')}</p>",
-            unsafe_allow_html=True
-        )
+        if scenario:
+            st.markdown(
+                f"<p class='worlds-section-title' style='color:{conv_accent};"
+                f" text-shadow:0 0 10px {conv_accent};'>"
+                f"{scenario['emoji']} {scenario['name']}</p>",
+                unsafe_allow_html=True
+            )
+            # Tarjeta de contexto: tu rol y el rol de la IA
+            st.markdown(
+                f"<div class='rp-context' style='--rp-accent: {conv_accent};'>"
+                f"<p class='rp-context-row'><b>Tú:</b> {scenario['role_user']}</p>"
+                f"<p class='rp-context-row'><b>IA:</b> {scenario['role_ai']}</p>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            # Panel de misiones (objectives)
+            done = set(st.session_state.get("rp_done_objs") or [])
+            obj_items_html = ""
+            for i, o in enumerate(scenario["objectives"]):
+                cls = "obj-done" if i in done else "obj-pending"
+                mark = "✓" if i in done else "☐"
+                obj_items_html += f"<li class='{cls}'><span class='obj-mark'>{mark}</span> {o}</li>"
+            st.markdown(
+                f"<div class='rp-objectives'>"
+                f"<p class='rp-obj-title'>🎯 Misiones — {len(done)}/{len(scenario['objectives'])}</p>"
+                f"<ul class='rp-obj-list'>{obj_items_html}</ul>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"<p class='worlds-section-title' style='color:{conv_accent};"
+                f" text-shadow:0 0 10px {conv_accent};'>"
+                f"💬 Conversación · {conv_world_meta.get('name','Mundo')}</p>",
+                unsafe_allow_html=True
+            )
 
         # Historial de mensajes
         history = st.session_state.conv_history or []
@@ -5845,7 +6750,8 @@ else:
             with st.spinner("Iniciando conversación..."):
                 first_msg, err = conversation_send(
                     user, conv_world_meta, cefr_now,
-                    [{"role": "user", "content": "(Start the conversation)"}]
+                    [{"role": "user", "content": "(Start the conversation)"}],
+                    scenario=scenario
                 )
             if err:
                 show_error(err)
@@ -5920,7 +6826,8 @@ else:
             )["code"]
             with st.spinner("La IA está respondiendo..."):
                 ai_msg, err2 = conversation_send(
-                    user, conv_world_meta, cefr_now, history
+                    user, conv_world_meta, cefr_now, history,
+                    scenario=scenario
                 )
             if err2:
                 show_error(err2)
@@ -5928,6 +6835,10 @@ else:
                 history.append({"role": "assistant", "content": ai_msg})
                 st.session_state.conv_history = history
                 st.session_state.conv_turn_count += 1
+                # Re-evaluar objectives si hay scenario activo (cada 2 turnos para ahorrar tokens)
+                if scenario and st.session_state.conv_turn_count % 2 == 0:
+                    done = check_scenario_objectives(scenario, history)
+                    st.session_state.rp_done_objs = done
                 st.rerun()
 
         # Botones finalizar
@@ -5937,6 +6848,15 @@ else:
         # Mínimo 3 turnos del usuario para reclamar XP
         can_claim = turn_count >= 3
 
+        # Bonus XP si tiene scenario y completó misiones
+        bonus_xp = 0
+        if scenario:
+            done = set(st.session_state.get("rp_done_objs") or [])
+            total_objs = len(scenario["objectives"])
+            bonus_xp = len(done) * 5
+            if len(done) == total_objs:
+                bonus_xp += 15  # bonus extra por completarlas todas
+
         with col_e1:
             if st.button(
                 f"🏁 Terminar y reclamar XP ({turn_count}/3+)" if not can_claim else "🏁 Terminar y reclamar XP",
@@ -5945,12 +6865,20 @@ else:
                 type="primary",
                 disabled=not can_claim
             ):
-                xp_award = min(60, 20 + turn_count * 5)
+                # Forzar última evaluación de objetivos antes del cierre
+                if scenario:
+                    final_done = check_scenario_objectives(scenario, history)
+                    st.session_state.rp_done_objs = final_done
+                    bonus_xp = len(final_done) * 5
+                    if len(final_done) == len(scenario["objectives"]):
+                        bonus_xp += 15
+                xp_award = min(80, 20 + turn_count * 5 + bonus_xp)
+                lesson_type = "roleplay" if scenario else "conversation"
                 queue_xp_save(
                     user, xp_award, 1.0, attempts=1,
                     world=st.session_state.get("current_world", ""),
                     skill="conversation",
-                    lesson_type="conversation",
+                    lesson_type=lesson_type,
                     success_msg=f"¡Gran conversación, {user}! +{xp_award} XP."
                 )
                 st.rerun()
@@ -6217,22 +7145,48 @@ else:
             },
         }
 
+        # Modos exclusivos del Estudio de Sonido y Café Conversación
+        _ALL_MODES["min_pairs"] = {
+            "key": "min_pairs", "icon": "👯",
+            "name": "Pares Mínimos",
+            "desc": "ship/sheep, beach/peach — entrena el oído fino.",
+            "btn": "Practicar Pares", "accent": "#ffd400",
+        }
+        _ALL_MODES["listen_id"] = {
+            "key": "listen_id", "icon": "👂",
+            "name": "¿Qué Escuché?",
+            "desc": "Escucha una palabra y elige la correcta entre 4.",
+            "btn": "Jugar", "accent": "#00eefc",
+        }
+        _ALL_MODES["roleplay"] = {
+            "key": "roleplay", "icon": "🎭",
+            "name": "Role-Play",
+            "desc": "Elige un escenario real y completa misiones.",
+            "btn": "Elegir Escenario", "accent": "#c464ff",
+        }
+
         # ─── Modos disponibles por mundo (cada mundo con su identidad propia) ───
         _MODES_BY_WORLD = {
-            # Vocabulario: foco en palabras y reconocimiento visual/auditivo
-            "vocab":     ["flashcards", "memory_match", "pronunciation", "lesson_quiz"],
+            # Vocabulario: foco en palabras y reconocimiento visual
+            "vocab":     ["flashcards", "memory_match", "lesson_quiz"],
             # Gramática: foco en construir estructuras y drill de reglas
             "grammar":   ["sentence_builder", "battle", "lesson_quiz"],
             # Mundo personal: foco en expresión personal y narrativa
-            "personal":  ["story_fill", "conversation", "pronunciation", "lesson_quiz"],
+            "personal":  ["story_fill", "lesson_quiz"],
+            # Estudio de Sonido: escuchar + pronunciar (todas las mecánicas auditivas)
+            "sound":     ["min_pairs", "listen_id", "pronunciation"],
+            # Café Conversación: hablar / role-play
+            "chat":      ["roleplay", "conversation"],
             # Desafío Sorpresa: foco en variedad y combate
-            "challenge": ["battle", "lesson_quiz", "conversation", "pronunciation"],
+            "challenge": ["battle", "lesson_quiz"],
         }
         # Mundo destacado (modo "primary") por defecto
         _FEATURED_BY_WORLD = {
             "vocab":     "flashcards",
             "grammar":   "sentence_builder",
             "personal":  "story_fill",
+            "sound":     "min_pairs",
+            "chat":      "roleplay",
             "challenge": "battle",
         }
 
@@ -6271,6 +7225,12 @@ else:
                             start_sentence_builder(wkey, wmeta["topic"])
                         elif m["key"] == "story_fill":
                             start_story_fill(wkey, wmeta["topic"])
+                        elif m["key"] == "min_pairs":
+                            start_minimal_pairs(wkey, wmeta["topic"])
+                        elif m["key"] == "listen_id":
+                            start_listen_id(wkey, wmeta["topic"])
+                        elif m["key"] == "roleplay":
+                            open_roleplay_picker(wkey)
                         elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
@@ -6300,6 +7260,9 @@ else:
         or st.session_state.sb_sentences is not None
         or st.session_state.mm_pairs is not None
         or st.session_state.sf_story is not None
+        or st.session_state.mp_pairs is not None
+        or st.session_state.li_cards is not None
+        or st.session_state.rp_picker
     )
 
     if not in_lesson_flow:
@@ -6367,6 +7330,24 @@ else:
                 "btn":     "Entrar a mi mundo",
             },
             {
+                "key":     "sound",
+                "emoji":   "🎙",
+                "name":    "Estudio de Sonido",
+                "tagline": "Escucha, distingue y pronuncia",
+                "accent":  "#39ff14",
+                "topic":   ("Pronunciación y comprensión auditiva del inglés."),
+                "btn":     "Entrar al Estudio",
+            },
+            {
+                "key":     "chat",
+                "emoji":   "💬",
+                "name":    "Café Conversación",
+                "tagline": "Misiones de role-play en inglés",
+                "accent":  "#c464ff",
+                "topic":   ("Conversación práctica en situaciones cotidianas."),
+                "btn":     "Entrar al Café",
+            },
+            {
                 "key":     "challenge",
                 "emoji":   "⚔️",
                 "name":    "Desafío Sorpresa",
@@ -6380,8 +7361,8 @@ else:
             },
         ]
 
-        # Grid 2x2 de mundos
-        for row_start in (0, 2):
+        # Grid 2x2 de mundos (filas dinámicas según cantidad de mundos)
+        for row_start in range(0, len(worlds), 2):
             cols = st.columns(2)
             for j, w in enumerate(worlds[row_start:row_start+2]):
                 with cols[j]:
