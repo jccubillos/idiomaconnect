@@ -5316,4 +5316,56 @@ else:
                     user, XP_PER_LESSON, pct, attempts,
                     world=st.session_state.get("current_world", ""),
                     skill="",
-                    lesson_type=st.session_state.get("
+                    lesson_type=st.session_state.get("current_lesson_type", "lesson_quiz"),
+                    success_msg=(
+                        f"¡Increíble, {user}! Obtuviste {pct:.0%} y ganaste "
+                        f"+{XP_PER_LESSON} XP. ¡Sigue así!" + vocab_msg
+                    )
+                )
+                st.rerun()
+
+        elif attempts_exhausted:
+            # Se agotaron los intentos: solo opción de nueva lección
+            show_warning(
+                f"Usaste los {MAX_QUIZ_ATTEMPTS} intentos disponibles. "
+                "¡No te rindas! Prueba con una nueva lección para seguir ganando XP."
+            )
+            if st.button(
+                "📖 Nueva Lección",
+                use_container_width=True,
+                type="primary"
+            ):
+                st.session_state.quiz_data     = None
+                st.session_state.quiz_result   = None
+                st.session_state.quiz_attempts = 0
+                st.session_state.lesson_error  = None
+                st.session_state.lesson_audio  = None
+                st.rerun()
+
+        else:
+            # Todavía le quedan intentos
+            col_retry, col_new = st.columns(2)
+
+            with col_retry:
+                if st.button(
+                    "🔄 Volver a intentar el Quiz",
+                    use_container_width=True,
+                    type="primary"
+                ):
+                    st.session_state.quiz_result = None
+                    st.rerun()
+
+            with col_new:
+                if st.button(
+                    "📖 Nueva Lección",
+                    use_container_width=True,
+                    type="secondary"
+                ):
+                    st.session_state.quiz_data     = None
+                    st.session_state.quiz_result   = None
+                    st.session_state.quiz_attempts = 0
+                    st.session_state.lesson_error  = None
+                    st.session_state.lesson_audio  = None
+                    st.rerun()
+
+send_weekly_report()
