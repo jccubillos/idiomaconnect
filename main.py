@@ -45,11 +45,11 @@ st.markdown("""
        CYBER-LINGUIST HUD — Sistema de diseño dark + glassmorphism
        ============================================================ */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,0,0');
-    .material-symbols-rounded {
-        font-family: 'Material Symbols Rounded' !important;
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48 !important;
-        font-size: 18px !important;
+    /* Ocultar el ícono del expander que aparece como texto "_arrov_rights"
+       cuando la fuente Material Symbols no carga en Streamlit Cloud */
+    [data-testid="stExpander"] summary .material-symbols-rounded,
+    [data-testid="stExpander"] summary span.material-symbols-rounded {
+        display: none !important;
     }
 
     :root {
@@ -1538,18 +1538,10 @@ st.markdown("""
         border-radius: var(--radius-sm) !important;
     }
     [data-testid="stExpander"] summary { color: var(--neon-cyan) !important; }
-    /* Asegurar que el ícono del expander use la fuente correcta y no aparezca como texto */
-    [data-testid="stExpander"] summary span[data-testid="stExpanderToggleIcon"],
-    [data-testid="stExpander"] summary .material-symbols-rounded {
-        font-family: 'Material Symbols Rounded' !important;
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48 !important;
-        font-size: 18px !important;
-        color: var(--neon-cyan) !important;
-        overflow: hidden;
-        width: 20px;
-        height: 20px;
-        display: inline-flex !important;
-        align-items: center !important;
+    /* Ocultar el ícono "_arrov_rights" que aparece cuando Material Symbols no carga */
+    [data-testid="stExpander"] summary .material-symbols-rounded,
+    [data-testid="stExpander"] summary span[data-testid="stExpanderToggleIcon"] {
+        display: none !important;
     }
 
     .stCaption, [data-testid="stCaptionContainer"], small {
@@ -3669,6 +3661,22 @@ else:
         ("arena",   "⚔️  Arena"),
         ("profile", "👤  Perfil"),
     ]
+    # Claves de estado que pertenecen a una lección/quiz activo
+    _LESSON_KEYS = [
+        "selected_world", "quiz_data", "lesson_error", "lesson_pending",
+        "quiz_result", "quiz_attempts", "last_text_input", "lesson_audio",
+        "current_world", "current_lesson_type",
+        "battle_index", "battle_hp", "battle_max_hp", "battle_streak",
+        "battle_max_streak", "battle_correct", "battle_total",
+        "battle_questions", "battle_finished", "battle_feedback",
+        "battle_history", "battle_mc_answer", "battle_fitb_answer",
+        "pron_words", "pron_index", "pron_results", "pron_last_audio",
+        "pron_last_score", "pron_finished",
+        "conv_active", "conv_history", "conv_turn_count", "conv_pending_user_input",
+        "srs_active", "srs_cards", "srs_index", "srs_revealed",
+        "srs_correct", "srs_attempted", "srs_finished",
+    ]
+
     nav_cols = st.columns(len(nav_items))
     for i, (v_key, label) in enumerate(nav_items):
         is_active = (current_view == v_key)
@@ -3681,6 +3689,11 @@ else:
                 type=("primary" if is_active else "secondary"),
             ):
                 st.session_state.view = v_key
+                # Al volver al mapa de mundos, cancela cualquier lección activa
+                if v_key == "home":
+                    for k in _LESSON_KEYS:
+                        if k in _STATE_DEFAULTS:
+                            st.session_state[k] = _STATE_DEFAULTS[k]
                 st.rerun()
 
     if st.button("← Cambiar perfil", type="secondary"):
@@ -5303,23 +5316,4 @@ else:
                     user, XP_PER_LESSON, pct, attempts,
                     world=st.session_state.get("current_world", ""),
                     skill="",
-                    lesson_type=st.session_state.get("current_lesson_type", "lesson_quiz"),
-                    success_msg=(
-                        f"¡Increíble, {user}! Obtuviste {pct:.0%} y ganaste "
-                        f"+{XP_PER_LESSON} XP. ¡Sigue así!" + vocab_msg
-                    )
-                )
-                st.rerun()
-
-        elif attempts_exhausted:
-            # Se agotaron los intentos: solo opción de nueva lección
-            show_warning(
-                f"Usaste los {MAX_QUIZ_ATTEMPTS} intentos disponibles. "
-                "¡No te rindas! Prueba con una nueva lección para seguir ganando XP."
-            )
-            if st.button(
-                "📖 Nueva Lección",
-                use_container_width=True,
-                type="primary"
-            ):
-                st.session_state.quiz_data     = No
+                    lesson_type=st.session_state.get("
