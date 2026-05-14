@@ -664,6 +664,30 @@ st.markdown("""
         color: var(--text-primary) !important;
         margin: 8px 0 14px;
     }
+    .battle-blank {
+        display: inline-block;
+        min-width: 90px;
+        padding: 0 10px;
+        margin: 0 2px;
+        border-bottom: 3px solid #ffd400;
+        color: #ffd400 !important;
+        font-weight: 800;
+        letter-spacing: 4px;
+        text-shadow: 0 0 8px rgba(255,212,0,0.6);
+    }
+    .battle-q-hint {
+        font-family: 'Source Sans 3', sans-serif !important;
+        font-size: 0.95rem;
+        color: var(--text-secondary) !important;
+        margin: 6px 0 14px;
+        padding: 10px 14px;
+        background: rgba(0, 238, 252, 0.08);
+        border-left: 3px solid var(--neon-cyan);
+        border-radius: 6px;
+    }
+    .battle-q-hint i {
+        color: var(--text-primary) !important;
+    }
 
     /* --- BATTLE FEEDBACK FLASH --- */
     .battle-flash {
@@ -2179,8 +2203,9 @@ El JSON debe tener EXACTAMENTE esta estructura:
   ],
   "fitb": [
     {{
-      "sentence": "<oración en inglés con ___ donde va la palabra>",
-      "answer": "<única palabra correcta en minúsculas sin tildes>"
+      "sentence": "<oración EN INGLÉS con UN SOLO ___ (tres guiones bajos) donde va la palabra a completar>",
+      "answer": "<única palabra correcta en minúsculas sin tildes>",
+      "hint": "<TRADUCCIÓN COMPLETA al ESPAÑOL de la oración como se vería ya completada, para que el alumno entienda qué palabra falta>"
     }}
   ]
 }}
@@ -2227,7 +2252,10 @@ INSTRUCCIONES PARA "mc" Y "fitb":
 - "mc": entre 5 y 8 preguntas de múltiple choice BASADAS DIRECTAMENTE en la lección.
   Las opciones incorrectas deben representar errores comunes y reales, no respuestas absurdas.
 - "fitb": 5 preguntas de completar la oración, usando oraciones que aparezcan o sean similares a los ejemplos de la Parte C.
+  La oración ("sentence") DEBE estar 100% EN INGLÉS — NUNCA en español.
+  La oración debe contener EXACTAMENTE un marcador "___" (tres guiones bajos) donde va la palabra que falta. JAMÁS uses asteriscos, negritas ni varios huecos. Solo "___" una sola vez.
   La respuesta ("answer") debe ser UNA sola palabra en minúsculas sin puntuación ni tildes.
+  El campo "hint" es OBLIGATORIO: contiene la traducción completa al ESPAÑOL de la oración (como se vería ya completa) para dar contexto al alumno.
 """
 
 
@@ -4084,11 +4112,16 @@ def build_battle_questions(quiz_data: dict) -> list[dict]:
             "answer":  q.get("answer", ""),
         })
     for q in quiz_data.get("fitb", []):
+        sentence = q.get("sentence", "")
+        # Normalizar: si el modelo puso "**___**" o variantes, dejar solo "___"
+        sentence = re.sub(r"\*+_+\*+", "___", sentence)
+        sentence = re.sub(r"_+", "___", sentence)
         questions.append({
             "type":    "fitb",
-            "q":       q.get("sentence", ""),
+            "q":       sentence,
             "options": [],
             "answer":  q.get("answer", ""),
+            "hint":    q.get("hint", ""),
         })
     _random.shuffle(questions)
     return questions[:8]   # capped a 8 para que la batalla sea ágil
@@ -4766,7 +4799,20 @@ else:
             q_type_label = "Multiple Choice" if q["type"] == "mc" else "Fill the Blank"
             q_text = q["q"]
             if q["type"] == "fitb":
-                q_text = q_text.replace("___", "**___**")
+                # Reemplazar ___ por un span estilizado (HTML directo, no Markdown)
+                q_text = q_text.replace(
+                    "___",
+                    "<span class='battle-blank'>______</span>"
+                )
+
+            # Hint en español (solo FITB): traducción de la oración completa
+            hint_html = ""
+            if q["type"] == "fitb" and q.get("hint"):
+                hint_html = (
+                    f"<p class='battle-q-hint'>"
+                    f"💡 <i>{q['hint']}</i>"
+                    f"</p>"
+                )
 
             st.markdown(
                 f"<div class='battle-question'>"
@@ -4775,6 +4821,7 @@ else:
                 f"  <span class='battle-q-type'>{q_type_label}</span>"
                 f"</div>"
                 f"<div class='battle-q-text'>{q_text}</div>"
+                f"{hint_html}"
                 f"</div>",
                 unsafe_allow_html=True
             )
@@ -6118,78 +6165,81 @@ else:
             unsafe_allow_html=True
         )
 
-        # Modos disponibles. Cada mundo tiene sus mecánicas propias destacadas
-        # al inicio, seguidas de los modos genéricos.
-        modes = []
-        if wkey == "vocab":
-            modes.append({
-                "key":    "flashcards",
-                "icon":   "🃏",
-                "name":   "Flashcards Visuales",
-                "desc":   "Mira el dibujo, escucha y elige la palabra correcta.",
-                "btn":    "Jugar Flashcards",
-                "accent": "#ffd400",
-            })
-            modes.append({
-                "key":    "memory_match",
-                "icon":   "🧠",
-                "name":   "Memory Match",
-                "desc":   "Encuentra las parejas de palabra y dibujo escondidas.",
-                "btn":    "Jugar Memory",
-                "accent": "#ff66c4",
-            })
-        if wkey == "grammar":
-            modes.append({
-                "key":    "sentence_builder",
-                "icon":   "🧩",
-                "name":   "Constructor de Oraciones",
-                "desc":   "Toca las palabras en orden para formar la oración.",
-                "btn":    "Construir Oraciones",
-                "accent": "#ffd400",
-            })
-        if wkey == "personal":
-            modes.append({
-                "key":    "story_fill",
-                "icon":   "📖",
-                "name":   "Cuento Personalizado",
-                "desc":   "Un cuento sobre ti con huecos. Elige la palabra correcta.",
-                "btn":    "Leer mi Cuento",
-                "accent": "#ffd400",
-            })
-        modes += [
-            {
-                "key":    "lesson_quiz",
-                "icon":   "🧠",
-                "name":   "Lección + Quiz",
-                "desc":   "Explicación guiada + quiz a tu ritmo.",
-                "btn":    "Iniciar Lección",
-                "accent": "#00eefc",
+        # ─── Catálogo completo de modos ───
+        _ALL_MODES = {
+            "flashcards": {
+                "key": "flashcards", "icon": "🃏",
+                "name": "Flashcards Visuales",
+                "desc": "Mira el dibujo, escucha y elige la palabra correcta.",
+                "btn": "Jugar Flashcards", "accent": "#ffd400",
             },
-            {
-                "key":    "battle",
-                "icon":   "⚔️",
-                "name":   "Modo Batalla",
-                "desc":   "Combate: 8 preguntas, HP limitado, aciertos en cadena.",
-                "btn":    "¡Combatir!",
-                "accent": "#ff5351",
+            "memory_match": {
+                "key": "memory_match", "icon": "🧠",
+                "name": "Memory Match",
+                "desc": "Encuentra las parejas de palabra y dibujo escondidas.",
+                "btn": "Jugar Memory", "accent": "#ff66c4",
             },
-            {
-                "key":    "pronunciation",
-                "icon":   "🎤",
-                "name":   "Pronunciación",
-                "desc":   "Escucha 6 palabras del mundo y repítelas — la IA evalúa.",
-                "btn":    "Practicar",
-                "accent": "#39ff14",
+            "sentence_builder": {
+                "key": "sentence_builder", "icon": "🧩",
+                "name": "Constructor de Oraciones",
+                "desc": "Toca las palabras en orden para formar la oración.",
+                "btn": "Construir Oraciones", "accent": "#ffd400",
             },
-            {
-                "key":    "conversation",
-                "icon":   "💬",
-                "name":   "Conversación",
-                "desc":   "Charla libre en inglés con un personaje del mundo.",
-                "btn":    "Conversar",
-                "accent": "#c464ff",
+            "story_fill": {
+                "key": "story_fill", "icon": "📖",
+                "name": "Cuento Personalizado",
+                "desc": "Un cuento sobre ti con huecos. Elige la palabra correcta.",
+                "btn": "Leer mi Cuento", "accent": "#ffd400",
             },
-        ]
+            "lesson_quiz": {
+                "key": "lesson_quiz", "icon": "🎓",
+                "name": "Lección + Quiz",
+                "desc": "Explicación guiada + quiz a tu ritmo.",
+                "btn": "Iniciar Lección", "accent": "#00eefc",
+            },
+            "battle": {
+                "key": "battle", "icon": "⚔️",
+                "name": "Modo Batalla",
+                "desc": "Combate: 8 preguntas, HP limitado, aciertos en cadena.",
+                "btn": "¡Combatir!", "accent": "#ff5351",
+            },
+            "pronunciation": {
+                "key": "pronunciation", "icon": "🎤",
+                "name": "Pronunciación",
+                "desc": "Escucha 6 palabras y repítelas — la IA evalúa.",
+                "btn": "Practicar", "accent": "#39ff14",
+            },
+            "conversation": {
+                "key": "conversation", "icon": "💬",
+                "name": "Conversación",
+                "desc": "Charla libre en inglés con un personaje del mundo.",
+                "btn": "Conversar", "accent": "#c464ff",
+            },
+        }
+
+        # ─── Modos disponibles por mundo (cada mundo con su identidad propia) ───
+        _MODES_BY_WORLD = {
+            # Vocabulario: foco en palabras y reconocimiento visual/auditivo
+            "vocab":     ["flashcards", "memory_match", "pronunciation", "lesson_quiz"],
+            # Gramática: foco en construir estructuras y drill de reglas
+            "grammar":   ["sentence_builder", "battle", "lesson_quiz"],
+            # Mundo personal: foco en expresión personal y narrativa
+            "personal":  ["story_fill", "conversation", "pronunciation", "lesson_quiz"],
+            # Desafío Sorpresa: foco en variedad y combate
+            "challenge": ["battle", "lesson_quiz", "conversation", "pronunciation"],
+        }
+        # Mundo destacado (modo "primary") por defecto
+        _FEATURED_BY_WORLD = {
+            "vocab":     "flashcards",
+            "grammar":   "sentence_builder",
+            "personal":  "story_fill",
+            "challenge": "battle",
+        }
+
+        # Construir la lista de modos para el mundo actual (fallback: todos)
+        active_keys = _MODES_BY_WORLD.get(wkey, list(_ALL_MODES.keys()))
+        modes = [_ALL_MODES[k] for k in active_keys if k in _ALL_MODES]
+        featured_key = _FEATURED_BY_WORLD.get(wkey, "battle")
 
         # Grid 2 columnas, filas según cantidad de modos
         for row_start in range(0, len(modes), 2):
@@ -6209,12 +6259,7 @@ else:
                         unsafe_allow_html=True
                     )
                     # El modo destacado del mundo es "primary"
-                    is_featured = (
-                        (wkey == "vocab" and m["key"] == "flashcards")
-                        or (wkey == "grammar" and m["key"] == "sentence_builder")
-                        or (wkey == "personal" and m["key"] == "story_fill")
-                        or (wkey not in ("vocab", "grammar", "personal") and m["key"] == "battle")
-                    )
+                    is_featured = (m["key"] == featured_key)
                     if st.button(m["btn"], key=f"mode_{m['key']}",
                                  use_container_width=True,
                                  type="primary" if is_featured else "secondary"):
