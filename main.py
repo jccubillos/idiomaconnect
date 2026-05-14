@@ -368,6 +368,58 @@ st.markdown("""
         min-height: 40px;
     }
 
+    /* --- FLASHCARDS VISUALES --- */
+    .fc-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--fc-accent, #00eefc);
+        border-radius: var(--radius-xl);
+        padding: 32px 20px 24px;
+        text-align: center;
+        margin: 6px 0 14px;
+        box-shadow: 0 0 32px var(--fc-accent, #00eefc);
+        animation: cardReveal 0.45s ease both;
+    }
+    .fc-emoji {
+        font-size: 6rem;
+        line-height: 1;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 0 22px var(--fc-accent, #00eefc));
+        animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .fc-hint {
+        color: var(--text-secondary) !important;
+        font-size: 0.95rem;
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .fc-feedback {
+        margin: 14px 0 10px;
+        padding: 12px 14px;
+        border-radius: var(--radius-md);
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        animation: cardReveal 0.35s ease both;
+    }
+    .fc-feedback.ok {
+        background: rgba(57, 255, 20, 0.12);
+        border: 1px solid #39ff14;
+        color: #d4ffd0 !important;
+        text-shadow: 0 0 8px rgba(57,255,20,0.6);
+    }
+    .fc-feedback.bad {
+        background: rgba(255, 83, 81, 0.12);
+        border: 1px solid #ff5351;
+        color: #ffd0ce !important;
+    }
+    @keyframes bounceIn {
+        0%   { transform: scale(0.3); opacity: 0; }
+        60%  { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
     /* --- BATTLE MODE HUD --- */
     .battle-hud {
         background: var(--bg-glass-strong);
@@ -2931,6 +2983,9 @@ def reset_to_worlds():
         # SRS
         "srs_active", "srs_cards", "srs_index", "srs_revealed",
         "srs_correct", "srs_attempted", "srs_finished",
+        # Flashcards
+        "fc_cards", "fc_index", "fc_correct", "fc_attempted",
+        "fc_finished", "fc_chosen", "fc_audio",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -2978,6 +3033,59 @@ def start_conversation(world_key: str):
     st.session_state.conv_turn_count = 0
     st.session_state.conv_pending_user_input = ""
     st.session_state.selected_world  = None
+    st.session_state.view = "home"
+
+
+def start_flashcards(world_key: str, world_topic: str):
+    """Inicia el modo Flashcards Visuales (exclusivo del mundo vocabulario):
+    pide al LLM 6 tarjetas con palabra, significado, emoji y 3 distractores.
+    Cada tarjeta muestra el emoji grande + audio TTS y 4 opciones de palabra."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🃏 Preparando tus tarjetas..."):
+        cards, err = generate_flashcards(profile_name, world_topic, cefr)
+
+    if err or not cards:
+        st.error(f"⚠️ No pude generar tarjetas: {err or 'sin datos'}")
+        return
+
+    # Mezclar opciones de cada tarjeta: 1 correcta + 3 distractores aleatorios
+    import random as _rand
+    prepared = []
+    for c in cards:
+        opts = [c["word"]] + (c.get("distractors") or [])[:3]
+        # rellenar si vinieron menos de 3 distractores
+        while len(opts) < 4:
+            opts.append("???")
+        opts = opts[:4]
+        _rand.shuffle(opts)
+        correct_idx = opts.index(c["word"]) if c["word"] in opts else 0
+        prepared.append({
+            "word":        c["word"],
+            "meaning":     c.get("meaning", ""),
+            "emoji":       c.get("emoji", "🃏"),
+            "ipa":         c.get("ipa", ""),
+            "options":     opts,
+            "correct_idx": correct_idx,
+        })
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "flashcards"
+    st.session_state.fc_cards       = prepared
+    st.session_state.fc_index       = 0
+    st.session_state.fc_correct     = 0
+    st.session_state.fc_attempted   = 0
+    st.session_state.fc_finished    = False
+    st.session_state.fc_chosen      = None
+    st.session_state.fc_audio       = None
+    st.session_state.selected_world = None
     st.session_state.view = "home"
 
 
@@ -3133,6 +3241,74 @@ REGLAS:
     except Exception as e:
         logger.error(f"Error generando palabras de pronunciación: {e}")
         return None, f"Error al generar palabras: {e}"
+
+
+def generate_flashcards(profile_name: str, world_topic: str,
+                         cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 6 tarjetas de vocabulario para el modo Flashcards Visuales.
+    Cada tarjeta tiene: palabra, significado en español, emoji y 3 distractores
+    (palabras incorrectas plausibles del mismo nivel y temática).
+    Devuelve (lista de dicts, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un experto en enseñanza de vocabulario inglés para niños hispanohablantes.
+
+Nivel del/la alumno/a: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+Tema del mundo: {world_topic}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "cards": [
+    {{
+      "word": "<palabra simple en inglés (1-2 palabras max)>",
+      "meaning": "<significado breve en español>",
+      "emoji": "<un solo emoji muy visual representando la palabra>",
+      "ipa": "<transcripción IPA opcional, puede ir vacía>",
+      "distractors": ["<palabra incorrecta 1>", "<palabra incorrecta 2>", "<palabra incorrecta 3>"]
+    }}
+  ]
+}}
+
+REGLAS ESTRICTAS:
+- Genera EXACTAMENTE 6 tarjetas.
+- Las palabras deben ser CONCRETAS y VISUALES (objetos, animales, comida, acciones).
+  Evita palabras abstractas que no tengan emoji claro.
+- Los 3 distractores deben ser palabras del mismo nivel CEFR y MISMA categoría
+  semántica que la correcta (ej: si "cat" es la correcta, distractores podrían ser
+  "dog", "bird", "fish" — NO "table", "blue", "run").
+- Distractores plausibles pero claramente diferentes; no sinónimos ni palabras
+  que también podrían ser correctas.
+- El emoji debe representar SIN AMBIGÜEDAD la palabra correcta.
+- Acorde al nivel CEFR ({cefr_code}) y a la temática del mundo.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": f"Genera 6 tarjetas para: {world_topic[:200]}"}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.7,
+            max_tokens=900,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        cards = data.get("cards", [])
+        # Validación mínima
+        cards = [c for c in cards if c.get("word") and c.get("meaning")]
+        if not cards:
+            return None, "El modelo no devolvió tarjetas. Intenta de nuevo."
+        return cards[:6], None
+    except Exception as e:
+        logger.error(f"Error generando flashcards: {e}")
+        return None, f"Error al generar tarjetas: {e}"
 
 
 def _normalize_text(s: str) -> str:
@@ -3483,6 +3659,14 @@ _STATE_DEFAULTS = {
     "srs_correct":   0,
     "srs_attempted": 0,
     "srs_finished":  False,
+    # Flashcards Visuales (Bóveda de Vocabulario)
+    "fc_cards":      None,    # lista de {word, meaning, emoji, options:[4 strings shuffled], correct_idx}
+    "fc_index":      0,
+    "fc_correct":    0,
+    "fc_attempted":  0,
+    "fc_finished":   False,
+    "fc_chosen":     None,    # índice seleccionado en la tarjeta actual (None = aún no contesta)
+    "fc_audio":      None,    # bytes MP3 del audio actual
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -3689,6 +3873,8 @@ else:
         "conv_active", "conv_history", "conv_turn_count", "conv_pending_user_input",
         "srs_active", "srs_cards", "srs_index", "srs_revealed",
         "srs_correct", "srs_attempted", "srs_finished",
+        "fc_cards", "fc_index", "fc_correct", "fc_attempted",
+        "fc_finished", "fc_chosen", "fc_audio",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -4259,6 +4445,175 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.05) FLASHCARDS VISUALES MODE (Bóveda de Vocabulario) ───────
+    if st.session_state.fc_cards is not None:
+        fc_world_meta = get_world_meta(
+            st.session_state.get("current_world", "vocab"), user
+        )
+        fc_accent = fc_world_meta.get("accent", "#00eefc")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {fc_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        cards = st.session_state.fc_cards
+        idx   = st.session_state.fc_index
+        total = len(cards)
+
+        # ── Pantalla final ──
+        if st.session_state.fc_finished or idx >= total:
+            attempted = max(1, st.session_state.fc_attempted)
+            correct   = st.session_state.fc_correct
+            score_pct = (correct / attempted) * 100.0
+            xp_award  = max(15, int(score_pct / 2))  # 15-50 XP
+
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🃏</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>{correct} de {total} tarjetas correctas</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Overlay de error de guardado (si lo hay)
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="fc_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user,
+                        xp_award=xp_award,
+                        score_pct=score_pct / 100.0,
+                        attempts=1,
+                        world=st.session_state.get("current_world", "vocab"),
+                        skill="vocabulary",
+                        lesson_type="flashcards",
+                        success_msg=f"¡+{xp_award} XP en Flashcards!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="fc_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Tarjeta actual ──
+        card = cards[idx]
+        chosen = st.session_state.fc_chosen
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{fc_accent};'>"
+            f"🃏 TARJETA {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Tarjeta grande con emoji
+        st.markdown(
+            f"<div class='fc-card' style='--fc-accent: {fc_accent};'>"
+            f"<div class='fc-emoji'>{card['emoji']}</div>"
+            f"<p class='fc-hint'>¿Qué palabra es ésta en inglés?</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Botón de audio (genera y reproduce TTS de la palabra correcta)
+        col_audio_l, col_audio_c, col_audio_r = st.columns([1, 2, 1])
+        with col_audio_c:
+            if st.button("🔊 Escuchar palabra", key=f"fc_audio_btn_{idx}",
+                         use_container_width=True, type="secondary"):
+                with st.spinner("Generando audio..."):
+                    audio_bytes = generate_lesson_audio(card["word"])
+                if audio_bytes:
+                    st.session_state.fc_audio = audio_bytes
+                else:
+                    st.warning("No pude generar el audio. Intenta de nuevo.")
+
+        if st.session_state.fc_audio:
+            st.audio(st.session_state.fc_audio, format="audio/mp3")
+
+        st.write("")
+
+        # 4 opciones (botones)
+        if chosen is None:
+            # Aún no contestó: mostrar opciones para tocar
+            opt_cols = st.columns(2)
+            for i, opt in enumerate(card["options"]):
+                with opt_cols[i % 2]:
+                    if st.button(opt, key=f"fc_opt_{idx}_{i}",
+                                 use_container_width=True, type="secondary"):
+                        st.session_state.fc_chosen = i
+                        st.session_state.fc_attempted += 1
+                        if i == card["correct_idx"]:
+                            st.session_state.fc_correct += 1
+                        st.rerun()
+        else:
+            # Ya contestó: mostrar feedback con todos los botones marcados
+            is_correct = (chosen == card["correct_idx"])
+            opt_cols = st.columns(2)
+            for i, opt in enumerate(card["options"]):
+                with opt_cols[i % 2]:
+                    if i == card["correct_idx"]:
+                        # opción correcta siempre marcada en verde
+                        bg = "#39ff14"; fg = "#0a0b1e"; mark = "✓"
+                    elif i == chosen:
+                        # la que eligió y es incorrecta marcada en rojo
+                        bg = "#ff5351"; fg = "#fff"; mark = "✗"
+                    else:
+                        bg = "transparent"; fg = "#a8acb3"; mark = ""
+                    st.markdown(
+                        f"<div style='padding:14px 12px; border-radius:8px; "
+                        f"background:{bg}; color:{fg}; text-align:center; "
+                        f"border:1px solid {'transparent' if bg=='transparent' else bg}; "
+                        f"font-weight:700; margin-bottom:8px;'>"
+                        f"{mark} {opt}</div>",
+                        unsafe_allow_html=True
+                    )
+
+            # Mensaje de feedback
+            if is_correct:
+                st.markdown(
+                    f"<div class='fc-feedback ok'>"
+                    f"✓ ¡Correcto! <b>{card['word']}</b> significa <i>{card['meaning']}</i>."
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    f"<div class='fc-feedback bad'>"
+                    f"✗ Era <b>{card['word']}</b> ({card['meaning']}). ¡Lo recordarás la próxima!"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+            # Avanzar
+            next_label = "Siguiente tarjeta →" if (idx + 1) < total else "Ver resultados 🏁"
+            if st.button(next_label, key=f"fc_next_{idx}",
+                         use_container_width=True, type="primary"):
+                st.session_state.fc_index += 1
+                st.session_state.fc_chosen = None
+                st.session_state.fc_audio = None
+                if st.session_state.fc_index >= total:
+                    st.session_state.fc_finished = True
+                st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir de Flashcards", key="fc_abandon",
+                     type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.1) PRONUNCIATION MODE ──────────────────────────────────────
     if st.session_state.pron_words is not None:
         pron_world_meta = get_world_meta(
@@ -4798,8 +5153,19 @@ else:
             unsafe_allow_html=True
         )
 
-        # 4 modos en grid 2x2: Lección, Batalla, Pronunciación, Conversación
-        modes = [
+        # Modos disponibles. En el mundo "vocab" agregamos Flashcards Visuales
+        # como modo destacado (mecánica propia del mundo de vocabulario).
+        modes = []
+        if wkey == "vocab":
+            modes.append({
+                "key":    "flashcards",
+                "icon":   "🃏",
+                "name":   "Flashcards Visuales",
+                "desc":   "Mira el dibujo, escucha y elige la palabra correcta.",
+                "btn":    "Jugar Flashcards",
+                "accent": "#ffd400",
+            })
+        modes += [
             {
                 "key":    "lesson_quiz",
                 "icon":   "🧠",
@@ -4834,8 +5200,8 @@ else:
             },
         ]
 
-        # Grid 2x2
-        for row_start in (0, 2):
+        # Grid 2 columnas, filas según cantidad de modos
+        for row_start in range(0, len(modes), 2):
             mode_cols = st.columns(2)
             for j, m in enumerate(modes[row_start:row_start+2]):
                 m_accent = m["accent"]
@@ -4851,10 +5217,17 @@ else:
                         f"</div>",
                         unsafe_allow_html=True
                     )
+                    # El modo destacado del mundo es "primary"
+                    is_featured = (
+                        (wkey == "vocab" and m["key"] == "flashcards")
+                        or (wkey != "vocab" and m["key"] == "battle")
+                    )
                     if st.button(m["btn"], key=f"mode_{m['key']}",
                                  use_container_width=True,
-                                 type="primary" if m["key"] == "battle" else "secondary"):
-                        if m["key"] == "pronunciation":
+                                 type="primary" if is_featured else "secondary"):
+                        if m["key"] == "flashcards":
+                            start_flashcards(wkey, wmeta["topic"])
+                        elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
                             start_conversation(wkey)
@@ -4879,6 +5252,7 @@ else:
         st.session_state.quiz_data is not None
         or st.session_state.quiz_result is not None
         or st.session_state.lesson_pending
+        or st.session_state.fc_cards is not None
     )
 
     if not in_lesson_flow:
