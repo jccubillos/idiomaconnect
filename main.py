@@ -474,6 +474,70 @@ st.markdown("""
         margin: 6px 0 4px;
     }
 
+    /* --- STORY FILL (Cuento Personalizado) --- */
+    .sf-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--sf-accent, #ff66c4);
+        border-radius: var(--radius-lg);
+        padding: 22px 18px;
+        margin: 6px 0 14px;
+        box-shadow: 0 0 22px var(--sf-accent, #ff66c4);
+        animation: cardReveal 0.45s ease both;
+    }
+    .sf-sentence {
+        color: #e0e2e6 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1.15rem;
+        line-height: 1.7;
+        margin: 0;
+        text-align: center;
+        font-weight: 600;
+    }
+    .sf-blank-empty {
+        display: inline-block;
+        min-width: 80px;
+        border-bottom: 2px solid var(--sf-accent, #ff66c4);
+        color: var(--sf-accent, #ff66c4) !important;
+        font-weight: 700;
+        padding: 0 6px;
+    }
+    .sf-story {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 22px 20px;
+        margin: 14px 0 12px;
+        animation: cardReveal 0.5s ease both;
+    }
+    .sf-text {
+        color: #e0e2e6 !important;
+        font-size: 1.0rem;
+        line-height: 1.85;
+        margin: 0;
+    }
+    .sf-blank {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+    }
+    .sf-blank.ok {
+        background: rgba(57, 255, 20, 0.18);
+        color: #d4ffd0 !important;
+        border: 1px solid #39ff14;
+        text-shadow: 0 0 6px rgba(57,255,20,0.5);
+    }
+    .sf-blank.bad {
+        background: rgba(255, 83, 81, 0.15);
+        color: #ffd0ce !important;
+        border: 1px solid #ff5351;
+    }
+    .sf-blank.bad s {
+        opacity: 0.6;
+        margin-right: 4px;
+    }
+
     /* --- MEMORY MATCH --- */
     .mm-card {
         border-radius: var(--radius-md);
@@ -3069,6 +3133,9 @@ def reset_to_worlds():
         # Memory Match
         "mm_pairs", "mm_flipped", "mm_matched", "mm_attempts",
         "mm_first", "mm_finished",
+        # Story Fill
+        "sf_story", "sf_index", "sf_picked", "sf_revealed",
+        "sf_correct", "sf_finished",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -3219,6 +3286,42 @@ def start_sentence_builder(world_key: str, world_topic: str):
     st.session_state.sb_finished    = False
     st.session_state.sb_revealed    = False
     st.session_state.sb_last_ok     = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_story_fill(world_key: str, world_topic: str):
+    """Inicia el modo Cuento Personalizado con Huecos (mundo personal)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("📖 Escribiendo tu cuento personalizado..."):
+        story, err = generate_story_fill(profile_name, world_topic, cefr)
+
+    if err or not story:
+        st.error(f"⚠️ No pude generar el cuento: {err or 'sin datos'}")
+        return
+
+    # Mezclar opciones de cada hueco para que la correcta no siempre sea la primera
+    import random as _rand
+    for s in story["sentences"]:
+        _rand.shuffle(s["blank_options"])
+        s["correct_idx"] = s["blank_options"].index(s["blank_correct"])
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "story_fill"
+    st.session_state.sf_story       = story
+    st.session_state.sf_index       = 0
+    st.session_state.sf_picked      = [None] * len(story["sentences"])
+    st.session_state.sf_revealed    = False
+    st.session_state.sf_correct     = 0
+    st.session_state.sf_finished    = False
     st.session_state.selected_world = None
     st.session_state.view = "home"
 
@@ -3482,6 +3585,89 @@ REGLAS ESTRICTAS:
     except Exception as e:
         logger.error(f"Error generando oraciones: {e}")
         return None, f"Error al generar oraciones: {e}"
+
+
+def generate_story_fill(profile_name: str, world_topic: str,
+                         cefr_code: str = "A1") -> tuple:
+    """Pide al LLM un cuento corto personalizado con 4-5 huecos.
+    Cada hueco tiene 3 opciones de palabra (1 correcta + 2 distractores).
+    Devuelve (dict story, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un escritor de cuentos cortos en inglés para niños hispanohablantes.
+
+Nombre del/la niño/a: {profile_name}
+Edad: {profile.get('age_desc', '13 años')}
+Hobbies/intereses: {profile.get('hobbies', '')}
+Nivel CEFR: {cefr_code}
+Tema del mundo: {world_topic}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "title": "<título corto del cuento (3-6 palabras en inglés)>",
+  "sentences": [
+    {{
+      "text_before":   "<texto en inglés antes del hueco>",
+      "blank_correct": "<la palabra correcta que va en el hueco (1-2 palabras)>",
+      "text_after":    "<texto en inglés después del hueco>",
+      "blank_options": ["<opción correcta>", "<distractor 1>", "<distractor 2>"]
+    }}
+  ]
+}}
+
+REGLAS ESTRICTAS:
+- EXACTAMENTE 4 oraciones, cada una con UN hueco.
+- Cada oración debe ser CORTA (8-15 palabras totales).
+- El cuento debe ser personalizado: usa los hobbies/intereses del/la niño/a
+  para inventar una historia que le interese (su personaje principal puede
+  llamarse como ella/él).
+- Los 2 distractores deben ser palabras del mismo TIPO gramatical y nivel CEFR
+  que la correcta (si la correcta es un verbo, los distractores son verbos).
+- Los distractores deben ser PLAUSIBLES pero claramente incorrectos en contexto.
+- "blank_options" debe contener 3 opciones: la correcta + 2 distractores
+  (la correcta debe coincidir EXACTAMENTE con "blank_correct").
+- Vocabulario y gramática acordes al nivel CEFR {cefr_code}.
+- NO uses comillas dentro del texto. Solo letras, espacios y puntos finales.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": f"Cuento personalizado para {profile_name} sobre: {world_topic[:200]}"}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.8,
+            max_tokens=1000,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        title = data.get("title", "Story")
+        sents = data.get("sentences", [])
+        # Validación
+        valid = []
+        for s in sents:
+            correct = (s.get("blank_correct") or "").strip()
+            opts = [o.strip() for o in (s.get("blank_options") or []) if o]
+            if not correct or correct not in opts or len(opts) < 2:
+                continue
+            valid.append({
+                "text_before":   (s.get("text_before") or "").strip(),
+                "blank_correct": correct,
+                "text_after":    (s.get("text_after") or "").strip(),
+                "blank_options": opts[:3],
+            })
+        if len(valid) < 2:
+            return None, "El modelo no devolvió un cuento válido. Intenta de nuevo."
+        return {"title": title, "sentences": valid[:4]}, None
+    except Exception as e:
+        logger.error(f"Error generando story fill: {e}")
+        return None, f"Error al generar cuento: {e}"
 
 
 def generate_memory_pairs(profile_name: str, world_topic: str,
@@ -3983,6 +4169,13 @@ _STATE_DEFAULTS = {
     "mm_attempts":   0,
     "mm_first":      None,    # id de la primera carta del par en curso
     "mm_finished":   False,
+    # Story Fill (Mundo Personal) — cuento personalizado con huecos a completar
+    "sf_story":      None,    # dict {title, sentences:[{text, blank_correct, blank_options, picked_idx}]}
+    "sf_index":      0,
+    "sf_picked":     None,    # lista paralela a sentences: índice elegido o None
+    "sf_revealed":   False,   # si ya validó todas las elecciones (pantalla final)
+    "sf_correct":    0,
+    "sf_finished":   False,
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -4195,6 +4388,8 @@ else:
         "sb_attempted", "sb_finished", "sb_revealed", "sb_last_ok",
         "mm_pairs", "mm_flipped", "mm_matched", "mm_attempts",
         "mm_first", "mm_finished",
+        "sf_story", "sf_index", "sf_picked", "sf_revealed",
+        "sf_correct", "sf_finished",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -4765,6 +4960,131 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.02) STORY FILL MODE (Mundo Personal) ───────────────────────
+    if st.session_state.sf_story is not None:
+        sf_world_meta = get_world_meta(
+            st.session_state.get("current_world", "personal"), user
+        )
+        sf_accent = sf_world_meta.get("accent", "#ff66c4")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {sf_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        story    = st.session_state.sf_story
+        sents    = story["sentences"]
+        total    = len(sents)
+        picked   = list(st.session_state.sf_picked or [None] * total)
+        revealed = st.session_state.sf_revealed
+
+        # ── Pantalla final ──
+        if st.session_state.sf_finished:
+            correct   = st.session_state.sf_correct
+            score_pct = (correct / total) * 100.0 if total else 0
+            xp_award  = max(15, int(score_pct / 2))
+
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>📖</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>{correct} de {total} huecos correctos</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Mostrar el cuento completo con las elecciones (verde/rojo)
+            full_html = f"<div class='sf-story'><h3 style='color:{sf_accent}; text-shadow:0 0 12px {sf_accent}; text-align:center; margin: 0 0 14px;'>{story['title']}</h3><p class='sf-text'>"
+            for i, s in enumerate(sents):
+                user_idx = picked[i]
+                correct_idx = s["correct_idx"]
+                if user_idx == correct_idx:
+                    word_html = f"<span class='sf-blank ok'>{s['blank_correct']}</span>"
+                else:
+                    chosen_word = s["blank_options"][user_idx] if user_idx is not None else "___"
+                    word_html = (f"<span class='sf-blank bad'>"
+                                 f"<s>{chosen_word}</s> → {s['blank_correct']}</span>")
+                full_html += f"{s['text_before']} {word_html} {s['text_after']} "
+            full_html += "</p></div>"
+            st.markdown(full_html, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="sf_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=score_pct / 100.0, attempts=1,
+                        world=st.session_state.get("current_world", "personal"),
+                        skill="reading", lesson_type="story_fill",
+                        success_msg=f"¡+{xp_award} XP en Cuento!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="sf_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Hueco actual ──
+        idx = st.session_state.sf_index
+        if idx >= total:
+            # Calcular correctas y marcar como finished
+            n_correct = sum(
+                1 for i, s in enumerate(sents)
+                if picked[i] == s["correct_idx"]
+            )
+            st.session_state.sf_correct = n_correct
+            st.session_state.sf_finished = True
+            st.rerun()
+
+        sent = sents[idx]
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{sf_accent};'>"
+            f"📖 {story['title']} · HUECO {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Mostrar la oración con un hueco visible
+        st.markdown(
+            f"<div class='sf-card' style='--sf-accent: {sf_accent};'>"
+            f"<p class='sf-sentence'>"
+            f"{sent['text_before']} "
+            f"<span class='sf-blank-empty'>______</span> "
+            f"{sent['text_after']}"
+            f"</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Botones de opciones
+        st.markdown("<p class='sb-section-label'>Elige la palabra que completa:</p>", unsafe_allow_html=True)
+        opt_cols = st.columns(len(sent["blank_options"]))
+        for i, opt in enumerate(sent["blank_options"]):
+            with opt_cols[i]:
+                if st.button(opt, key=f"sf_opt_{idx}_{i}",
+                             use_container_width=True, type="secondary"):
+                    picked[idx] = i
+                    st.session_state.sf_picked = picked
+                    st.session_state.sf_index = idx + 1
+                    st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="sf_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.03) SENTENCE BUILDER MODE (Galaxia Gramatical) ─────────────
     if st.session_state.sb_sentences is not None:
         sb_world_meta = get_world_meta(
@@ -4944,6 +5264,10 @@ else:
         )
 
         cards = st.session_state.mm_pairs
+        # IMPORTANTE: lookup por id (las cards están barajadas, los índices
+        # de lista NO corresponden a card_id). Este era el bug crítico anterior.
+        card_by_id = {c["id"]: c for c in cards}
+
         flipped = list(st.session_state.mm_flipped or [])
         matched = list(st.session_state.mm_matched or [])
         total_pairs = len(cards) // 2
@@ -4955,7 +5279,6 @@ else:
         # ── Pantalla final ──
         if st.session_state.mm_finished:
             attempts = max(1, st.session_state.mm_attempts)
-            # Eficiencia: cuanto más cerca esté de total_pairs, mejor
             efficiency = min(100.0, (total_pairs / attempts) * 100.0)
             xp_award = max(15, int(efficiency / 2))
 
@@ -4994,6 +5317,18 @@ else:
             send_weekly_report()
             st.stop()
 
+        # ── Detectar estado del par actual (si hay 2 flipped) ──
+        is_match = False
+        is_mismatch = False
+        if len(flipped) == 2:
+            a_card = card_by_id.get(flipped[0])
+            b_card = card_by_id.get(flipped[1])
+            if a_card and b_card:
+                if a_card["pair_id"] == b_card["pair_id"]:
+                    is_match = True
+                else:
+                    is_mismatch = True
+
         # ── Tablero ──
         st.markdown(
             f"<p class='worlds-section-title' style='color:{mm_accent};'>"
@@ -5001,30 +5336,28 @@ else:
             unsafe_allow_html=True
         )
 
-        # Si hay 2 cartas dadas vuelta que no son pareja, mostrarlas un momento
-        # luego pedirles al usuario que toque "Continuar" para esconderlas
-        pending_mismatch = (
-            len(flipped) == 2
-            and cards[flipped[0]]["pair_id"] != cards[flipped[1]]["pair_id"]
-        )
-
         n_cols = 4
         rows = [cards[i:i + n_cols] for i in range(0, len(cards), n_cols)]
 
-        for r_idx, row in enumerate(rows):
+        for row in rows:
             row_cols = st.columns(n_cols)
             for c_idx, card in enumerate(row):
                 with row_cols[c_idx]:
                     card_id = card["id"]
-                    is_matched = (card["pair_id"] in matched)
-                    is_flipped = (card_id in flipped)
-                    show_face = is_matched or is_flipped
+                    is_card_matched = (card["pair_id"] in matched)
+                    is_card_flipped = (card_id in flipped)
+                    show_face = is_card_matched or is_card_flipped
 
                     if show_face:
-                        # Mostrar contenido
                         emoji_or_word = card["value"]
-                        bg = mm_accent if is_matched else "#272a2d"
-                        fg = "#0a0b1e" if is_matched else "#e0e2e6"
+                        if is_card_matched:
+                            bg = mm_accent; fg = "#0a0b1e"
+                        elif is_match:  # par actual correcto, aún no confirmado
+                            bg = "#39ff14"; fg = "#0a0b1e"
+                        elif is_mismatch:
+                            bg = "#ff5351"; fg = "#fff"
+                        else:
+                            bg = "#272a2d"; fg = "#e0e2e6"
                         font_size = "2.2rem" if card["kind"] == "emoji" else "1rem"
                         st.markdown(
                             f"<div class='mm-card mm-face' style='background:{bg}; color:{fg}; font-size:{font_size};'>"
@@ -5032,8 +5365,8 @@ else:
                             unsafe_allow_html=True
                         )
                     else:
-                        # Botón "boca abajo": clickeable si no hay mismatch pendiente
-                        disabled = pending_mismatch or len(flipped) >= 2
+                        # Botón boca abajo: deshabilitado si ya hay 2 flipped
+                        disabled = (len(flipped) >= 2)
                         if st.button("❓", key=f"mm_{card_id}",
                                      use_container_width=True,
                                      disabled=disabled, type="secondary"):
@@ -5041,16 +5374,31 @@ else:
                             st.session_state.mm_flipped = new_flipped
                             if len(new_flipped) == 2:
                                 st.session_state.mm_attempts += 1
-                                a_idx, b_idx = new_flipped[0], new_flipped[1]
-                                if cards[a_idx]["pair_id"] == cards[b_idx]["pair_id"]:
-                                    # ¡Match!
-                                    st.session_state.mm_matched = matched + [cards[a_idx]["pair_id"]]
-                                    st.session_state.mm_flipped = []
                             st.rerun()
 
         st.write("")
-        if pending_mismatch:
-            if st.button("Continuar →", key="mm_continue",
+        # Botón Continuar después de cualquier par evaluado (match o no)
+        if is_match:
+            st.markdown(
+                f"<div class='fc-feedback ok'>"
+                f"✓ ¡Match! <b>{card_by_id[flipped[0]]['word']}</b> = {card_by_id[flipped[0]]['meaning']}"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            if st.button("✓ Continuar →", key="mm_continue_ok",
+                         use_container_width=True, type="primary"):
+                pid = card_by_id[flipped[0]]["pair_id"]
+                st.session_state.mm_matched = matched + [pid]
+                st.session_state.mm_flipped = []
+                st.rerun()
+        elif is_mismatch:
+            st.markdown(
+                f"<div class='fc-feedback bad'>"
+                f"✗ No coinciden. Inténtalo de nuevo."
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            if st.button("Continuar →", key="mm_continue_bad",
                          use_container_width=True, type="primary"):
                 st.session_state.mm_flipped = []
                 st.rerun()
@@ -5799,6 +6147,15 @@ else:
                 "btn":    "Construir Oraciones",
                 "accent": "#ffd400",
             })
+        if wkey == "personal":
+            modes.append({
+                "key":    "story_fill",
+                "icon":   "📖",
+                "name":   "Cuento Personalizado",
+                "desc":   "Un cuento sobre ti con huecos. Elige la palabra correcta.",
+                "btn":    "Leer mi Cuento",
+                "accent": "#ffd400",
+            })
         modes += [
             {
                 "key":    "lesson_quiz",
@@ -5855,7 +6212,8 @@ else:
                     is_featured = (
                         (wkey == "vocab" and m["key"] == "flashcards")
                         or (wkey == "grammar" and m["key"] == "sentence_builder")
-                        or (wkey not in ("vocab", "grammar") and m["key"] == "battle")
+                        or (wkey == "personal" and m["key"] == "story_fill")
+                        or (wkey not in ("vocab", "grammar", "personal") and m["key"] == "battle")
                     )
                     if st.button(m["btn"], key=f"mode_{m['key']}",
                                  use_container_width=True,
@@ -5866,6 +6224,8 @@ else:
                             start_memory_match(wkey, wmeta["topic"])
                         elif m["key"] == "sentence_builder":
                             start_sentence_builder(wkey, wmeta["topic"])
+                        elif m["key"] == "story_fill":
+                            start_story_fill(wkey, wmeta["topic"])
                         elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
@@ -5894,6 +6254,7 @@ else:
         or st.session_state.fc_cards is not None
         or st.session_state.sb_sentences is not None
         or st.session_state.mm_pairs is not None
+        or st.session_state.sf_story is not None
     )
 
     if not in_lesson_flow:
