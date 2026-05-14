@@ -2739,9 +2739,13 @@ def get_db_connection():
 # ==========================================
 
 def _build_system_prompt_json(profile_name: str, cefr_code: str = "A1",
-                               cefr_name: str = "Explorer") -> str:
+                               cefr_name: str = "Explorer",
+                               world_key: str = "",
+                               world_name: str = "",
+                               world_tagline: str = "") -> str:
     """System prompt que instruye al LLM a generar un JSON robusto.
-    Adapta complejidad al nivel CEFR estimado del/la alumno/a."""
+    Adapta complejidad al nivel CEFR estimado del/la alumno/a.
+    Personaliza la lección según el MUNDO en el que está el alumno."""
     profile  = PROFILES[profile_name]
     gender   = profile.get("gender", "niño/niña")
     pronoun  = "ella" if gender == "niña" else "él"
@@ -2759,6 +2763,67 @@ def _build_system_prompt_json(profile_name: str, cefr_code: str = "A1",
     }
     complexity_guide = cefr_guides.get(cefr_code, cefr_guides["A1"])
 
+    # ─── Personalización por mundo: persona narrativa y enfoque temático ───
+    world_personas = {
+        "grammar":  {
+            "persona": "Capitán/a Grammar, navegante del cosmos lingüístico",
+            "setting": "una galaxia donde cada regla gramatical es una constelación",
+            "voice_hint": "Usa metáforas espaciales ocasionales (galaxia, órbita, nave, estrella) sin abusar. La lección DEBE ser de gramática.",
+        },
+        "vocab":    {
+            "persona": "Wordsmith Quinn, guardián/a de la Bóveda de Vocabulario",
+            "setting": "una bóveda mágica donde cada palabra es un tesoro brillante",
+            "voice_hint": "Usa imágenes de tesoros, joyas, cofres ocasionalmente. La lección DEBE estar enfocada 100% en vocabulario nuevo (NO gramática densa).",
+        },
+        "personal": {
+            "persona": "Mentor/a personal del mundo de los hobbies del/la alumno/a",
+            "setting": f"un mundo construido alrededor de los intereses de {profile_name}",
+            "voice_hint": "Conecta TODA la lección con los hobbies del alumno. Usa nombres de familia/mascotas en ejemplos.",
+        },
+        "sound":    {
+            "persona": "Ingeniero/a de sonido del Estudio Acústico",
+            "setting": "un estudio de grabación con cabinas y micrófonos brillantes",
+            "voice_hint": "Enfócate en sonidos del inglés. Marca cómo se pronuncia cada palabra clave con corchetes [pro-nun-cia-ción].",
+        },
+        "chat":     {
+            "persona": "Barista del Café Conversación",
+            "setting": "un café acogedor donde se habla inglés del mundo real",
+            "voice_hint": "Usa ejemplos en forma de diálogos cortos entre dos personas.",
+        },
+        "writing":  {
+            "persona": "Escritor/a del Taller de Letras",
+            "setting": "un taller con plumas, tinta y máquinas de escribir vintage",
+            "voice_hint": "Enfócate en cómo se construyen oraciones. Modela CÓMO escribir, no solo qué.",
+        },
+        "challenge":{
+            "persona": "Maestro/a del Desafío Sorpresa",
+            "setting": "una arena de combate lingüístico",
+            "voice_hint": "Plantea la lección como un desafío épico que el alumno debe superar.",
+        },
+    }
+    wp = world_personas.get(world_key, {
+        "persona": "Tutor amigable",
+        "setting": "una clase virtual",
+        "voice_hint": "",
+    })
+
+    world_block = ""
+    if world_key:
+        world_block = f"""
+
+════════════════════════════════════════
+PERSONALIZACIÓN DEL MUNDO ({world_name or 'genérico'}):
+════════════════════════════════════════
+- Tu IDENTIDAD para esta lección: {wp['persona']}.
+- AMBIENTACIÓN: {wp['setting']}.
+- TAGLINE DEL MUNDO: {world_tagline}
+- INSTRUCCIONES DE ESTILO: {wp['voice_hint']}
+
+En la Parte A (introducción narrativa), DEBES abrir con una referencia natural al mundo
+("Bienvenida a la {world_name}..." o similar). El resto de la lección mantiene la temática
+del mundo pero SIN forzar metáforas en cada oración — solo cuando enriquezca.
+"""
+
     return f"""
 Eres un tutor de inglés experto, cariñoso y motivador, diseñado exclusivamente para {profile_name}, un/a {gender} de {age_desc}, cursando {grade}.
 A {pronoun} le apasiona: {profile['hobbies']}.
@@ -2769,7 +2834,7 @@ GUÍA DE COMPLEJIDAD ({cefr_code}): {complexity_guide}
 
 Adapta vocabulario, gramática y longitud de oraciones a este nivel. Si subes la complejidad, hazlo gradualmente; nunca brinques 2 niveles de un solo tirón.
 
-{profile['family_context']}
+{profile['family_context']}{world_block}
 
 ════════════════════════════════════════
 INSTRUCCIÓN CRÍTICA DE FORMATO JSON:
@@ -2855,13 +2920,19 @@ INSTRUCCIONES PARA "mc" Y "fitb":
 def generate_lesson_and_quiz(profile_name: str, topic: str,
                               custom_text: str | None = None,
                               cefr_code: str = "A1",
-                              cefr_name: str = "Explorer"):
-    """Llama a Groq con JSON mode, adaptado al nivel CEFR del alumno."""
+                              cefr_name: str = "Explorer",
+                              world_key: str = "",
+                              world_name: str = "",
+                              world_tagline: str = ""):
+    """Llama a Groq con JSON mode, adaptado al nivel CEFR del alumno y al MUNDO."""
     groq_client, init_error = init_groq_client()
     if init_error or not groq_client:
         return None, f"⚠️ {init_error}"
 
-    system_prompt = _build_system_prompt_json(profile_name, cefr_code, cefr_name)
+    system_prompt = _build_system_prompt_json(
+        profile_name, cefr_code, cefr_name,
+        world_key=world_key, world_name=world_name, world_tagline=world_tagline
+    )
     # Sanitize user input before sending to the LLM
     safe_topic = topic.strip()[:300] if topic else "Aventura Diaria"
     safe_custom = custom_text.strip()[:500] if custom_text else None
@@ -5391,12 +5462,14 @@ Tema del mundo: {world_topic}
 Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
 {{
   "title": "<título corto del cuento (3-6 palabras en inglés)>",
+  "title_es": "<el mismo título traducido al español>",
   "sentences": [
     {{
       "text_before":   "<texto en inglés antes del hueco>",
       "blank_correct": "<la palabra correcta que va en el hueco (1-2 palabras)>",
       "text_after":    "<texto en inglés después del hueco>",
-      "blank_options": ["<opción correcta>", "<distractor 1>", "<distractor 2>"]
+      "blank_options": ["<opción correcta>", "<distractor 1>", "<distractor 2>"],
+      "spanish_hint":  "<TRADUCCIÓN al español de la oración COMPLETA y ya rellenada, para dar contexto>"
     }}
   ]
 }}
@@ -5412,6 +5485,8 @@ REGLAS ESTRICTAS:
 - Los distractores deben ser PLAUSIBLES pero claramente incorrectos en contexto.
 - "blank_options" debe contener 3 opciones: la correcta + 2 distractores
   (la correcta debe coincidir EXACTAMENTE con "blank_correct").
+- "spanish_hint" es OBLIGATORIO: traducción al español de la oración COMPLETA ya rellenada,
+  para que el/la niño/a entienda el contexto pero aún tenga que elegir entre opciones.
 - Vocabulario y gramática acordes al nivel CEFR {cefr_code}.
 - NO uses comillas dentro del texto. Solo letras, espacios y puntos finales.
 """
@@ -5443,10 +5518,13 @@ REGLAS ESTRICTAS:
                 "blank_correct": correct,
                 "text_after":    (s.get("text_after") or "").strip(),
                 "blank_options": opts[:3],
+                "spanish_hint":  (s.get("spanish_hint") or "").strip(),
             })
         if len(valid) < 2:
             return None, "El modelo no devolvió un cuento válido. Intenta de nuevo."
-        return {"title": title, "sentences": valid[:4]}, None
+        title_es = (data.get("title_es") or "").strip()
+        return {"title": title, "title_es": title_es,
+                "sentences": valid[:4]}, None
     except Exception as e:
         logger.error(f"Error generando story fill: {e}")
         return None, f"Error al generar cuento: {e}"
@@ -7092,7 +7170,15 @@ else:
             unsafe_allow_html=True
         )
 
-        # Mostrar la oración con un hueco visible
+        # Hint en español (traducción completa de la oración para dar contexto)
+        spanish_hint = (sent.get("spanish_hint") or "").strip()
+        hint_block = (
+            f"<p class='battle-q-hint' style='margin: 12px 0 0;'>"
+            f"💡 <i>{spanish_hint}</i></p>"
+            if spanish_hint else ""
+        )
+
+        # Mostrar la oración con un hueco visible + traducción debajo
         st.markdown(
             f"<div class='sf-card' style='--sf-accent: {sf_accent};'>"
             f"<p class='sf-sentence'>"
@@ -7100,6 +7186,7 @@ else:
             f"<span class='sf-blank-empty'>______</span> "
             f"{sent['text_after']}"
             f"</p>"
+            f"{hint_block}"
             f"</div>",
             unsafe_allow_html=True
         )
@@ -9707,11 +9794,17 @@ else:
         spinner_text = ("⚔️ Cargando arena de combate..."
                         if is_battle
                         else "✨ Preparando tu lección y quiz... (~10 segundos)")
+        # Pasar info del mundo para personalizar la lección (persona, ambientación)
+        _current_world_key = st.session_state.get("current_world", "")
+        _current_world_meta = get_world_meta(_current_world_key, user) if _current_world_key else {}
         with st.spinner(spinner_text):
             data_parsed, error = generate_lesson_and_quiz(
                 user, topic, custom_text,
                 cefr_code=cefr_info_now["code"],
-                cefr_name=cefr_info_now["name"]
+                cefr_name=cefr_info_now["name"],
+                world_key=_current_world_key,
+                world_name=_current_world_meta.get("name", ""),
+                world_tagline=_current_world_meta.get("tagline", "")
             )
 
         st.session_state.lesson_error   = error
@@ -9868,11 +9961,25 @@ else:
             st.caption("Escribe UNA sola palabra en inglés para completar la oración.")
 
             for i, q in enumerate(fitb_qs):
-                sentence_display = q.get("sentence", "___").replace("___", "**___**")
+                # Normalizar la oración: reemplazar ___ por un span visual estilizado
+                raw_sentence = q.get("sentence", "___")
+                raw_sentence = re.sub(r"\*+_+\*+", "___", raw_sentence)
+                raw_sentence = re.sub(r"_+", "___", raw_sentence)
+                sentence_display = raw_sentence.replace(
+                    "___", "<span class='battle-blank'>______</span>"
+                )
+                # Hint en español (traducción de la oración completa)
+                hint_text = (q.get("hint") or "").strip()
+                hint_html = (
+                    f"<p class='battle-q-hint' style='margin: 6px 0 10px;'>"
+                    f"💡 <i>{hint_text}</i></p>"
+                    if hint_text else ""
+                )
                 st.markdown(
                     f"<div class='question-card'>"
                     f"<span class='q-badge'>Completar {i+1} de {len(fitb_qs)}</span>"
-                    f"<p>{sentence_display}</p>",
+                    f"<p style='font-size:1.1rem; font-weight:600; margin: 6px 0 4px;'>{sentence_display}</p>"
+                    f"{hint_html}",
                     unsafe_allow_html=True
                 )
                 fitb_user_answers[i] = st.text_input(
