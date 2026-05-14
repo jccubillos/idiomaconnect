@@ -697,6 +697,97 @@ st.markdown("""
         margin-right: 4px;
     }
 
+    /* --- REINFORCE CARD (refuerzo de errores recurrentes) --- */
+    .reinforce-card {
+        background: linear-gradient(135deg, rgba(255,212,0,0.10) 0%, rgba(255,83,81,0.06) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid #ffd400;
+        border-radius: var(--radius-lg);
+        padding: 12px 18px 8px;
+        margin: 6px 0 10px;
+        box-shadow: 0 0 14px rgba(255,212,0,0.15);
+        animation: cardReveal 0.45s ease both;
+    }
+    .reinforce-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 0.78rem;
+        color: #ffd400 !important;
+        margin: 0 0 4px;
+        letter-spacing: 2px;
+        text-shadow: 0 0 8px rgba(255,212,0,0.5);
+    }
+    .reinforce-pattern {
+        color: var(--text-primary) !important;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin: 4px 0;
+    }
+    .reinforce-hint {
+        color: var(--text-secondary) !important;
+        font-size: 0.88rem;
+        line-height: 1.4;
+        margin: 4px 0 6px;
+    }
+    .reinforce-examples {
+        margin: 4px 0 6px;
+        padding-left: 20px;
+        font-size: 0.88rem;
+        color: #e0e2e6 !important;
+    }
+    .reinforce-examples li {
+        margin: 2px 0;
+        font-style: italic;
+    }
+
+    /* --- BADGES GRID (Logros) --- */
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 8px;
+        margin: 8px 0 12px;
+    }
+    .badge-tile {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: 10px 8px;
+        text-align: center;
+        transition: var(--t-base);
+        animation: cardReveal 0.35s ease both;
+    }
+    .badge-earned {
+        border-color: var(--profile-accent, #00eefc);
+        box-shadow: 0 0 12px var(--profile-accent, #00eefc);
+    }
+    .badge-locked {
+        opacity: 0.35;
+        filter: grayscale(0.7);
+    }
+    .badge-emoji {
+        font-size: 2rem;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+    .badge-earned .badge-emoji {
+        filter: drop-shadow(0 0 10px var(--profile-accent, #00eefc));
+    }
+    .badge-name {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 0.82rem;
+        color: var(--text-primary) !important;
+        margin: 2px 0;
+    }
+    .badge-earned .badge-name {
+        color: var(--profile-accent, #00eefc) !important;
+    }
+    .badge-desc {
+        font-size: 0.7rem;
+        color: var(--text-dim) !important;
+        line-height: 1.3;
+    }
+
     /* --- DAILY MISSION CARD (Misión del día + Recomendación + Racha) --- */
     .daily-card {
         background: var(--bg-glass);
@@ -2656,6 +2747,17 @@ UNIVERSAL_WORLDS = {
         "topic":   ("Escritura productiva en inglés: traducir oraciones del español "
                     "al inglés y describir escenas con propias palabras."),
     },
+    "journal": {
+        "emoji":   "📔",
+        "name":    "Diario Hablado",
+        "tagline": "Habla 30 segundos sobre el prompt del día",
+        "intro":   ("El reto más cercano a hablar inglés real. Cada día un tema "
+                    "diferente — habla libre, sin guión, y recibe feedback "
+                    "personalizado sobre tu fluidez, vocabulario y gramática."),
+        "accent":  "#00eefc",
+        "topic":   ("Producción oral espontánea: hablar 30 segundos sobre un tema "
+                    "cotidiano sin guión preestablecido."),
+    },
 }
 
 
@@ -2824,6 +2926,23 @@ En la Parte A (introducción narrativa), DEBES abrir con una referencia natural 
 del mundo pero SIN forzar metáforas en cada oración — solo cuando enriquezca.
 """
 
+    # ─── Memoria de contenido: lo que el alumno ya cubrió ───
+    recent = get_recent_lesson_topics(profile_name, n=15)
+    memory_block = ""
+    if recent:
+        recent_str = ", ".join(recent[-10:])
+        memory_block = f"""
+
+════════════════════════════════════════
+MEMORIA DE CONTENIDO RECIENTE:
+════════════════════════════════════════
+{profile_name} ya practicó recientemente: {recent_str}.
+
+INSTRUCCIÓN: Si el tema/mundo coincide con algo ya cubierto, AMPLÍA con vocabulario
+o estructura NUEVA — no repitas los mismos ejemplos. Si es un mundo nuevo para el
+alumno, comienza con fundamentos.
+"""
+
     return f"""
 Eres un tutor de inglés experto, cariñoso y motivador, diseñado exclusivamente para {profile_name}, un/a {gender} de {age_desc}, cursando {grade}.
 A {pronoun} le apasiona: {profile['hobbies']}.
@@ -2834,7 +2953,7 @@ GUÍA DE COMPLEJIDAD ({cefr_code}): {complexity_guide}
 
 Adapta vocabulario, gramática y longitud de oraciones a este nivel. Si subes la complejidad, hazlo gradualmente; nunca brinques 2 niveles de un solo tirón.
 
-{profile['family_context']}{world_block}
+{profile['family_context']}{world_block}{memory_block}
 
 ════════════════════════════════════════
 INSTRUCCIÓN CRÍTICA DE FORMATO JSON:
@@ -3278,6 +3397,85 @@ SKILL_TO_WORLD = {
 }
 
 
+BADGE_DEFINITIONS = [
+    {"key": "first_step",   "emoji": "🌱", "name": "Primer paso",          "desc": "Completaste tu primera lección"},
+    {"key": "ten_sessions", "emoji": "🎯", "name": "Decena",               "desc": "Llegaste a 10 sesiones"},
+    {"key": "fifty_xp",     "emoji": "⚡", "name": "Eléctric@",            "desc": "Acumulaste 50 XP"},
+    {"key": "hundred_xp",   "emoji": "💎", "name": "Centurión",            "desc": "100 XP en tu cuenta"},
+    {"key": "five_hundred", "emoji": "🏆", "name": "Campeón",              "desc": "500 XP — ¡increíble!"},
+    {"key": "thousand_xp",  "emoji": "👑", "name": "Leyenda",              "desc": "1000 XP — élite total"},
+    {"key": "streak_3",     "emoji": "🔥", "name": "Encendid@",            "desc": "3 días seguidos jugando"},
+    {"key": "streak_7",     "emoji": "🌋", "name": "Imparable",            "desc": "Una semana entera de racha"},
+    {"key": "streak_30",    "emoji": "🌟", "name": "Mes Perfecto",         "desc": "30 días consecutivos"},
+    {"key": "perfect_quiz", "emoji": "💯", "name": "Perfeccionista",       "desc": "Obtuviste 100% en un quiz"},
+    {"key": "all_worlds",   "emoji": "🌍", "name": "Explorador/a Global",  "desc": "Visitaste los 8 mundos"},
+    {"key": "exam_passed",  "emoji": "📜", "name": "Aprobado",             "desc": "Pasaste un examen semanal con ≥70%"},
+    {"key": "speak_journal","emoji": "📔", "name": "Diarista",             "desc": "Grabaste tu primer Diario Hablado"},
+    {"key": "writer",       "emoji": "🖋", "name": "Escritor/a",           "desc": "Completaste 5 ejercicios de escritura"},
+    {"key": "speaker",      "emoji": "🎤", "name": "Orador/a",             "desc": "5 sesiones de pronunciación o speaking"},
+]
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def compute_earned_badges(profile_name: str) -> list:
+    """Devuelve la lista de keys de badges desbloqueados por el alumno."""
+    earned = set()
+    stats = get_user_stats(profile_name)
+    streak = get_streak_days(profile_name)
+    breakdown = get_skill_breakdown(profile_name)
+
+    if stats["total_sessions"] >= 1: earned.add("first_step")
+    if stats["total_sessions"] >= 10: earned.add("ten_sessions")
+    if stats["total_xp"] >= 50:   earned.add("fifty_xp")
+    if stats["total_xp"] >= 100:  earned.add("hundred_xp")
+    if stats["total_xp"] >= 500:  earned.add("five_hundred")
+    if stats["total_xp"] >= 1000: earned.add("thousand_xp")
+    if streak >= 3:  earned.add("streak_3")
+    if streak >= 7:  earned.add("streak_7")
+    if streak >= 30: earned.add("streak_30")
+    if stats["best_score"] >= 1.0: earned.add("perfect_quiz")
+
+    # All worlds: leer sheets
+    sheet, _ = get_db_connection()
+    if sheet:
+        try:
+            rows = sheet.get_all_records()
+            visited = set()
+            exam_passed = False
+            journal_count = 0
+            writer_count = 0
+            speaker_count = 0
+            for r in rows:
+                if r.get("profile") != profile_name:
+                    continue
+                visited.add(r.get("world", ""))
+                lt = (r.get("lesson_type") or "").lower()
+                sc_str = str(r.get("score_pct", "0%")).replace("%", "")
+                try:
+                    sc = float(sc_str) / 100.0
+                except ValueError:
+                    sc = 0.0
+                if lt == "exam" and sc >= 0.7:
+                    exam_passed = True
+                if lt == "speaking_journal":
+                    journal_count += 1
+                if lt in ("translate_inv", "describe_scene"):
+                    writer_count += 1
+                if lt in ("pronunciation", "shadow_speak"):
+                    speaker_count += 1
+            if len(visited & {"grammar", "vocab", "personal", "challenge",
+                              "sound", "chat", "writing", "journal"}) >= 8:
+                earned.add("all_worlds")
+            if exam_passed:    earned.add("exam_passed")
+            if journal_count >= 1: earned.add("speak_journal")
+            if writer_count >= 5:  earned.add("writer")
+            if speaker_count >= 5: earned.add("speaker")
+        except Exception as e:
+            logger.error(f"Error compute_badges: {e}")
+
+    return list(earned)
+
+
 def get_weakest_skill(profile_name: str) -> tuple:
     """Identifica la skill más débil: la que tiene MENOS sesiones, en caso
     de empate, la que tiene peor avg_score. Devuelve (skill_key, world_meta)."""
@@ -3400,7 +3598,8 @@ def attempt_xp_save():
         # desde la fuente única de verdad (Google Sheets) sin doble conteo.
         st.session_state.xp = 0
         for fn in (get_user_stats, get_skill_breakdown,
-                   get_streak_days, get_today_session_count):
+                   get_streak_days, get_today_session_count,
+                   compute_earned_badges, get_recent_lesson_topics):
             try:
                 fn.clear()
             except Exception:
@@ -3972,6 +4171,9 @@ def reset_to_worlds():
         # Examen
         "ex_questions", "ex_index", "ex_correct", "ex_answers",
         "ex_finished", "ex_chosen",
+        # Diario Hablado
+        "dh_prompt", "dh_audio", "dh_transcript", "dh_feedback",
+        "dh_finished",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -4182,8 +4384,58 @@ def start_story_fill(world_key: str, world_topic: str):
     st.session_state.view = "home"
 
 
+def start_speaking_journal(world_key: str, world_topic: str):
+    """Inicia el Diario Hablado (Speaking Journal)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("📔 Buscando el prompt de hoy..."):
+        prompt, err = generate_journal_prompt(profile_name, cefr)
+
+    if err or not prompt:
+        st.error(f"⚠️ No pude generar el prompt: {err or 'sin datos'}")
+        return
+
+    st.session_state.current_world = world_key
+    st.session_state.current_lesson_type = "speaking_journal"
+    st.session_state.dh_prompt     = prompt
+    st.session_state.dh_audio      = None
+    st.session_state.dh_transcript = None
+    st.session_state.dh_feedback   = None
+    st.session_state.dh_finished   = False
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
 def start_exam(profile_name: str):
-    """Inicia el modo Examen: 10 preguntas mezcladas de todas las skills."""
+    """Inicia el modo Examen: 10 preguntas mezcladas de todas las skills.
+    Solo disponible los viernes y sábados (con bonus el viernes)."""
+    # Validar día de la semana: 4=viernes, 5=sábado
+    today_weekday = datetime.date.today().weekday()
+    if today_weekday not in (4, 5):
+        days_to_fri = (4 - today_weekday) % 7
+        st.warning(
+            f"🔒 El Examen Semanal solo está disponible los **viernes y sábados**. "
+            f"Faltan **{days_to_fri} día(s)** para el próximo viernes. "
+            f"Mientras tanto, sigue practicando en los mundos para llegar mejor preparado/a."
+        )
+        return
+
+    # Validar pre-requisito: al menos 3 sesiones en la semana actual
+    stats = get_user_stats(profile_name)
+    if stats.get("total_sessions", 0) >= 3 and stats.get("week_xp", 0) < 30:
+        st.info(
+            "💡 **Sugerencia:** Esta semana llevas menos de 30 XP. El examen requiere "
+            "estar preparado/a — practica un poco más antes de rendir."
+        )
+        # No bloqueamos, solo sugerimos
+
     cefr = get_cefr_info(
         next(
             (e["total_xp"] for e in get_leaderboard()
@@ -5302,6 +5554,219 @@ OTHER RULES:
         return None, f"Error al generar examen: {e}"
 
 
+def extract_error_pattern(wrong_items: list, cefr_code: str = "A1") -> dict:
+    """Analiza una lista de errores [{q, correct, user_answer}] y devuelve
+    el PATRÓN dominante para una micro-lección de refuerzo. Devuelve dict
+    {pattern, hint, examples} o None si no hay patrón claro."""
+    if not wrong_items:
+        return None
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None
+
+    errs_text = "\n".join(
+        f"- Pregunta: {it.get('q', '')[:120]}\n"
+        f"  Respuesta correcta: {it.get('correct', '')}\n"
+        f"  Lo que el alumno respondió: {it.get('user_answer', '')}"
+        for it in wrong_items[:6]
+    )
+
+    sys_prompt = f"""You are a pedagogical error analyzer for a Spanish-speaking English learner (CEFR {cefr_code}).
+
+ANÁLISIS — el alumno respondió mal estas preguntas:
+{errs_text}
+
+Identifica EL PATRÓN dominante de error (UNA sola cosa).
+Ejemplos de patrones: "confusion is/are", "missing -s en 3ra persona", "wrong preposition in/on/at", "pasado regular vs irregular", "uso de a/an".
+
+Devuelve SOLO JSON:
+{{
+  "pattern":  "<nombre corto del patrón en español, 3-7 palabras>",
+  "hint":     "<explicación breve en español, 1-2 oraciones>",
+  "examples": ["<ejemplo en inglés 1>", "<ejemplo en inglés 2>", "<ejemplo en inglés 3>"]
+}}
+
+Si NO hay un patrón claro (los errores son aleatorios), devuelve {{"pattern": "", "hint": "", "examples": []}}.
+
+RULES:
+- "pattern" debe ser específico y enseñable, no vago.
+- "examples" debe contener 3 oraciones cortas correctas en inglés que demuestren el patrón."""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[{"role": "system", "content": sys_prompt}],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.3,
+            max_tokens=350,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        if not data.get("pattern"):
+            return None
+        return {
+            "pattern":  data["pattern"].strip(),
+            "hint":     (data.get("hint") or "").strip(),
+            "examples": [e.strip() for e in (data.get("examples") or []) if e][:3],
+        }
+    except Exception as e:
+        logger.error(f"Error extract_error_pattern: {e}")
+        return None
+
+
+@st.cache_data(ttl=180, show_spinner=False)
+def get_recent_lesson_topics(profile_name: str, n: int = 15) -> list:
+    """Devuelve los últimos N topics que el alumno ya cubrió, para evitar
+    repetición al generar contenido nuevo."""
+    sheet, _ = get_db_connection()
+    if not sheet:
+        return []
+    try:
+        rows = sheet.get_all_records()
+        user_rows = [r for r in rows if r.get("profile", "") == profile_name][-n:]
+        topics = []
+        for r in user_rows:
+            w = (r.get("world") or "").strip()
+            lt = (r.get("lesson_type") or "").strip()
+            if w or lt:
+                topics.append(f"{w}/{lt}")
+        # Quitar duplicados manteniendo orden
+        seen = set()
+        unique = []
+        for t in topics:
+            if t not in seen:
+                seen.add(t)
+                unique.append(t)
+        return unique[-n:]
+    except Exception:
+        return []
+
+
+def generate_journal_prompt(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Genera el prompt del día para Diario Hablado. Se basa en day-of-year
+    + profile_name para que sea consistente dentro del día pero varíe entre días.
+    Devuelve ({en, es, emoji}, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    today = datetime.date.today()
+    day_seed = today.toordinal() + hash(profile_name) % 100
+
+    sys_prompt = f"""
+You are creating a speaking prompt for a Spanish-speaking teen learning English.
+The student will record themselves speaking for 30 seconds about this prompt.
+
+Student: {profile_name} ({profile.get('age_desc', '13 años')})
+Hobbies: {profile.get('hobbies', '')}
+CEFR Level: {cefr_code}
+Seed for variety: {day_seed}
+
+Return ONLY a JSON with this structure:
+{{
+  "en":    "<the speaking prompt in English, a clear question 6-12 words long>",
+  "es":    "<Spanish translation/context of the prompt>",
+  "emoji": "<one fitting emoji>"
+}}
+
+RULES:
+- The prompt should be a CONCRETE question the student can answer in 30 seconds.
+- Examples: "What did you do yesterday?", "Tell me about your best friend.", "Describe your favorite food."
+- Acorde al nivel CEFR {cefr_code} (simpler for A1, more abstract for B1+).
+- Vary the topic: daily life, hobbies, opinions, memories, future plans.
+- Avoid yes/no questions — prefer open-ended.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Generate today's speaking prompt."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.9,
+            max_tokens=200,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        prompt = {
+            "en":    (data.get("en") or "").strip(),
+            "es":    (data.get("es") or "").strip(),
+            "emoji": (data.get("emoji") or "🎤").strip(),
+        }
+        if not prompt["en"]:
+            return None, "El modelo no devolvió un prompt válido."
+        return prompt, None
+    except Exception as e:
+        logger.error(f"Error generando journal prompt: {e}")
+        return None, f"Error al generar: {e}"
+
+
+def evaluate_speaking_journal(prompt_en: str, transcript: str,
+                                cefr_code: str = "A1") -> dict:
+    """Evalúa una respuesta hablada (vía transcripción de Whisper).
+    Devuelve {score, fluency, vocab, grammar, comment, model_answer}."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return {"score": 0, "comment": "Sin conexión.",
+                "model_answer": "", "fluency": 0, "vocab": 0, "grammar": 0}
+
+    if not transcript or not transcript.strip():
+        return {"score": 0, "comment": "No te escuché. Inténtalo de nuevo.",
+                "model_answer": "", "fluency": 0, "vocab": 0, "grammar": 0}
+
+    sys_prompt = f"""
+Evaluador de habla en inglés para un alumno hispano de nivel {cefr_code}.
+
+PROMPT que se le hizo: {prompt_en}
+LO QUE DIJO (transcrito): {transcript}
+
+Devuelve SOLO JSON:
+{{
+  "score":        <0-100 entero, puntuación global>,
+  "fluency":      <0-100, fluidez y duración>,
+  "vocab":        <0-100, riqueza de vocabulario>,
+  "grammar":      <0-100, corrección gramatical>,
+  "comment":      "<2 oraciones en español: 1 positiva + 1 sugerencia concreta>",
+  "model_answer": "<respuesta modelo en INGLÉS, 2-3 oraciones acorde al nivel {cefr_code}>"
+}}
+
+RULES:
+- Si la transcripción es muy corta (<10 palabras), penaliza fluency.
+- Si hay errores graves de gramática, baja grammar pero NO seas duro: alentar.
+- model_answer debe ser una respuesta natural que el alumno podría aspirar.
+- Habla siempre en español en "comment".
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Evalúa la respuesta."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.3,
+            max_tokens=500,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        return {
+            "score":        max(0, min(100, int(data.get("score", 0)))),
+            "fluency":      max(0, min(100, int(data.get("fluency", 0)))),
+            "vocab":        max(0, min(100, int(data.get("vocab", 0)))),
+            "grammar":      max(0, min(100, int(data.get("grammar", 0)))),
+            "comment":      (data.get("comment") or "Buen intento.").strip(),
+            "model_answer": (data.get("model_answer") or "").strip(),
+        }
+    except Exception as e:
+        logger.error(f"Error evaluando diario: {e}")
+        return {"score": 50, "fluency": 50, "vocab": 50, "grammar": 50,
+                "comment": "No pude evaluar bien.", "model_answer": ""}
+
+
 def generate_shadow_phrases(profile_name: str, cefr_code: str = "A1") -> tuple:
     """Pide al LLM 5 frases cortas, rítmicas y divertidas para Shadow Speaking.
     Mezcla trabalenguas suaves, frases con rima, y oraciones con ritmo claro.
@@ -6092,6 +6557,15 @@ _STATE_DEFAULTS = {
     # Acceso a Dashboard de Padres
     "parent_mode":   False,   # True cuando se ingresó contraseña correctamente
     "parent_password_error": None,
+    # Diario Hablado (Speaking Journal) — habla libre con feedback
+    "dh_prompt":     None,    # {en, es, emoji} prompt del día
+    "dh_audio":      None,    # bytes del audio grabado
+    "dh_transcript": None,    # transcripción de Whisper
+    "dh_feedback":   None,    # {score, correct, comment} del LLM
+    "dh_finished":   False,
+    # Error tracking
+    "last_error_topic":  None,   # {pattern, hint, examples} para mostrar refuerzo
+    "error_dismissed":   False,  # True si el usuario cerró el card del error
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -6493,6 +6967,8 @@ else:
         "ss_last_score", "ss_finished",
         "ex_questions", "ex_index", "ex_correct", "ex_answers",
         "ex_finished", "ex_chosen",
+        "dh_prompt", "dh_audio", "dh_transcript", "dh_feedback",
+        "dh_finished",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -6617,6 +7093,29 @@ else:
                 <p class='cefr-next'>{cefr['next_label']}</p>
             </div>
         """, unsafe_allow_html=True)
+
+        # ── Badges / Logros ──
+        earned_keys = set(compute_earned_badges(user))
+        total_badges = len(BADGE_DEFINITIONS)
+        st.markdown(
+            f"<p class='worlds-section-title'>🏅 LOGROS · {len(earned_keys)}/{total_badges}</p>",
+            unsafe_allow_html=True
+        )
+        badges_html = "<div class='badges-grid'>"
+        for b in BADGE_DEFINITIONS:
+            is_earned = (b["key"] in earned_keys)
+            cls = "badge-earned" if is_earned else "badge-locked"
+            badges_html += (
+                f"<div class='badge-tile {cls}' title='{b['desc']}'>"
+                f"<div class='badge-emoji'>{b['emoji']}</div>"
+                f"<div class='badge-name'>{b['name']}</div>"
+                f"<div class='badge-desc'>{b['desc']}</div>"
+                f"</div>"
+            )
+        badges_html += "</div>"
+        st.markdown(badges_html, unsafe_allow_html=True)
+
+        st.write("")
 
         # ── Stats detalladas ──
         st.markdown(
@@ -6861,6 +7360,26 @@ else:
                 # Si fue la última, marcar batalla como terminada
                 if st.session_state.battle_index >= b_total or st.session_state.battle_hp <= 0:
                     st.session_state.battle_finished = True
+                    # Extraer patrón de error de los items fallados (si hay)
+                    wrong = [
+                        {"q": h.get("q", ""),
+                         "correct": h.get("correct_answer", ""),
+                         "user_answer": h.get("your_answer", "")}
+                        for h in (st.session_state.battle_history or [])
+                        if not h.get("is_correct", True)
+                    ]
+                    if len(wrong) >= 2:
+                        cefr_now = get_cefr_info(
+                            next((e["total_xp"] for e in get_leaderboard()
+                                  if e["profile"] == user), 0)
+                        )["code"]
+                        try:
+                            pattern = extract_error_pattern(wrong, cefr_now)
+                            if pattern:
+                                st.session_state.last_error_topic = pattern
+                                st.session_state.error_dismissed = False
+                        except Exception:
+                            pass
                 st.rerun()
 
         # Si no hay feedback pendiente y aún quedan preguntas, mostrar la actual
@@ -7894,6 +8413,175 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.125) SPEAKING JOURNAL MODE (Diario Hablado) ─────────────────
+    if st.session_state.dh_prompt is not None:
+        dh_accent = "#00eefc"
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {dh_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        prompt = st.session_state.dh_prompt
+        feedback = st.session_state.dh_feedback
+
+        # ── Pantalla final ──
+        if st.session_state.dh_finished and feedback:
+            sc = feedback["score"]
+            xp_award = max(20, int(sc / 2))
+            color_avg = "#39ff14" if sc >= 80 else "#ffd400" if sc >= 55 else "#ff5351"
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>📔</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {sc}/100
+                    </h1>
+                    <p class='battle-end-subtitle'>Tu Diario Hablado de hoy</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Breakdown por dimensión
+            breakdown_html = "<div class='exam-skill-breakdown'>"
+            breakdown_html += "<p class='summary-section'>📊 Tu desempeño</p>"
+            for label, key, ico in [
+                ("Fluidez", "fluency", "🌊"),
+                ("Vocabulario", "vocab", "📚"),
+                ("Gramática", "grammar", "🧩"),
+            ]:
+                val = feedback.get(key, 0)
+                bar_color = "#39ff14" if val >= 80 else "#ffd400" if val >= 50 else "#ff5351"
+                breakdown_html += (
+                    f"<div class='exam-skill-row'>"
+                    f"<span class='exam-skill-name'>{ico} {label}</span>"
+                    f"<span class='exam-skill-bar'><span style='width:{val}%; background:{bar_color};'></span></span>"
+                    f"<span class='exam-skill-score' style='color:{bar_color};'>{val}</span>"
+                    f"</div>"
+                )
+            breakdown_html += "</div>"
+            st.markdown(breakdown_html, unsafe_allow_html=True)
+
+            # Tarjeta de "lo que dijiste"
+            st.markdown(
+                f"<div class='conv-summary'>"
+                f"<p class='summary-section'>🎤 Lo que dijiste</p>"
+                f"<p class='summary-quote'>“{st.session_state.dh_transcript or ''}”</p>"
+                f"<p class='summary-section'>💡 Comentario</p>"
+                f"<p class='summary-suggest'>{feedback['comment']}</p>"
+                f"<p class='summary-section'>🌟 Respuesta modelo (cómo lo diría un nativo)</p>"
+                f"<p class='summary-quote' style='border-left-color:#39ff14; background: rgba(57,255,20,0.06);'>"
+                f"“{feedback.get('model_answer', '')}”</p>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="dh_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=sc / 100.0, attempts=1,
+                        world="journal", skill="speaking",
+                        lesson_type="speaking_journal",
+                        success_msg=f"¡+{xp_award} XP en tu Diario!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="dh_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Pantalla del prompt + grabación ──
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{dh_accent};'>"
+            f"📔 DIARIO HABLADO · HOY</p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"<div class='fc-card' style='--fc-accent: {dh_accent};'>"
+            f"<div class='fc-emoji'>{prompt['emoji']}</div>"
+            f"<p class='writing-prompt-text' style='color:#e0e2e6; margin: 6px 0 8px;'>"
+            f"{prompt['en']}</p>"
+            f"<p class='battle-q-hint' style='margin: 0; border: none; "
+            f"background: transparent; padding: 0;'>💡 <i>{prompt['es']}</i></p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<p class='sb-section-label' style='text-align:center;'>"
+            "Habla 30 segundos en INGLÉS. Sin guión. Solo lo que pienses.</p>",
+            unsafe_allow_html=True
+        )
+
+        # Grabador de audio
+        col_dl, col_dc, col_dr = st.columns([1, 3, 1])
+        with col_dc:
+            dh_rec = audio_recorder(
+                text="Grabar mi diario", recording_color="#ff5351",
+                neutral_color=dh_accent, icon_size="2x",
+                key="dh_recorder"
+            )
+
+        if dh_rec and not st.session_state.dh_transcript:
+            with st.spinner("Transcribiendo tu voz..."):
+                transcript, terr = transcribe_audio(dh_rec)
+            if terr:
+                show_error(terr)
+            elif transcript:
+                st.session_state.dh_audio = dh_rec
+                st.session_state.dh_transcript = transcript
+                st.rerun()
+
+        # Si hay transcripción, mostrarla y permitir confirmar
+        if st.session_state.dh_transcript:
+            st.markdown(
+                f"<div class='conv-summary' style='margin: 12px 0;'>"
+                f"<p class='summary-section'>📝 Esto entendí que dijiste</p>"
+                f"<p class='summary-quote'>“{st.session_state.dh_transcript}”</p>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            col_e1, col_e2 = st.columns(2)
+            with col_e1:
+                if st.button("🔁 Grabar de nuevo", key="dh_retry",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.dh_audio = None
+                    st.session_state.dh_transcript = None
+                    st.rerun()
+            with col_e2:
+                if st.button("✓ Evaluar mi diario", key="dh_eval",
+                             use_container_width=True, type="primary"):
+                    cefr_now = get_cefr_info(
+                        next((e["total_xp"] for e in get_leaderboard()
+                              if e["profile"] == user), 0)
+                    )["code"]
+                    with st.spinner("Analizando tu inglés..."):
+                        fb = evaluate_speaking_journal(
+                            prompt["en"],
+                            st.session_state.dh_transcript,
+                            cefr_now
+                        )
+                    st.session_state.dh_feedback = fb
+                    st.session_state.dh_finished = True
+                    st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="dh_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.13) TRANSLATE INVERSE MODE (Taller de Letras) ───────────────
     if st.session_state.ti_items is not None:
         ti_world_meta = get_world_meta(
@@ -8684,8 +9372,18 @@ else:
             score_pct = (correct / total) * 100.0 if total else 0
             # XP del examen: bonus mayor que un quiz normal (50-150)
             xp_award = max(50, int(score_pct * 1.5))
+            # Bonus extra si es viernes (día oficial del examen)
+            friday_bonus = 0
+            if datetime.date.today().weekday() == 4:
+                friday_bonus = int(xp_award * 0.5)
+                xp_award += friday_bonus
             color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
 
+            friday_html = (
+                f"<p style='color:#ffd400; margin-top:6px; font-weight:700;'>"
+                f"🎉 ¡Bonus de viernes +{friday_bonus} XP!</p>"
+                if friday_bonus > 0 else ""
+            )
             st.markdown(f"""
                 <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
                     <div class='battle-end-emoji' style='color:{color_avg};'>📝</div>
@@ -8693,6 +9391,7 @@ else:
                         {int(score_pct)}%
                     </h1>
                     <p class='battle-end-subtitle'>Examen completado · {correct}/{total} correctas</p>
+                    {friday_html}
                 </div>
             """, unsafe_allow_html=True)
 
@@ -9430,6 +10129,12 @@ else:
             "desc": "Escucha una frase rítmica y repítela imitando el ritmo.",
             "btn": "Repetir Frases", "accent": "#39ff14",
         }
+        _ALL_MODES["speaking_journal"] = {
+            "key": "speaking_journal", "icon": "📔",
+            "name": "Diario del Día",
+            "desc": "Habla 30s sobre el tema del día. La IA te da feedback.",
+            "btn": "Grabar Diario", "accent": "#00eefc",
+        }
 
         # ─── Modos disponibles por mundo (cada mundo con su identidad propia) ───
         _MODES_BY_WORLD = {
@@ -9445,6 +10150,8 @@ else:
             "chat":      ["roleplay", "conversation"],
             # Taller de Letras: escritura productiva
             "writing":   ["translate_inv", "describe_scene"],
+            # Diario Hablado: producción oral espontánea
+            "journal":   ["speaking_journal"],
             # Desafío Sorpresa: foco en variedad y combate
             "challenge": ["battle", "lesson_quiz"],
         }
@@ -9456,6 +10163,7 @@ else:
             "sound":     "min_pairs",
             "chat":      "roleplay",
             "writing":   "translate_inv",
+            "journal":   "speaking_journal",
             "challenge": "battle",
         }
 
@@ -9506,6 +10214,8 @@ else:
                             start_describe_scene(wkey, wmeta["topic"])
                         elif m["key"] == "shadow_speak":
                             start_shadow_speaking(wkey, wmeta["topic"])
+                        elif m["key"] == "speaking_journal":
+                            start_speaking_journal(wkey, wmeta["topic"])
                         elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
@@ -9543,9 +10253,35 @@ else:
         or st.session_state.conv_show_end
         or st.session_state.ss_phrases is not None
         or st.session_state.ex_questions is not None
+        or st.session_state.dh_prompt is not None
     )
 
     if not in_lesson_flow:
+        # ───── REFUERZO POR ERRORES RECURRENTES ─────
+        err_topic = st.session_state.get("last_error_topic")
+        err_dismissed = st.session_state.get("error_dismissed", False)
+        if err_topic and not err_dismissed and err_topic.get("pattern"):
+            examples_html = "".join(
+                f"<li>{e}</li>" for e in (err_topic.get("examples") or [])
+            )
+            st.markdown(
+                f"<div class='reinforce-card'>"
+                f"<p class='reinforce-title'>📚 REPASO RÁPIDO — TU PUNTO DÉBIL</p>"
+                f"<p class='reinforce-pattern'>🎯 {err_topic['pattern']}</p>"
+                f"<p class='reinforce-hint'>{err_topic.get('hint', '')}</p>"
+                f"<ul class='reinforce-examples'>{examples_html}</ul>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+            col_rf1, col_rf2 = st.columns([3, 1])
+            with col_rf1:
+                st.caption("Estas oraciones modelan el patrón correcto — léelas en voz alta.")
+            with col_rf2:
+                if st.button("✓ Entendido", key="dismiss_error",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.error_dismissed = True
+                    st.rerun()
+
         # ───── MISIÓN DEL DÍA + RECOMENDACIÓN + RACHA ─────
         streak     = get_streak_days(user)
         today_n    = get_today_session_count(user)
@@ -9708,6 +10444,15 @@ else:
                 "accent":  "#ff66c4",
                 "topic":   ("Escritura productiva: traducir y describir escenas."),
                 "btn":     "Entrar al Taller",
+            },
+            {
+                "key":     "journal",
+                "emoji":   "📔",
+                "name":    "Diario Hablado",
+                "tagline": "Habla 30s sobre el prompt del día",
+                "accent":  "#00eefc",
+                "topic":   "Producción oral espontánea diaria.",
+                "btn":     "Grabar mi diario",
             },
             {
                 "key":     "challenge",
