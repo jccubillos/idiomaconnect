@@ -538,6 +538,78 @@ st.markdown("""
         margin-right: 4px;
     }
 
+    /* --- TALLER DE LETRAS (Writing world) --- */
+    .writing-card {
+        background: var(--bg-glass-strong);
+        backdrop-filter: blur(15px);
+        border: 2px solid var(--w-accent, #ff66c4);
+        border-radius: var(--radius-lg);
+        padding: 22px 20px 18px;
+        margin: 6px 0 14px;
+        box-shadow: 0 0 22px var(--w-accent, #ff66c4);
+        animation: cardReveal 0.45s ease both;
+    }
+    .writing-prompt-label {
+        color: var(--text-secondary) !important;
+        font-size: 0.78rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin: 0 0 6px;
+    }
+    .writing-prompt-text {
+        color: #e0e2e6 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700;
+        font-size: 1.2rem;
+        line-height: 1.45;
+        margin: 0;
+    }
+    .ds-scene {
+        font-size: 3.4rem;
+        line-height: 1.1;
+        text-align: center;
+        margin: 8px 0 16px;
+        filter: drop-shadow(0 0 16px var(--w-accent, #ff66c4));
+        animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    /* Tarjeta de review en la pantalla final */
+    .writing-review {
+        background: var(--bg-glass);
+        border-left: 3px solid var(--rev-accent, #00eefc);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 8px 0;
+        position: relative;
+        animation: cardReveal 0.35s ease both;
+    }
+    .writing-rev-score {
+        position: absolute;
+        top: 10px; right: 14px;
+        color: var(--rev-accent, #00eefc) !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        text-shadow: 0 0 8px var(--rev-accent, #00eefc);
+        margin: 0;
+    }
+    .writing-rev-row {
+        margin: 4px 0;
+        color: var(--text-primary) !important;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .writing-rev-row b { color: var(--text-secondary) !important; }
+    .writing-rev-row i { color: #e0e2e6 !important; opacity: 0.85; }
+    .writing-rev-comment {
+        margin: 8px 0 0;
+        padding: 8px 10px;
+        background: rgba(0, 238, 252, 0.08);
+        border-radius: 6px;
+        color: var(--text-primary) !important;
+        font-size: 0.88rem;
+        font-style: italic;
+    }
+
     /* --- ROLEPLAY PICKER (Café Conversación) --- */
     .rp-card {
         background: var(--bg-glass);
@@ -623,6 +695,313 @@ st.markdown("""
         width: 18px;
         font-weight: 800;
         margin-right: 4px;
+    }
+
+    /* --- DAILY MISSION CARD (Misión del día + Recomendación + Racha) --- */
+    .daily-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+        margin: 6px 0 10px;
+        animation: cardReveal 0.45s ease both;
+        position: relative;
+        overflow: hidden;
+    }
+    .daily-card::before {
+        content: ""; position: absolute; inset: 0; border-radius: inherit;
+        padding: 1px; pointer-events: none;
+        background: linear-gradient(135deg, var(--profile-accent, #00eefc), transparent 60%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.7;
+    }
+    .daily-pending { box-shadow: 0 0 14px rgba(255,212,0,0.2); }
+    .daily-started { box-shadow: 0 0 14px rgba(0,238,252,0.2); }
+    .daily-done    { box-shadow: 0 0 14px rgba(57,255,20,0.2); }
+    .daily-top {
+        display: flex; justify-content: space-around;
+        margin-bottom: 8px;
+    }
+    .daily-streak, .daily-today {
+        display: flex; flex-direction: column; align-items: center;
+        padding: 6px 12px;
+    }
+    .daily-streak-num, .daily-today-num {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: var(--profile-accent, #00eefc) !important;
+        text-shadow: 0 0 10px var(--profile-accent, #00eefc);
+        line-height: 1;
+    }
+    .daily-streak-lbl, .daily-today-lbl {
+        font-size: 0.7rem;
+        color: var(--text-dim) !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+    .daily-status {
+        text-align: center;
+        color: var(--text-primary) !important;
+        font-size: 0.92rem;
+        font-weight: 600;
+        margin: 8px 0 6px;
+    }
+    .daily-rec {
+        margin: 6px 0 0;
+        font-size: 0.9rem;
+        color: var(--text-primary) !important;
+        text-align: center;
+    }
+    .daily-rec-world {
+        color: var(--profile-accent, #00eefc) !important;
+        font-weight: 700;
+        text-shadow: 0 0 8px var(--profile-accent, #00eefc);
+    }
+    .daily-rec-why {
+        color: var(--text-dim) !important;
+        font-size: 0.82rem;
+        font-style: italic;
+    }
+
+    /* --- CULTURAL CAPSULE --- */
+    .culture-card {
+        background: linear-gradient(135deg, rgba(196,100,255,0.06) 0%, rgba(0,238,252,0.04) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(196,100,255,0.25);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px 8px;
+        margin: 8px 0 12px;
+        box-shadow: 0 0 14px rgba(196,100,255,0.1);
+        animation: cardReveal 0.5s ease both;
+    }
+    .culture-title {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 0.82rem;
+        color: #e5b4ff !important;
+        text-shadow: 0 0 10px rgba(196,100,255,0.5);
+        margin: 0 0 6px;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+    .culture-row {
+        margin: 8px 0;
+        padding: 6px 4px;
+        border-top: 1px dashed rgba(255,255,255,0.07);
+    }
+    .culture-row:first-of-type { border-top: none; }
+    .culture-row-label {
+        font-size: 0.7rem;
+        color: var(--text-dim) !important;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin: 0 0 2px;
+        font-weight: 600;
+    }
+    .culture-row-en {
+        color: var(--text-primary) !important;
+        font-size: 0.92rem;
+        font-weight: 600;
+        margin: 2px 0;
+        font-style: italic;
+    }
+    .culture-row-es {
+        color: var(--text-secondary) !important;
+        font-size: 0.82rem;
+        margin: 2px 0;
+    }
+
+    /* --- EXAM MODE --- */
+    .exam-skill-breakdown {
+        background: var(--bg-glass);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: 14px 18px;
+        margin: 10px 0;
+    }
+    .exam-skill-row {
+        display: flex; align-items: center;
+        margin: 6px 0;
+        font-size: 0.85rem;
+    }
+    .exam-skill-name {
+        flex: 0 0 110px;
+        color: var(--text-secondary) !important;
+        text-transform: capitalize;
+        font-weight: 600;
+    }
+    .exam-skill-bar {
+        flex: 1;
+        height: 8px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 12px;
+        position: relative;
+    }
+    .exam-skill-bar > span {
+        position: absolute;
+        left: 0; top: 0;
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.4s ease;
+    }
+    .exam-skill-score {
+        flex: 0 0 50px;
+        text-align: right;
+        font-weight: 800;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    /* --- PARENT DASHBOARD --- */
+    .parent-card {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        margin: 6px 0 14px;
+        animation: cardReveal 0.4s ease both;
+    }
+    .parent-kid-header {
+        margin: 18px 0 8px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+    .parent-overview {
+        display: flex; justify-content: space-around;
+        flex-wrap: wrap;
+    }
+    .parent-stat {
+        display: flex; flex-direction: column; align-items: center;
+        padding: 4px 8px;
+        min-width: 80px;
+    }
+    .parent-stat-val {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: var(--text-primary) !important;
+        line-height: 1;
+    }
+    .parent-stat-lbl {
+        font-size: 0.7rem;
+        color: var(--text-dim) !important;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .parent-skill-row {
+        display: flex; align-items: center;
+        margin: 6px 0;
+        font-size: 0.85rem;
+    }
+    .parent-skill-name {
+        flex: 0 0 110px;
+        color: var(--text-secondary) !important;
+        text-transform: capitalize;
+        font-weight: 600;
+    }
+    .parent-skill-bar {
+        flex: 1;
+        height: 10px;
+        background: rgba(255,255,255,0.08);
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 0 12px;
+        position: relative;
+        min-width: 60px;
+    }
+    .parent-skill-bar > span {
+        position: absolute;
+        left: 0; top: 0;
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.4s ease;
+    }
+    .parent-skill-stats {
+        flex: 0 0 auto;
+        text-align: right;
+        font-size: 0.78rem;
+        color: var(--text-dim) !important;
+    }
+    .parent-row {
+        display: flex; justify-content: space-between;
+        font-size: 0.78rem;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .parent-row:last-child { border-bottom: none; }
+    .parent-row-ts { color: var(--text-dim) !important; flex: 0 0 130px; }
+    .parent-row-mid { color: var(--text-primary) !important; flex: 1; padding: 0 8px; text-transform: capitalize; }
+    .parent-row-end { color: var(--neon-cyan) !important; flex: 0 0 110px; text-align: right; font-weight: 700; }
+
+    /* --- CONVERSATION TIP (feedback puntual por turno) --- */
+    .conv-tip {
+        margin-top: 8px;
+        padding: 6px 10px;
+        background: rgba(255, 212, 0, 0.10);
+        border-left: 3px solid #ffd400;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        color: #ffe680 !important;
+        line-height: 1.4;
+    }
+    .conv-tip i { color: #ffe680 !important; }
+
+    /* --- CONVERSATION END SUMMARY --- */
+    .conv-summary {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-lg);
+        padding: 18px 20px;
+        margin: 8px 0 14px;
+        animation: cardReveal 0.5s ease both;
+    }
+    .summary-section {
+        color: var(--text-secondary) !important;
+        font-size: 0.78rem;
+        margin: 14px 0 6px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+    .summary-section:first-child { margin-top: 0; }
+    .summary-quote {
+        color: #e0e2e6 !important;
+        font-size: 1.05rem;
+        margin: 0;
+        font-style: italic;
+        padding: 8px 12px;
+        background: rgba(196,100,255,0.08);
+        border-left: 3px solid #c464ff;
+        border-radius: 6px;
+    }
+    .summary-word {
+        display: inline-block;
+        margin: 2px 4px 2px 0;
+        padding: 3px 10px;
+        border-radius: 50px;
+        background: rgba(0,238,252,0.12);
+        color: #d3fbff !important;
+        border: 1px solid var(--neon-cyan);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .summary-suggest {
+        color: #e0e2e6 !important;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        margin: 0;
+        padding: 10px 12px;
+        background: rgba(255,212,0,0.08);
+        border-left: 3px solid #ffd400;
+        border-radius: 6px;
     }
 
     /* --- MINIMAL PAIRS --- */
@@ -2134,6 +2513,80 @@ PERSONAL_WORLDS = {
 # ==========================================
 # CATÁLOGO DE MUNDOS UNIVERSALES
 # ==========================================
+# ==========================================
+# CÁPSULA CULTURAL — Idioms, frases de canciones, datos
+# ==========================================
+CULTURAL_IDIOMS = [
+    {"en": "It's raining cats and dogs", "es": "Está lloviendo a cántaros"},
+    {"en": "Break a leg!", "es": "¡Mucha suerte! (especialmente para artistas)"},
+    {"en": "Piece of cake", "es": "Pan comido / Muy fácil"},
+    {"en": "Hit the books", "es": "Ponerse a estudiar duro"},
+    {"en": "Under the weather", "es": "Sentirse mal/enfermo"},
+    {"en": "Once in a blue moon", "es": "Muy de vez en cuando"},
+    {"en": "Cost an arm and a leg", "es": "Costar un ojo de la cara"},
+    {"en": "Bite the bullet", "es": "Apechugar / Aguantarse"},
+    {"en": "Spill the beans", "es": "Soltar el secreto"},
+    {"en": "Hit the nail on the head", "es": "Dar en el clavo"},
+    {"en": "When pigs fly", "es": "Cuando las ranas críen pelo (= nunca)"},
+    {"en": "A blessing in disguise", "es": "No hay mal que por bien no venga"},
+    {"en": "Call it a day", "es": "Dejarlo por hoy"},
+    {"en": "Hang in there", "es": "Aguanta / No te rindas"},
+    {"en": "Out of the blue", "es": "De la nada / Inesperadamente"},
+    {"en": "Get your act together", "es": "Ponte las pilas"},
+    {"en": "Better late than never", "es": "Más vale tarde que nunca"},
+    {"en": "Don't judge a book by its cover", "es": "Las apariencias engañan"},
+    {"en": "Speak of the devil!", "es": "¡Hablando del rey de Roma!"},
+    {"en": "The early bird catches the worm", "es": "Al que madruga, Dios lo ayuda"},
+]
+
+CULTURAL_SONGS = [
+    {"line": "Yesterday, all my troubles seemed so far away", "song": "Yesterday — The Beatles"},
+    {"line": "We don't need no education", "song": "Another Brick in the Wall — Pink Floyd"},
+    {"line": "I want to break free", "song": "I Want to Break Free — Queen"},
+    {"line": "Don't stop believin'", "song": "Don't Stop Believin' — Journey"},
+    {"line": "Let it be, let it be", "song": "Let It Be — The Beatles"},
+    {"line": "I will always love you", "song": "I Will Always Love You — Whitney Houston"},
+    {"line": "Hello, is it me you're looking for?", "song": "Hello — Lionel Richie"},
+    {"line": "Shake it off, shake it off", "song": "Shake It Off — Taylor Swift"},
+    {"line": "I'm walking on sunshine", "song": "Walking on Sunshine — Katrina & The Waves"},
+    {"line": "Don't worry, be happy", "song": "Don't Worry Be Happy — Bobby McFerrin"},
+    {"line": "Someone like you", "song": "Someone Like You — Adele"},
+    {"line": "Imagine all the people living life in peace", "song": "Imagine — John Lennon"},
+    {"line": "I gotta feeling that tonight's gonna be a good night", "song": "I Gotta Feeling — Black Eyed Peas"},
+    {"line": "Photograph, I won't ever let you go", "song": "Photograph — Ed Sheeran"},
+    {"line": "We are the champions, my friends", "song": "We Are the Champions — Queen"},
+]
+
+CULTURAL_FACTS = [
+    {"en": "English has over 170,000 words in current use.", "es": "El inglés tiene más de 170,000 palabras en uso actual."},
+    {"en": "Shakespeare invented over 1,700 English words still used today.", "es": "Shakespeare inventó más de 1,700 palabras del inglés que todavía usamos."},
+    {"en": "The most common letter in English is 'E'.", "es": "La letra más común en inglés es la 'E'."},
+    {"en": "'Set' has the most definitions of any English word — over 430.", "es": "'Set' es la palabra inglesa con más significados: más de 430."},
+    {"en": "English is the official language of the sky — all pilots speak it.", "es": "El inglés es el idioma oficial del cielo: todos los pilotos lo hablan."},
+    {"en": "The dot over the letter 'i' is called a 'tittle'.", "es": "El puntito sobre la 'i' se llama 'tittle' en inglés."},
+    {"en": "'Pneumonoultramicroscopicsilicovolcanoconiosis' is the longest English word.", "es": "La palabra más larga del inglés tiene 45 letras (es un tipo de enfermedad pulmonar)."},
+    {"en": "About 1.5 BILLION people speak English worldwide.", "es": "Cerca de 1,500 millones de personas hablan inglés en el mundo."},
+    {"en": "Only 400 million speak English as a first language.", "es": "Solo 400 millones tienen el inglés como lengua materna."},
+    {"en": "'Goodbye' originally meant 'God be with you'.", "es": "'Goodbye' originalmente significaba 'God be with you' (Dios esté contigo)."},
+    {"en": "The longest word without a vowel is 'rhythms'.", "es": "La palabra más larga sin vocales en inglés es 'rhythms'."},
+    {"en": "'I am' is the shortest complete sentence in English.", "es": "'I am' es la oración completa más corta del inglés."},
+    {"en": "Many Spanish speakers use 'actually' wrong — it means 'really', not 'currently'.", "es": "Muchos hispanohablantes confunden 'actually': significa 'realmente', NO 'actualmente'."},
+    {"en": "'Library' (biblioteca) ≠ 'librería' (bookstore). They are 'false friends'.", "es": "'Library' es BIBLIOTECA, no librería. La librería se dice 'bookstore'."},
+    {"en": "'Embarrassed' (avergonzado) ≠ 'embarazada' (pregnant). Be careful!", "es": "'Embarrassed' es AVERGONZADO, no embarazada. ¡Cuidado al traducir!"},
+]
+
+
+def get_cultural_capsule_for_today() -> dict:
+    """Devuelve la cápsula del día (idiom + song + dato) basada en day-of-year."""
+    today = datetime.date.today()
+    doy = today.timetuple().tm_yday
+    return {
+        "idiom": CULTURAL_IDIOMS[doy % len(CULTURAL_IDIOMS)],
+        "song":  CULTURAL_SONGS[doy % len(CULTURAL_SONGS)],
+        "fact":  CULTURAL_FACTS[doy % len(CULTURAL_FACTS)],
+    }
+
+
 UNIVERSAL_WORLDS = {
     "grammar": {
         "emoji":   "🌌",
@@ -2191,6 +2644,17 @@ UNIVERSAL_WORLDS = {
         "accent":  "#c464ff",
         "topic":   ("Conversación práctica en situaciones cotidianas: restaurantes, "
                     "viajes, escuela, presentaciones, opiniones simples."),
+    },
+    "writing": {
+        "emoji":   "🖋",
+        "name":    "Taller de Letras",
+        "tagline": "Traduce, describe y escribe en inglés",
+        "intro":   ("Bienvenida al taller donde tus ideas se vuelven palabras en "
+                    "inglés. Aquí entrenas la habilidad más exigente: producir "
+                    "tu propio texto y recibir feedback línea por línea."),
+        "accent":  "#ff66c4",
+        "topic":   ("Escritura productiva en inglés: traducir oraciones del español "
+                    "al inglés y describir escenas con propias palabras."),
     },
 }
 
@@ -2637,6 +3101,127 @@ def get_user_stats(profile_name: str) -> dict:
         return empty
 
 
+@st.cache_data(ttl=120, show_spinner=False)
+def get_skill_breakdown(profile_name: str) -> dict:
+    """Devuelve breakdown por skill: {skill: {xp, sessions, avg_score}}.
+    Las skills consideradas: vocabulary, grammar, listening, speaking, writing, reading."""
+    skills = ["vocabulary", "grammar", "listening", "speaking", "writing", "reading", "conversation"]
+    empty = {s: {"xp": 0, "sessions": 0, "avg_score": 0.0} for s in skills}
+    sheet, _ = get_db_connection()
+    if not sheet:
+        return empty
+    try:
+        rows = sheet.get_all_records()
+        user_rows = [r for r in rows if r.get("profile", "") == profile_name]
+        out = {s: {"xp": 0, "sessions": 0, "scores": []} for s in skills}
+        for r in user_rows:
+            sk = (r.get("skill") or "").strip().lower()
+            if sk not in out:
+                continue
+            out[sk]["xp"] += int(r.get("xp", 0) or 0)
+            out[sk]["sessions"] += 1
+            score_str = str(r.get("score_pct", "0%")).replace("%", "")
+            try:
+                out[sk]["scores"].append(float(score_str) / 100.0)
+            except ValueError:
+                pass
+        for s in skills:
+            scores = out[s]["scores"]
+            out[s]["avg_score"] = sum(scores) / len(scores) if scores else 0.0
+            out[s].pop("scores", None)
+        return out
+    except Exception as e:
+        logger.error(f"Error get_skill_breakdown: {e}")
+        return empty
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def get_streak_days(profile_name: str) -> int:
+    """Cuenta días consecutivos con al menos 1 sesión, terminando HOY o AYER."""
+    sheet, _ = get_db_connection()
+    if not sheet:
+        return 0
+    try:
+        rows = sheet.get_all_records()
+        user_rows = [r for r in rows if r.get("profile", "") == profile_name]
+        # Set de fechas (no datetimes) con actividad
+        active_days = set()
+        for r in user_rows:
+            ts_str = r.get("timestamp", "")
+            try:
+                ts = datetime.datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+                active_days.add(ts.date())
+            except Exception:
+                pass
+        if not active_days:
+            return 0
+        # Contar racha desde hoy hacia atrás (también permite ayer si aún no jugó hoy)
+        today = datetime.date.today()
+        cursor = today if today in active_days else today - datetime.timedelta(days=1)
+        if cursor not in active_days:
+            return 0
+        streak = 0
+        while cursor in active_days:
+            streak += 1
+            cursor -= datetime.timedelta(days=1)
+        return streak
+    except Exception as e:
+        logger.error(f"Error get_streak_days: {e}")
+        return 0
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def get_today_session_count(profile_name: str) -> int:
+    """Sesiones del día de hoy."""
+    sheet, _ = get_db_connection()
+    if not sheet:
+        return 0
+    try:
+        rows = sheet.get_all_records()
+        today = datetime.date.today()
+        n = 0
+        for r in rows:
+            if r.get("profile", "") != profile_name:
+                continue
+            ts_str = r.get("timestamp", "")
+            try:
+                ts = datetime.datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+                if ts.date() == today:
+                    n += 1
+            except Exception:
+                pass
+        return n
+    except Exception:
+        return 0
+
+
+# Mapa skill → mundo recomendado
+SKILL_TO_WORLD = {
+    "vocabulary":   {"key": "vocab",    "emoji": "📚", "name": "Bóveda de Vocabulario"},
+    "grammar":      {"key": "grammar",  "emoji": "🌌", "name": "Galaxia Gramatical"},
+    "listening":    {"key": "sound",    "emoji": "🎙", "name": "Estudio de Sonido"},
+    "speaking":     {"key": "chat",     "emoji": "💬", "name": "Café Conversación"},
+    "writing":      {"key": "writing",  "emoji": "🖋", "name": "Taller de Letras"},
+    "reading":      {"key": "personal", "emoji": "🎨", "name": "Mundo Personal"},
+    "conversation": {"key": "chat",     "emoji": "💬", "name": "Café Conversación"},
+}
+
+
+def get_weakest_skill(profile_name: str) -> tuple:
+    """Identifica la skill más débil: la que tiene MENOS sesiones, en caso
+    de empate, la que tiene peor avg_score. Devuelve (skill_key, world_meta)."""
+    breakdown = get_skill_breakdown(profile_name)
+    # Solo consideramos skills "core" (no conversation que es duplicado de speaking)
+    core_skills = ["vocabulary", "grammar", "listening", "speaking", "writing", "reading"]
+    # Ordenar: primero menos sesiones, luego peor score
+    ranked = sorted(
+        core_skills,
+        key=lambda s: (breakdown[s]["sessions"], breakdown[s]["avg_score"])
+    )
+    weakest = ranked[0]
+    return weakest, SKILL_TO_WORLD[weakest]
+
+
 def save_xp_to_sheet(profile_name: str, xp_gained: int, score_pct: float, attempts: int,
                       world: str = "", skill: str = "", lesson_type: str = ""):
     """
@@ -2743,10 +3328,12 @@ def attempt_xp_save():
         # la caché de stats para que el encabezado refleje el nuevo total
         # desde la fuente única de verdad (Google Sheets) sin doble conteo.
         st.session_state.xp = 0
-        try:
-            get_user_stats.clear()
-        except Exception:
-            pass
+        for fn in (get_user_stats, get_skill_breakdown,
+                   get_streak_days, get_today_session_count):
+            try:
+                fn.clear()
+            except Exception:
+                pass
         st.session_state.flash_success = args.get("success_msg",
             f"¡+{args['xp_award']} XP guardados!")
         st.session_state.pending_xp_save_args = None
@@ -3293,14 +3880,27 @@ def reset_to_worlds():
         # Story Fill
         "sf_story", "sf_index", "sf_picked", "sf_revealed",
         "sf_correct", "sf_finished",
-        # Role-Play
+        # Role-Play + Resumen final
         "rp_scenario", "rp_done_objs", "rp_picker",
+        "conv_summary", "conv_show_end",
         # Minimal Pairs
         "mp_pairs", "mp_index", "mp_correct", "mp_chosen",
         "mp_finished", "mp_audio",
         # Listen ID
         "li_cards", "li_index", "li_correct", "li_chosen",
         "li_finished", "li_audio",
+        # Traducción Inversa
+        "ti_items", "ti_index", "ti_answers", "ti_feedback",
+        "ti_evaluating", "ti_finished",
+        # Describe la Escena
+        "ds_scenes", "ds_index", "ds_answers", "ds_feedback",
+        "ds_evaluating", "ds_finished",
+        # Shadow Speaking
+        "ss_phrases", "ss_index", "ss_results", "ss_last_audio",
+        "ss_last_score", "ss_finished",
+        # Examen
+        "ex_questions", "ex_index", "ex_correct", "ex_answers",
+        "ex_finished", "ex_chosen",
     ]
     for k in keys_to_reset:
         if k in _STATE_DEFAULTS:
@@ -3507,6 +4107,129 @@ def start_story_fill(world_key: str, world_topic: str):
     st.session_state.sf_revealed    = False
     st.session_state.sf_correct     = 0
     st.session_state.sf_finished    = False
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_exam(profile_name: str):
+    """Inicia el modo Examen: 10 preguntas mezcladas de todas las skills."""
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("📝 Generando tu examen semanal..."):
+        questions, err = generate_exam_questions(profile_name, cefr)
+
+    if err or not questions:
+        st.error(f"⚠️ No pude generar el examen: {err or 'sin datos'}")
+        return
+
+    import random as _rand
+    _rand.shuffle(questions)
+
+    st.session_state.current_world = "exam"
+    st.session_state.current_lesson_type = "exam"
+    st.session_state.ex_questions = questions
+    st.session_state.ex_index     = 0
+    st.session_state.ex_correct   = 0
+    st.session_state.ex_answers   = [None] * len(questions)
+    st.session_state.ex_finished  = False
+    st.session_state.ex_chosen    = None
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_shadow_speaking(world_key: str, world_topic: str):
+    """Inicia Shadow Speaking (Estudio de Sonido): el alumno escucha una frase
+    y la repite, la IA evalúa la similitud fonética."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🎵 Preparando frases para imitar..."):
+        phrases, err = generate_shadow_phrases(profile_name, cefr)
+
+    if err or not phrases:
+        st.error(f"⚠️ No pude generar frases: {err or 'sin datos'}")
+        return
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "shadow_speak"
+    st.session_state.ss_phrases     = phrases
+    st.session_state.ss_index       = 0
+    st.session_state.ss_results     = []
+    st.session_state.ss_last_audio  = None
+    st.session_state.ss_last_score  = None
+    st.session_state.ss_finished    = False
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_translate_inverse(world_key: str, world_topic: str):
+    """Inicia Traducción Inversa (Taller de Letras)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("✍️ Preparando oraciones para traducir..."):
+        items, err = generate_translate_items(profile_name, cefr)
+
+    if err or not items:
+        st.error(f"⚠️ No pude generar oraciones: {err or 'sin datos'}")
+        return
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "translate_inv"
+    st.session_state.ti_items       = items
+    st.session_state.ti_index       = 0
+    st.session_state.ti_answers     = [""] * len(items)
+    st.session_state.ti_feedback    = [None] * len(items)
+    st.session_state.ti_evaluating  = False
+    st.session_state.ti_finished    = False
+    st.session_state.selected_world = None
+    st.session_state.view = "home"
+
+
+def start_describe_scene(world_key: str, world_topic: str):
+    """Inicia Describe la Escena (Taller de Letras)."""
+    profile_name = st.session_state.current_user
+    cefr = get_cefr_info(
+        next(
+            (e["total_xp"] for e in get_leaderboard()
+             if e["profile"] == profile_name),
+            0
+        )
+    )["code"]
+
+    with st.spinner("🎨 Preparando escenas..."):
+        scenes, err = generate_scene_descriptions(profile_name, cefr)
+
+    if err or not scenes:
+        st.error(f"⚠️ No pude generar escenas: {err or 'sin datos'}")
+        return
+
+    st.session_state.current_world  = world_key
+    st.session_state.current_lesson_type = "describe_scene"
+    st.session_state.ds_scenes      = scenes
+    st.session_state.ds_index       = 0
+    st.session_state.ds_answers     = [""] * len(scenes)
+    st.session_state.ds_feedback    = [None] * len(scenes)
+    st.session_state.ds_evaluating  = False
+    st.session_state.ds_finished    = False
     st.session_state.selected_world = None
     st.session_state.view = "home"
 
@@ -3746,6 +4469,90 @@ ROLEPLAY_SCENARIOS = [
             "Aceptar o rechazar la recomendación",
         ],
     },
+    {
+        "key": "library", "emoji": "📚", "cefr": "A1",
+        "name": "Pedir un libro en la biblioteca",
+        "context": "You are a kind librarian. The student wants to borrow a book.",
+        "role_user": "Estudiante buscando un libro",
+        "role_ai":   "Bibliotecaria/o amable",
+        "objectives": [
+            "Saludar a la bibliotecaria",
+            "Decir qué tipo de libro buscas (cuento, ciencia, etc.)",
+            "Mencionar UN tema que te guste",
+            "Preguntar cuántos días puedes tener el libro",
+            "Despedirte agradeciendo",
+        ],
+    },
+    {
+        "key": "birthday", "emoji": "🎂", "cefr": "A1",
+        "name": "Invitar a alguien a tu cumpleaños",
+        "context": "You are a classmate. The student wants to invite you to their birthday party.",
+        "role_user": "Cumpleañera/o invitando",
+        "role_ai":   "Compañero/a curioso/a",
+        "objectives": [
+            "Saludar al compañero",
+            "Decir cuándo es tu cumpleaños",
+            "Decir dónde será la fiesta",
+            "Decir UNA cosa que harán (torta, juegos, piscina)",
+            "Pedirle que confirme si va o no",
+        ],
+    },
+    {
+        "key": "hotel", "emoji": "🏨", "cefr": "A2",
+        "name": "Hacer check-in en un hotel",
+        "context": "You are a receptionist at a hotel. The student is a guest checking in.",
+        "role_user": "Huésped con reserva",
+        "role_ai":   "Recepcionista profesional",
+        "objectives": [
+            "Saludar al recepcionista",
+            "Decir tu nombre y que tienes una reserva",
+            "Mencionar cuántas noches te quedas",
+            "Preguntar a qué hora es el desayuno",
+            "Pedir la llave/key y despedirte",
+        ],
+    },
+    {
+        "key": "haircut", "emoji": "💇", "cefr": "A2",
+        "name": "Cortarte el pelo",
+        "context": "You are a hair stylist at a salon. The student is a client.",
+        "role_user": "Cliente en la peluquería",
+        "role_ai":   "Peluquera/o amable",
+        "objectives": [
+            "Saludar y decir que quieres cortarte el pelo",
+            "Decir cuánto quieres que te corte (mucho, poco, las puntas)",
+            "Mencionar si quieres algo extra (lavado, secado)",
+            "Preguntar cuánto cuesta",
+            "Pagar y despedirte",
+        ],
+    },
+    {
+        "key": "friend_problem", "emoji": "😟", "cefr": "B1",
+        "name": "Resolver un problema con un amigo",
+        "context": "You are a close friend the student had a fight with. The student wants to apologize and fix things.",
+        "role_user": "Amigo/a que quiere pedir disculpas",
+        "role_ai":   "Amigo/a herido/a pero abierto/a a escuchar",
+        "objectives": [
+            "Saludar y pedir hablar",
+            "Reconocer qué hiciste mal",
+            "Pedir disculpas con sinceridad",
+            "Proponer cómo arreglar la situación",
+            "Acordar volver a ser amigos",
+        ],
+    },
+    {
+        "key": "job_interview", "emoji": "💼", "cefr": "B2",
+        "name": "Mini entrevista de trabajo",
+        "context": "You are an interviewer for a summer part-time job. The student is a teenage candidate.",
+        "role_user": "Adolescente buscando trabajo de verano",
+        "role_ai":   "Entrevistador/a profesional pero amable",
+        "objectives": [
+            "Saludarte y presentarte",
+            "Decir qué edad tienes y qué estudias",
+            "Mencionar UNA fortaleza tuya",
+            "Decir por qué quieres el trabajo",
+            "Preguntar UNA cosa sobre el puesto y despedirte",
+        ],
+    },
 ]
 
 
@@ -3787,15 +4594,21 @@ CONVERSATION RULES:
 2. Then add a single line in Spanish prefixed with "🇪🇸:" giving a brief gloss/help.
 3. End every response with ONE follow-up question or prompt that PUSHES the student
    toward completing the next objective.
-4. If the student makes a grammar mistake, gently correct it BEFORE your main reply,
-   like: "(Quick fix: 'I am' not 'I be') Now, ..."
-5. STAY IN CHARACTER — you are {scenario['role_ai']}, not a teacher.
-6. Be encouraging and patient. The student is a teen learning English.
-7. NEVER give a paragraph longer than 4 lines.
-8. NO markdown headers, just plain text + the Spanish gloss line.
+4. If the student's PREVIOUS message had a clear grammar/vocab issue, add a SHORT tip line in Spanish prefixed with "💡:" — example: "💡: Recuerda usar 'I am' en vez de 'I be'."
+5. The tip is OPTIONAL — only include it if there's something CONCRETE and ÚTIL to teach. If the student wrote well, OMIT the tip entirely (don't include the 💡: line). NEVER force a tip just to fill space.
+6. STAY IN CHARACTER — you are {scenario['role_ai']}, not a teacher.
+7. Be encouraging and patient. The student is a teen learning English.
+8. NEVER give a paragraph longer than 4 lines.
+9. NO markdown headers, just plain text + optional 🇪🇸: gloss + optional 💡: tip.
+
+OUTPUT FORMAT (in this order):
+English reply (1-3 sentences ending with a question/prompt)
+🇪🇸: brief Spanish gloss
+💡: optional tip (only if there's a real, specific lesson)
 
 START: Greet the student in English warmly, in character, and ask the FIRST opening
 question that fits the scenario (e.g., a waiter would say "Welcome! What can I get you?").
+On the FIRST turn, do NOT include a 💡: tip (the student hasn't said anything yet).
 """
 
     # Conversación libre (modo legacy sin scenario)
@@ -3830,11 +4643,17 @@ CONVERSATION RULES:
 1. ALWAYS answer in English first, in 1-3 short sentences appropriate to the level.
 2. Then add a single line in Spanish prefixed with "🇪🇸:" giving a brief gloss/help. Example: "🇪🇸: ¿Cuál es tu deporte favorito?"
 3. End every response with ONE engaging follow-up question to keep the conversation flowing.
-4. If the student makes a grammar mistake, gently correct it BEFORE your main reply, like: "(Quick fix: 'I am' not 'I be') Now, ..."
-5. Stay in character with the world's theme: {world_meta.get('tagline','')}
-6. Be encouraging, never harsh. This is a teen learning English.
-7. NEVER give a paragraph longer than 4 lines.
-8. Respond in plain text, no markdown headers.
+4. OPTIONAL tip: If the student's PREVIOUS message had a concrete grammar/vocab issue worth teaching, add a SHORT tip line in Spanish prefixed with "💡:" — example: "💡: Recuerda usar 'I am' en vez de 'I be'."
+5. The 💡: tip is OPTIONAL — only include it if there's something CONCRETE to teach. If the student wrote well, OMIT the tip entirely. NEVER force a tip just to fill space. NEVER include a tip on the first turn.
+6. Stay in character with the world's theme: {world_meta.get('tagline','')}
+7. Be encouraging, never harsh. This is a teen learning English.
+8. NEVER give a paragraph longer than 4 lines.
+9. Respond in plain text, no markdown headers.
+
+OUTPUT FORMAT (in this order):
+English reply (1-3 sentences ending with a question)
+🇪🇸: brief Spanish gloss
+💡: optional tip (only if there's a real, specific lesson)
 
 START: Greet {profile_name} in English warmly and ask an opening question related to your world's theme.
 """
@@ -3865,6 +4684,65 @@ def conversation_send(profile_name: str, world_meta: dict,
     except Exception as e:
         logger.error(f"Conversación Groq error: {e}")
         return None, f"Error de la API: {e}"
+
+
+def summarize_conversation(scenario: dict, history: list,
+                            profile_name: str = "") -> dict:
+    """Genera un resumen pedagógico de la conversación: highlight phrase,
+    new words used, 1 sugerencia. Devuelve dict o None."""
+    if not history:
+        return None
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None
+
+    user_turns = [m["content"] for m in history if m["role"] == "user"]
+    if not user_turns:
+        return None
+
+    scenario_desc = ""
+    if scenario:
+        scenario_desc = f"Scenario: {scenario['name']} ({scenario['role_user']} vs {scenario['role_ai']}).\n"
+
+    transcript = "\n".join(f"- {t}" for t in user_turns[-12:])
+
+    sys_prompt = f"""You are a kind English teacher reviewing a teen's English conversation.
+{scenario_desc}
+
+STUDENT'S MESSAGES (in order):
+{transcript}
+
+Return ONLY a JSON with this structure:
+{{
+  "highlight":  "<the best sentence the student wrote, in English, with quotes>",
+  "new_words":  ["<word1>", "<word2>", "<word3>"],
+  "suggestion": "<ONE concrete tip in Spanish to improve their English next time, 1 sentence>"
+}}
+
+RULES:
+- "highlight" must be a real, well-built sentence the student actually wrote. If none stands out, pick the longest grammatically correct one.
+- "new_words" must be 0-5 nice/relevant English words they used (no boilerplate like "I", "the", "is"). If none, return [].
+- "suggestion" must be SPECIFIC and helpful (mention a real pattern they could improve), in friendly Spanish.
+- Keep everything brief."""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[{"role": "system", "content": sys_prompt}],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.3,
+            max_tokens=350,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw)
+        return {
+            "highlight":  (data.get("highlight") or "").strip(),
+            "new_words":  [w.strip() for w in (data.get("new_words") or []) if w][:5],
+            "suggestion": (data.get("suggestion") or "").strip(),
+        }
+    except Exception as e:
+        logger.error(f"Error resumen conv: {e}")
+        return None
 
 
 def check_scenario_objectives(scenario: dict, history: list) -> list:
@@ -4046,6 +4924,379 @@ REGLAS ESTRICTAS:
     except Exception as e:
         logger.error(f"Error generando oraciones: {e}")
         return None, f"Error al generar oraciones: {e}"
+
+
+def generate_translate_items(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 5 oraciones en español para traducir al inglés.
+    Devuelve (lista de {spanish, english_correct, alt_translations}, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un profesor de inglés que prepara ejercicios de TRADUCCIÓN INVERSA (español → inglés)
+para niños hispanohablantes.
+
+Nivel CEFR: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "items": [
+    {{
+      "spanish": "<oración natural en español, 5-12 palabras>",
+      "english_correct": "<traducción correcta y natural al inglés>",
+      "alt_translations": ["<otra forma válida 1>", "<otra forma válida 2>"]
+    }}
+  ]
+}}
+
+REGLAS:
+- EXACTAMENTE 5 oraciones.
+- Acordes al nivel CEFR {cefr_code} (frases simples para A1-A2, más complejas para B1+).
+- Variedad: diferentes tiempos verbales, sujetos, temas.
+- Las oraciones deben ser CONCRETAS y útiles en la vida real.
+- "alt_translations" debe contener al menos 1 alternativa válida (sinónimos, orden, etc.).
+- NUNCA uses signos de puntuación final salvo punto.
+- NO escribas tildes en las palabras en inglés ni comillas dentro de los textos.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Genera 5 oraciones para traducir."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.7,
+            max_tokens=800,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        items = data.get("items", [])
+        valid = [
+            {
+                "spanish":          (it.get("spanish") or "").strip(),
+                "english_correct":  (it.get("english_correct") or "").strip(),
+                "alt_translations": [a.strip() for a in (it.get("alt_translations") or []) if a],
+            }
+            for it in items
+            if it.get("spanish") and it.get("english_correct")
+        ]
+        if len(valid) < 3:
+            return None, "El modelo no devolvió suficientes oraciones."
+        return valid[:5], None
+    except Exception as e:
+        logger.error(f"Error generando traducciones: {e}")
+        return None, f"Error al generar: {e}"
+
+
+def generate_scene_descriptions(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 4 escenas (emoji-art) con prompts para describir en inglés.
+    Devuelve (lista de {emoji_scene, prompt_es, sample_en}, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+Eres un creador de ejercicios visuales de inglés para niños hispanohablantes.
+
+Nivel CEFR: {cefr_code}
+Edad: {profile.get('age_desc', '13 años')}
+Hobbies: {profile.get('hobbies', '')}
+
+Devuelve SOLO un objeto JSON con esta estructura, sin texto antes ni después:
+{{
+  "scenes": [
+    {{
+      "emoji_scene": "<combinación de 4-8 emojis que representen una escena cotidiana>",
+      "prompt_es":   "<pregunta breve EN ESPAÑOL que oriente la descripción>",
+      "sample_en":   "<ejemplo modelo de respuesta correcta en inglés, 1-2 oraciones>"
+    }}
+  ]
+}}
+
+REGLAS:
+- EXACTAMENTE 4 escenas.
+- Cada "emoji_scene" debe ser una secuencia rica de emojis que sugiera una situación
+  clara (ej: "🌧️🌂🚶‍♀️🌳" para "lluvia en el parque").
+- "prompt_es" debe ser una pregunta o instrucción corta (ej: "Describe el clima y lo
+  que está haciendo la persona.").
+- "sample_en" debe ser una respuesta natural acorde al nivel CEFR {cefr_code}, 1-2 oraciones.
+- Variedad: diferentes lugares, momentos del día, actividades.
+- NO uses comillas dentro de los textos.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Genera 4 escenas."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.8,
+            max_tokens=800,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        scenes = data.get("scenes", [])
+        valid = [
+            {
+                "emoji_scene": (s.get("emoji_scene") or "").strip(),
+                "prompt_es":   (s.get("prompt_es") or "").strip(),
+                "sample_en":   (s.get("sample_en") or "").strip(),
+            }
+            for s in scenes
+            if s.get("emoji_scene") and s.get("prompt_es")
+        ]
+        if len(valid) < 2:
+            return None, "El modelo no devolvió suficientes escenas."
+        return valid[:4], None
+    except Exception as e:
+        logger.error(f"Error generando escenas: {e}")
+        return None, f"Error al generar: {e}"
+
+
+def evaluate_writing(task_type: str, original: str,
+                      user_text: str, reference: str = "",
+                      cefr_code: str = "A1") -> dict:
+    """Evalúa un texto escrito por el alumno. task_type: 'translation' o 'description'.
+    Devuelve {score, correct, comment}."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return {"score": 0, "correct": reference or "(sin referencia)",
+                "comment": "No pude evaluar: sin conexión al modelo."}
+
+    if not user_text or not user_text.strip():
+        return {"score": 0, "correct": reference,
+                "comment": "No escribiste nada. Inténtalo de nuevo."}
+
+    if task_type == "translation":
+        task_desc = (
+            f"El alumno tradujo del español al inglés.\n"
+            f"Oración original en español: {original}\n"
+            f"Traducción correcta esperada: {reference}\n"
+            f"Lo que escribió el alumno: {user_text}\n"
+        )
+    else:  # description
+        task_desc = (
+            f"El alumno escribió una descripción en inglés de una escena.\n"
+            f"Escena/instrucción: {original}\n"
+            f"Ejemplo de buena respuesta: {reference}\n"
+            f"Lo que escribió el alumno: {user_text}\n"
+        )
+
+    sys_prompt = f"""
+Eres un profesor de inglés EVALUADOR amable pero preciso. Evalúas a un alumno hispanohablante
+de nivel CEFR {cefr_code}.
+
+{task_desc}
+
+Devuelve SOLO un JSON con esta estructura:
+{{
+  "score":   <entero 0-100, qué tan correcta es la respuesta del alumno>,
+  "correct": "<la versión correcta/mejorada en inglés>",
+  "comment": "<1-2 oraciones de feedback en español, alentador pero específico sobre qué
+              mejoró/falló: gramática, vocabulario, naturalidad, etc.>"
+}}
+
+REGLAS DE PUNTUACIÓN:
+- 90-100: prácticamente perfecto, captura el sentido y la gramática.
+- 70-89: bien con errores menores (artículo, preposición, tiempo verbal puntual).
+- 50-69: comprensible pero con errores que afectan claridad.
+- 25-49: parcialmente correcto, errores serios pero hay intento.
+- 0-24: muy alejado o sin sentido.
+
+REGLAS DE COMENTARIO:
+- Empieza con UN punto positivo si lo hay.
+- Mencionar el error específico si lo hay (ej: "Usa 'is' en lugar de 'are' aquí").
+- Sé breve: máximo 2 oraciones.
+- Habla siempre en español (es para un niño hispanohablante).
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Evalúa la respuesta del alumno."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.3,
+            max_tokens=400,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        return {
+            "score":   max(0, min(100, int(data.get("score", 0)))),
+            "correct": (data.get("correct") or reference).strip(),
+            "comment": (data.get("comment") or "Buen intento.").strip(),
+        }
+    except Exception as e:
+        logger.error(f"Error evaluando writing: {e}")
+        return {"score": 50, "correct": reference,
+                "comment": f"No pude evaluar bien. Aquí tienes la versión correcta."}
+
+
+def generate_exam_questions(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Genera un examen cumulativo de 10 preguntas mezclando skills:
+    3 vocabulary MC, 2 grammar MC, 2 fill-in-the-blank, 2 translation, 1 reading comp.
+    Devuelve (lista de preguntas con campo 'skill', error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+You are an English teacher creating a CUMULATIVE WEEKLY EXAM for a Spanish-speaking teen.
+
+Student: {profile_name} ({profile.get('age_desc', '13 años')})
+CEFR Level: {cefr_code}
+
+Return ONLY a JSON with this exact structure (no extra text):
+{{
+  "questions": [
+    {{
+      "skill":    "<one of: vocabulary | grammar | listening | reading | writing>",
+      "type":     "<one of: mc | fitb | translation>",
+      "q":        "<the question text>",
+      "hint":     "<Spanish hint or translation context for fitb/translation; empty string for mc>",
+      "options":  ["<A>", "<B>", "<C>", "<D>"],
+      "answer":   "<exact correct answer text>"
+    }}
+  ]
+}}
+
+RULES — EXACTLY this distribution of 10 questions:
+- 3 vocabulary MC (multiple choice asking word meaning or synonym)
+- 2 grammar MC (multiple choice asking correct form/tense)
+- 2 fitb (fill in the blank — sentence with ONE "___" gap, answer is ONE word)
+- 2 translation (a Spanish sentence to translate to English; "answer" is the English version, "options" is empty list [])
+- 1 reading comprehension MC (short text included in "q" + question — keep total under 40 words)
+
+OTHER RULES:
+- All "q" content MUST be in ENGLISH (except translation source which goes in "hint" as Spanish).
+- For "translation": "q" contains the Spanish sentence to translate; "options" must be [].
+- For "fitb": "q" must contain EXACTLY one "___" marker (3 underscores); "options" can be [] OR 4 word options.
+- For all MC types: "options" must have EXACTLY 4 entries; "answer" must match one of them exactly.
+- Acorde al nivel CEFR {cefr_code}.
+- Variedad: cubrir diferentes temas (familia, escuela, comida, hobbies, etc.).
+- NO use markdown, NO use asterisks, only plain text.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Generate the 10-question cumulative exam."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.6,
+            max_tokens=1800,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        questions = data.get("questions", [])
+        valid = []
+        for q in questions:
+            qtype = (q.get("type") or "").lower()
+            if qtype not in ("mc", "fitb", "translation"):
+                continue
+            ans = (q.get("answer") or "").strip()
+            text = (q.get("q") or "").strip()
+            if not text or not ans:
+                continue
+            # Normalizar fitb (limpiar asteriscos del modelo si se cuelan)
+            if qtype == "fitb":
+                text = re.sub(r"\*+_+\*+", "___", text)
+                text = re.sub(r"_+", "___", text)
+            valid.append({
+                "skill":   (q.get("skill") or "general").lower(),
+                "type":    qtype,
+                "q":       text,
+                "hint":    (q.get("hint") or "").strip(),
+                "options": q.get("options") or [],
+                "answer":  ans,
+            })
+        if len(valid) < 6:
+            return None, "El modelo no devolvió un examen completo."
+        return valid[:10], None
+    except Exception as e:
+        logger.error(f"Error generando examen: {e}")
+        return None, f"Error al generar examen: {e}"
+
+
+def generate_shadow_phrases(profile_name: str, cefr_code: str = "A1") -> tuple:
+    """Pide al LLM 5 frases cortas, rítmicas y divertidas para Shadow Speaking.
+    Mezcla trabalenguas suaves, frases con rima, y oraciones con ritmo claro.
+    Devuelve (lista de {text, meaning, emoji}, error)."""
+    groq_client, init_error = init_groq_client()
+    if init_error or not groq_client:
+        return None, f"⚠️ {init_error}"
+
+    profile = PROFILES.get(profile_name, {})
+    sys_prompt = f"""
+You are an ESL pronunciation coach. Generate 5 short English phrases for SHADOW SPEAKING practice
+(student listens to a model audio and tries to imitate the rhythm and intonation).
+
+CEFR LEVEL: {cefr_code}
+Age: {profile.get('age_desc', '13 años')}
+
+Return ONLY a JSON with this structure:
+{{
+  "phrases": [
+    {{
+      "text":    "<short English phrase, 4-8 words, with clear rhythm>",
+      "meaning": "<brief Spanish meaning>",
+      "emoji":   "<one fun emoji that matches the phrase>"
+    }}
+  ]
+}}
+
+RULES:
+- EXACTLY 5 phrases.
+- Length: 4-8 words each (NOT longer).
+- Variety: include 1 gentle tongue-twister, 1 rhyme, 1 question, 1 exclamation, 1 simple statement.
+- Real, natural English that a teen could actually say.
+- CEFR-appropriate vocab: simple for A1, more variety for A2+.
+- NO complex punctuation: just letters, spaces, and optional final period.
+- NO emojis inside the "text" field — emoji goes only in "emoji" field.
+"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": "Generate 5 shadow speaking phrases."}
+            ],
+            model=GROQ_MODEL_CHAT,
+            temperature=0.8,
+            max_tokens=600,
+            response_format={"type": "json_object"},
+        )
+        raw = response.choices[0].message.content.strip()
+        data = json.loads(raw.lstrip("```json").lstrip("```").rstrip("```").strip())
+        phrases = data.get("phrases", [])
+        valid = [
+            {
+                "text":    (p.get("text") or "").strip().rstrip("."),
+                "meaning": (p.get("meaning") or "").strip(),
+                "emoji":   (p.get("emoji") or "🎵").strip(),
+            }
+            for p in phrases
+            if p.get("text")
+        ]
+        if not valid:
+            return None, "El modelo no devolvió frases válidas."
+        return valid[:5], None
+    except Exception as e:
+        logger.error(f"Error generando shadow phrases: {e}")
+        return None, f"Error al generar: {e}"
 
 
 def generate_minimal_pairs(profile_name: str, cefr_code: str = "A1") -> tuple:
@@ -4716,6 +5967,8 @@ _STATE_DEFAULTS = {
     "rp_scenario":   None,    # dict del escenario activo (key, name, role_user, role_ai, objectives, emoji)
     "rp_done_objs":  None,    # set de índices de objetivos completados
     "rp_picker":     False,   # True cuando se muestra el selector de escenarios
+    "conv_summary":  None,    # dict {highlight, new_words, suggestion} para mostrar al cerrar
+    "conv_show_end": False,   # True cuando se muestra la pantalla de resumen final
     # Pares Mínimos (Estudio de Sonido)
     "mp_pairs":      None,    # lista de {pair: [w1, w2], correct_idx (0 o 1), meaning_a, meaning_b}
     "mp_index":      0,
@@ -4730,6 +5983,37 @@ _STATE_DEFAULTS = {
     "li_chosen":     None,
     "li_finished":   False,
     "li_audio":      None,
+    # Traducción Inversa (Taller de Letras) — ES→EN
+    "ti_items":      None,    # lista de {spanish, english_correct}
+    "ti_index":      0,
+    "ti_answers":    None,    # lista de strings (lo que el usuario escribió)
+    "ti_feedback":   None,    # lista de dicts {score, correct, comment} tras evaluar
+    "ti_evaluating": False,
+    "ti_finished":   False,
+    # Describe la Escena (Taller de Letras)
+    "ds_scenes":     None,    # lista de {emoji_scene, prompt, sample}
+    "ds_index":      0,
+    "ds_answers":    None,
+    "ds_feedback":   None,
+    "ds_evaluating": False,
+    "ds_finished":   False,
+    # Shadow Speaking (Estudio de Sonido) — imitar frases rítmicas
+    "ss_phrases":    None,    # lista de {text, ipa, meaning, emoji}
+    "ss_index":      0,
+    "ss_results":    None,    # lista de scores por frase
+    "ss_last_audio": None,
+    "ss_last_score": None,
+    "ss_finished":   False,
+    # Modo Examen (test cumulativo de fin de semana)
+    "ex_questions":  None,    # lista de preguntas heterogéneas {type, q, options, answer, hint, skill}
+    "ex_index":      0,
+    "ex_correct":    0,
+    "ex_answers":    None,    # respuestas del alumno, por pregunta
+    "ex_finished":   False,
+    "ex_chosen":     None,    # respuesta pendiente (para form)
+    # Acceso a Dashboard de Padres
+    "parent_mode":   False,   # True cuando se ingresó contraseña correctamente
+    "parent_password_error": None,
     # Save-to-Sheets pipeline (anti-XP-fantasma)
     "pending_xp_save_args": None,  # dict con args para reintento
     "last_save_error":      None,  # último error string si la última save falló
@@ -4743,6 +6027,125 @@ for key, default in _STATE_DEFAULTS.items():
 # ==========================================
 # 6. INTERFAZ DE USUARIO
 # ==========================================
+
+# ── DASHBOARD DE PADRES (protegido por contraseña) ──
+def _get_parent_password() -> str:
+    """Obtiene la contraseña de padres desde secrets, o fallback."""
+    try:
+        return str(st.secrets.get("parent_password", "padres1234"))
+    except Exception:
+        return "padres1234"
+
+
+if st.session_state.get("parent_mode"):
+    # === DASHBOARD DE PADRES ===
+    st.markdown("""
+        <div class='welcome-container'>
+            <h1>👨‍👩‍👧 Dashboard de Padres</h1>
+            <p>Resumen de progreso de cada niño</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("← Volver a perfiles", key="parent_back", type="secondary"):
+        st.session_state.parent_mode = False
+        st.rerun()
+
+    st.write("")
+
+    # Iterar sobre cada perfil y mostrar estadísticas
+    for prof_name, prof in PROFILES.items():
+        st.markdown(
+            f"<h3 class='parent-kid-header' style='color:{prof['color']}; text-shadow:0 0 12px {prof['color']};'>"
+            f"{prof['emoji']} {prof_name}</h3>",
+            unsafe_allow_html=True
+        )
+
+        stats = get_user_stats(prof_name)
+        streak = get_streak_days(prof_name)
+        skill_data = get_skill_breakdown(prof_name)
+        weakest_sk, weakest_meta = get_weakest_skill(prof_name)
+
+        # Tarjeta de overview
+        st.markdown(
+            f"<div class='parent-card'>"
+            f"<div class='parent-overview'>"
+            f"<div class='parent-stat'><div class='parent-stat-val' style='color:{prof['color']};'>{stats['total_xp']}</div><div class='parent-stat-lbl'>XP Total</div></div>"
+            f"<div class='parent-stat'><div class='parent-stat-val'>{stats['total_sessions']}</div><div class='parent-stat-lbl'>Lecciones</div></div>"
+            f"<div class='parent-stat'><div class='parent-stat-val'>{stats['avg_score']*100:.0f}%</div><div class='parent-stat-lbl'>Promedio</div></div>"
+            f"<div class='parent-stat'><div class='parent-stat-val'>{stats['week_xp']}</div><div class='parent-stat-lbl'>XP semana</div></div>"
+            f"<div class='parent-stat'><div class='parent-stat-val'>🔥 {streak}</div><div class='parent-stat-lbl'>Racha</div></div>"
+            f"</div>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Skills breakdown - barras
+        skills_html = "<div class='parent-card'>"
+        skills_html += "<p class='summary-section'>📊 Desempeño por habilidad</p>"
+        max_xp_skill = max((skill_data[s]["xp"] for s in skill_data), default=1) or 1
+        for sk in ["vocabulary", "grammar", "listening", "speaking", "writing", "reading"]:
+            d = skill_data[sk]
+            pct_bar = (d["xp"] / max_xp_skill * 100) if max_xp_skill else 0
+            avg_pct = d["avg_score"] * 100
+            sk_color = "#39ff14" if avg_pct >= 80 else "#ffd400" if avg_pct >= 55 else "#ff5351"
+            if d["sessions"] == 0:
+                sk_color = "#3a3d40"
+            skills_html += (
+                f"<div class='parent-skill-row'>"
+                f"<span class='parent-skill-name'>{sk}</span>"
+                f"<span class='parent-skill-bar'><span style='width:{pct_bar}%; background:{sk_color};'></span></span>"
+                f"<span class='parent-skill-stats'>{d['xp']} XP · {d['sessions']} sesiones · {avg_pct:.0f}%</span>"
+                f"</div>"
+            )
+        skills_html += (
+            f"<p style='margin: 10px 0 0; color: var(--text-secondary); font-size:0.85rem;'>"
+            f"💡 <b>Sugerencia:</b> Practicar <b style='color:{prof['color']};'>{weakest_meta['emoji']} {weakest_meta['name']}</b> "
+            f"(habilidad con menos práctica).</p>"
+            f"</div>"
+        )
+        st.markdown(skills_html, unsafe_allow_html=True)
+
+        # Últimas 10 sesiones (timeline)
+        sheet, _ = get_db_connection()
+        recent_html = "<div class='parent-card'><p class='summary-section'>🕒 Últimas 10 sesiones</p>"
+        if sheet:
+            try:
+                rows = sheet.get_all_records()
+                user_rows = [r for r in rows if r.get("profile", "") == prof_name][-10:][::-1]
+                if user_rows:
+                    for r in user_rows:
+                        ts = r.get("timestamp", "—")
+                        wld = r.get("world", "—") or "—"
+                        lt = r.get("lesson_type", "—") or "—"
+                        xp = r.get("xp", 0)
+                        sc = r.get("score_pct", "—")
+                        recent_html += (
+                            f"<div class='parent-row'>"
+                            f"<span class='parent-row-ts'>{ts}</span>"
+                            f"<span class='parent-row-mid'>{wld} · {lt}</span>"
+                            f"<span class='parent-row-end'>+{xp} XP · {sc}</span>"
+                            f"</div>"
+                        )
+                else:
+                    recent_html += "<p style='color: var(--text-dim); margin:0;'>Aún no hay sesiones registradas.</p>"
+            except Exception as e:
+                recent_html += f"<p style='color: var(--text-dim);'>No se pudo leer: {e}</p>"
+        recent_html += "</div>"
+        st.markdown(recent_html, unsafe_allow_html=True)
+
+        st.write("")
+
+    # Refrescar caché
+    if st.button("🔄 Refrescar datos", key="parent_refresh", type="secondary"):
+        for fn in (get_user_stats, get_skill_breakdown,
+                   get_streak_days, get_today_session_count):
+            try: fn.clear()
+            except Exception: pass
+        st.rerun()
+
+    st.stop()
+
+
 if st.session_state.current_user is None:
     st.markdown("""
         <div class='welcome-container'>
@@ -4750,6 +6153,60 @@ if st.session_state.current_user is None:
             <p>Elige tu perfil de combate · Sistema de aprendizaje activado</p>
         </div>
     """, unsafe_allow_html=True)
+
+    # ── Acceso a Dashboard de Padres (con contraseña) ──
+    if "show_parent_login" not in st.session_state:
+        st.session_state.show_parent_login = False
+
+    if not st.session_state.show_parent_login:
+        if st.button("🔒 Dashboard de padres", key="parent_login_btn",
+                     use_container_width=True, type="secondary"):
+            st.session_state.show_parent_login = True
+            st.rerun()
+    else:
+        st.markdown(
+            "<div class='diag-panel'>"
+            "<p style='font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:600;'>"
+            "🔒 Acceso solo para padres</p>"
+            "<p style='font-size:0.82rem; color:#a8acb3; margin:0 0 8px;'>"
+            "Ingresa la contraseña para ver el progreso de los niños.</p>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+        with st.form("parent_login_form", clear_on_submit=True):
+            pw_input = st.text_input(
+                "Contraseña", type="password",
+                placeholder="•••••••",
+                label_visibility="collapsed",
+                key="parent_pw_field"
+            )
+            col_pw1, col_pw2 = st.columns(2)
+            with col_pw1:
+                submit_pw = st.form_submit_button(
+                    "✓ Entrar", use_container_width=True, type="primary"
+                )
+            with col_pw2:
+                cancel_pw = st.form_submit_button(
+                    "✕ Cancelar", use_container_width=True, type="secondary"
+                )
+        if cancel_pw:
+            st.session_state.show_parent_login = False
+            st.session_state.parent_password_error = None
+            st.rerun()
+        if submit_pw:
+            if pw_input == _get_parent_password():
+                st.session_state.parent_mode = True
+                st.session_state.show_parent_login = False
+                st.session_state.parent_password_error = None
+                st.rerun()
+            else:
+                st.session_state.parent_password_error = "Contraseña incorrecta. Intenta de nuevo."
+        if st.session_state.get("parent_password_error"):
+            st.markdown(
+                f"<p style='color:#ff5351; font-size:0.85rem; margin: 6px 0;'>"
+                f"⚠ {st.session_state.parent_password_error}</p>",
+                unsafe_allow_html=True
+            )
 
     # ── Diagnóstico de conexión (toggle manual sin st.expander) ──
     if "show_diag" not in st.session_state:
@@ -4945,10 +6402,19 @@ else:
         "sf_story", "sf_index", "sf_picked", "sf_revealed",
         "sf_correct", "sf_finished",
         "rp_scenario", "rp_done_objs", "rp_picker",
+        "conv_summary", "conv_show_end",
         "mp_pairs", "mp_index", "mp_correct", "mp_chosen",
         "mp_finished", "mp_audio",
         "li_cards", "li_index", "li_correct", "li_chosen",
         "li_finished", "li_audio",
+        "ti_items", "ti_index", "ti_answers", "ti_feedback",
+        "ti_evaluating", "ti_finished",
+        "ds_scenes", "ds_index", "ds_answers", "ds_feedback",
+        "ds_evaluating", "ds_finished",
+        "ss_phrases", "ss_index", "ss_results", "ss_last_audio",
+        "ss_last_score", "ss_finished",
+        "ex_questions", "ex_index", "ex_correct", "ex_answers",
+        "ex_finished", "ex_chosen",
     ]
 
     nav_cols = st.columns(len(nav_items))
@@ -6341,6 +7807,274 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.13) TRANSLATE INVERSE MODE (Taller de Letras) ───────────────
+    if st.session_state.ti_items is not None:
+        ti_world_meta = get_world_meta(
+            st.session_state.get("current_world", "writing"), user
+        )
+        ti_accent = ti_world_meta.get("accent", "#ff66c4")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {ti_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        items = st.session_state.ti_items
+        idx   = st.session_state.ti_index
+        total = len(items)
+        answers  = st.session_state.ti_answers or [""] * total
+        feedback = st.session_state.ti_feedback or [None] * total
+
+        # ── Pantalla final ──
+        if st.session_state.ti_finished or idx >= total:
+            scores = [fb["score"] for fb in feedback if fb]
+            avg_score = sum(scores) / len(scores) if scores else 0
+            xp_award = max(15, int(avg_score / 2))
+            color_avg = "#39ff14" if avg_score >= 80 else "#ffd400" if avg_score >= 55 else "#ff5351"
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>✍️</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(avg_score)}/100
+                    </h1>
+                    <p class='battle-end-subtitle'>Puntuación promedio en {total} traducciones</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Repasar todas las respuestas con feedback
+            for i, it in enumerate(items):
+                fb = feedback[i] if i < len(feedback) else None
+                if not fb:
+                    continue
+                sc = fb["score"]
+                sc_color = "#39ff14" if sc >= 80 else "#ffd400" if sc >= 55 else "#ff5351"
+                st.markdown(
+                    f"<div class='writing-review' style='--rev-accent: {sc_color};'>"
+                    f"<p class='writing-rev-score'>{sc}/100</p>"
+                    f"<p class='writing-rev-row'><b>🇪🇸 Español:</b> {it['spanish']}</p>"
+                    f"<p class='writing-rev-row'><b>📝 Tu inglés:</b> <i>{answers[i] or '(vacío)'}</i></p>"
+                    f"<p class='writing-rev-row'><b>✅ Correcto:</b> {fb['correct']}</p>"
+                    f"<p class='writing-rev-comment'>💡 {fb['comment']}</p>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="ti_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=avg_score / 100.0, attempts=1,
+                        world="writing", skill="writing", lesson_type="translate_inv",
+                        success_msg=f"¡+{xp_award} XP en Traducción!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="ti_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Oración actual ──
+        item = items[idx]
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{ti_accent};'>"
+            f"✍️ TRADUCCIÓN {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"<div class='writing-card' style='--w-accent: {ti_accent};'>"
+            f"<p class='writing-prompt-label'>Traduce al inglés:</p>"
+            f"<p class='writing-prompt-text'>🇪🇸 {item['spanish']}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        with st.form(key=f"ti_form_{idx}", clear_on_submit=False):
+            user_translation = st.text_area(
+                "Escribe tu traducción al inglés:",
+                key=f"ti_input_{idx}",
+                value=answers[idx] if idx < len(answers) else "",
+                height=80,
+                max_chars=300,
+                placeholder="Type your English translation here...",
+            )
+            submitted = st.form_submit_button(
+                "✓ Enviar y evaluar", use_container_width=True, type="primary"
+            )
+
+        if submitted:
+            answers[idx] = user_translation.strip()
+            st.session_state.ti_answers = answers
+            with st.spinner("Evaluando tu traducción..."):
+                fb = evaluate_writing(
+                    task_type="translation",
+                    original=item["spanish"],
+                    user_text=user_translation,
+                    reference=item["english_correct"],
+                    cefr_code=get_cefr_info(
+                        next((e["total_xp"] for e in get_leaderboard()
+                              if e["profile"] == user), 0)
+                    )["code"]
+                )
+            feedback[idx] = fb
+            st.session_state.ti_feedback = feedback
+            st.session_state.ti_index += 1
+            if st.session_state.ti_index >= total:
+                st.session_state.ti_finished = True
+            st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="ti_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.14) DESCRIBE SCENE MODE (Taller de Letras) ──────────────────
+    if st.session_state.ds_scenes is not None:
+        ds_world_meta = get_world_meta(
+            st.session_state.get("current_world", "writing"), user
+        )
+        ds_accent = ds_world_meta.get("accent", "#ff66c4")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {ds_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        scenes = st.session_state.ds_scenes
+        idx    = st.session_state.ds_index
+        total  = len(scenes)
+        answers  = st.session_state.ds_answers or [""] * total
+        feedback = st.session_state.ds_feedback or [None] * total
+
+        # ── Pantalla final ──
+        if st.session_state.ds_finished or idx >= total:
+            scores = [fb["score"] for fb in feedback if fb]
+            avg_score = sum(scores) / len(scores) if scores else 0
+            xp_award = max(15, int(avg_score / 2))
+            color_avg = "#39ff14" if avg_score >= 80 else "#ffd400" if avg_score >= 55 else "#ff5351"
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🎨</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(avg_score)}/100
+                    </h1>
+                    <p class='battle-end-subtitle'>Puntuación promedio en {total} descripciones</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            for i, sc in enumerate(scenes):
+                fb = feedback[i] if i < len(feedback) else None
+                if not fb:
+                    continue
+                sscore = fb["score"]
+                sc_color = "#39ff14" if sscore >= 80 else "#ffd400" if sscore >= 55 else "#ff5351"
+                st.markdown(
+                    f"<div class='writing-review' style='--rev-accent: {sc_color};'>"
+                    f"<p class='writing-rev-score'>{sscore}/100</p>"
+                    f"<p class='writing-rev-row'><b>Escena:</b> <span style='font-size:1.5rem;'>{sc['emoji_scene']}</span></p>"
+                    f"<p class='writing-rev-row'><b>📝 Tu texto:</b> <i>{answers[i] or '(vacío)'}</i></p>"
+                    f"<p class='writing-rev-row'><b>✅ Ejemplo:</b> {fb['correct']}</p>"
+                    f"<p class='writing-rev-comment'>💡 {fb['comment']}</p>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="ds_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=avg_score / 100.0, attempts=1,
+                        world="writing", skill="writing", lesson_type="describe_scene",
+                        success_msg=f"¡+{xp_award} XP describiendo!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="ds_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Escena actual ──
+        scene = scenes[idx]
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{ds_accent};'>"
+            f"🎨 ESCENA {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f"<div class='writing-card' style='--w-accent: {ds_accent};'>"
+            f"<div class='ds-scene'>{scene['emoji_scene']}</div>"
+            f"<p class='writing-prompt-label'>📝 Tarea:</p>"
+            f"<p class='writing-prompt-text' style='font-size:1.0rem;'>{scene['prompt_es']}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        with st.form(key=f"ds_form_{idx}", clear_on_submit=False):
+            user_desc = st.text_area(
+                "Escribe en inglés (1-2 oraciones):",
+                key=f"ds_input_{idx}",
+                value=answers[idx] if idx < len(answers) else "",
+                height=100,
+                max_chars=400,
+                placeholder="Describe the scene in English...",
+            )
+            submitted_ds = st.form_submit_button(
+                "✓ Enviar y evaluar", use_container_width=True, type="primary"
+            )
+
+        if submitted_ds:
+            answers[idx] = user_desc.strip()
+            st.session_state.ds_answers = answers
+            with st.spinner("Evaluando tu descripción..."):
+                fb = evaluate_writing(
+                    task_type="description",
+                    original=f"{scene['emoji_scene']} — {scene['prompt_es']}",
+                    user_text=user_desc,
+                    reference=scene["sample_en"],
+                    cefr_code=get_cefr_info(
+                        next((e["total_xp"] for e in get_leaderboard()
+                              if e["profile"] == user), 0)
+                    )["code"]
+                )
+            feedback[idx] = fb
+            st.session_state.ds_feedback = feedback
+            st.session_state.ds_index += 1
+            if st.session_state.ds_index >= total:
+                st.session_state.ds_finished = True
+            st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="ds_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.15) ROLEPLAY PICKER (selector de escenarios) ────────────────
     if st.session_state.rp_picker:
         rp_world_meta = get_world_meta("chat", user)
@@ -6545,6 +8279,163 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.165) SHADOW SPEAKING MODE (Estudio de Sonido) ───────────────
+    if st.session_state.ss_phrases is not None:
+        ss_world_meta = get_world_meta(
+            st.session_state.get("current_world", "sound"), user
+        )
+        ss_accent = ss_world_meta.get("accent", "#39ff14")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {ss_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        phrases = st.session_state.ss_phrases
+        idx     = st.session_state.ss_index
+        total   = len(phrases)
+        results = st.session_state.ss_results or []
+
+        # ── Pantalla final ──
+        if st.session_state.ss_finished or idx >= total:
+            if results:
+                avg_score = sum(r["score"] for r in results) / len(results)
+            else:
+                avg_score = 0
+            xp_award = max(15, int(avg_score / 2))
+            color_avg = "#39ff14" if avg_score >= 80 else "#ffd400" if avg_score >= 55 else "#ff5351"
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>🎵</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(avg_score)}/100
+                    </h1>
+                    <p class='battle-end-subtitle'>Promedio de similitud fonética en {total} frases</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="ss_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=avg_score / 100.0, attempts=1,
+                        world="sound", skill="speaking", lesson_type="shadow_speak",
+                        success_msg=f"¡+{xp_award} XP en Shadow Speaking!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="ss_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        phrase = phrases[idx]
+
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{ss_accent};'>"
+            f"🎵 FRASE {idx + 1} / {total}</p>",
+            unsafe_allow_html=True
+        )
+
+        # Tarjeta con la frase + emoji
+        st.markdown(
+            f"<div class='fc-card' style='--fc-accent: {ss_accent};'>"
+            f"<div class='fc-emoji' style='font-size:3.6rem;'>{phrase['emoji']}</div>"
+            f"<p class='writing-prompt-text' style='color:#e0e2e6; margin: 6px 0 8px;'>"
+            f"{phrase['text']}</p>"
+            f"<p class='writing-prompt-label' style='font-style:italic;'>"
+            f"🇪🇸 {phrase['meaning']}</p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Paso 1: Escuchar modelo
+        col_al, col_ac, col_ar = st.columns([1, 2, 1])
+        with col_ac:
+            if st.button("🔊 Escuchar modelo", key=f"ss_audio_{idx}",
+                         use_container_width=True, type="secondary"):
+                with st.spinner("Generando audio..."):
+                    audio_bytes = generate_lesson_audio(phrase["text"])
+                if audio_bytes:
+                    st.session_state.ss_last_audio = audio_bytes
+        if st.session_state.ss_last_audio:
+            st.audio(st.session_state.ss_last_audio, format="audio/mp3")
+
+        st.write("")
+        st.markdown(
+            "<p class='sb-section-label'>Ahora repítela tú — graba imitando el ritmo:</p>",
+            unsafe_allow_html=True
+        )
+
+        # Paso 2: Grabar al usuario
+        rec_audio = audio_recorder(
+            text="Grabar", recording_color="#ff5351",
+            neutral_color=ss_accent, icon_size="2x",
+            key=f"ss_rec_{idx}"
+        )
+
+        last_score = st.session_state.ss_last_score
+        if rec_audio and last_score is None:
+            with st.spinner("Transcribiendo y evaluando..."):
+                transcribed, terr = transcribe_audio(rec_audio)
+                if terr:
+                    show_error(terr)
+                else:
+                    score = score_pronunciation(phrase["text"], transcribed)
+                    st.session_state.ss_last_score = score
+                    st.rerun()
+
+        # Mostrar resultado de la última grabación
+        if last_score:
+            sc = last_score["score"]
+            tier = last_score["tier"]
+            heard = last_score.get("heard", "")
+            tier_color = "#39ff14" if tier == "good" else "#ffd400" if tier == "mid" else "#ff5351"
+            tier_label = "¡Excelente!" if tier == "good" else "Cerca, prueba otra vez" if tier == "mid" else "Inténtalo de nuevo"
+            st.markdown(
+                f"<div class='fc-feedback' style='background: rgba(0,0,0,0.2); border:1px solid {tier_color}; color:{tier_color};'>"
+                f"<b>{tier_label} — {sc}/100</b><br>"
+                f"<span style='color:#a8acb3; font-size:0.85rem;'>Escuché: <i>“{heard}”</i></span>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+            col_r1, col_r2 = st.columns(2)
+            with col_r1:
+                if st.button("🔁 Intentar de nuevo", key=f"ss_retry_{idx}",
+                             use_container_width=True, type="secondary"):
+                    st.session_state.ss_last_score = None
+                    st.rerun()
+            with col_r2:
+                next_label = "✓ Aceptar y siguiente →" if (idx + 1) < total else "Resultados 🏁"
+                if st.button(next_label, key=f"ss_next_{idx}",
+                             use_container_width=True, type="primary"):
+                    results.append({"score": sc, "tier": tier,
+                                    "text": phrase["text"], "heard": heard})
+                    st.session_state.ss_results = results
+                    st.session_state.ss_index += 1
+                    st.session_state.ss_last_audio = None
+                    st.session_state.ss_last_score = None
+                    if st.session_state.ss_index >= total:
+                        st.session_state.ss_finished = True
+                    st.rerun()
+
+        st.write("")
+        if st.button("✕ Salir", key="ss_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.17) LISTEN ID MODE (¿Qué Escuché?) en Estudio de Sonido ────
     if st.session_state.li_cards is not None:
         li_world_meta = get_world_meta(
@@ -6687,6 +8578,268 @@ else:
         send_weekly_report()
         st.stop()
 
+    # ── 2.18) EXAM MODE (test cumulativo semanal) ─────────────────────
+    if st.session_state.ex_questions is not None:
+        ex_accent = "#ffd400"
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {ex_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        questions = st.session_state.ex_questions
+        idx       = st.session_state.ex_index
+        total     = len(questions)
+        answers   = st.session_state.ex_answers or [None] * total
+
+        # ── Pantalla final ──
+        if st.session_state.ex_finished or idx >= total:
+            correct = st.session_state.ex_correct
+            score_pct = (correct / total) * 100.0 if total else 0
+            # XP del examen: bonus mayor que un quiz normal (50-150)
+            xp_award = max(50, int(score_pct * 1.5))
+            color_avg = "#39ff14" if score_pct >= 80 else "#ffd400" if score_pct >= 55 else "#ff5351"
+
+            st.markdown(f"""
+                <div class='battle-end battle-end-victory' style='border-color: {color_avg}; box-shadow: 0 0 30px {color_avg};'>
+                    <div class='battle-end-emoji' style='color:{color_avg};'>📝</div>
+                    <h1 class='battle-end-title' style='color:{color_avg}; text-shadow:0 0 20px {color_avg};'>
+                        {int(score_pct)}%
+                    </h1>
+                    <p class='battle-end-subtitle'>Examen completado · {correct}/{total} correctas</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Mini-review de aciertos/errores por skill
+            by_skill = {}
+            for i, q in enumerate(questions):
+                sk = q.get("skill", "general")
+                by_skill.setdefault(sk, {"total": 0, "correct": 0})
+                by_skill[sk]["total"] += 1
+                ua = (answers[i] or "").strip().lower()
+                ca = q["answer"].strip().lower()
+                if ua == ca:
+                    by_skill[sk]["correct"] += 1
+            review_html = "<div class='exam-skill-breakdown'>"
+            review_html += "<p class='summary-section'>📊 Desempeño por habilidad</p>"
+            for sk, d in by_skill.items():
+                pct = (d["correct"] / d["total"] * 100) if d["total"] else 0
+                bar_color = "#39ff14" if pct >= 80 else "#ffd400" if pct >= 50 else "#ff5351"
+                review_html += (
+                    f"<div class='exam-skill-row'>"
+                    f"<span class='exam-skill-name'>{sk}</span>"
+                    f"<span class='exam-skill-bar'><span style='width:{pct}%; background:{bar_color};'></span></span>"
+                    f"<span class='exam-skill-score' style='color:{bar_color};'>{d['correct']}/{d['total']}</span>"
+                    f"</div>"
+                )
+            review_html += "</div>"
+            st.markdown(review_html, unsafe_allow_html=True)
+
+            if st.session_state.get("last_save_error"):
+                render_save_failure(st.session_state.last_save_error, xp_award)
+
+            col_x1, col_x2 = st.columns(2)
+            with col_x1:
+                if st.button(f"⚡ Reclamar +{xp_award} XP", key="ex_claim_xp",
+                             use_container_width=True, type="primary"):
+                    queue_xp_save(
+                        user=user, xp_award=xp_award,
+                        score_pct=score_pct / 100.0, attempts=1,
+                        world="exam", skill="exam", lesson_type="exam",
+                        success_msg=f"¡Examen aprobado, +{xp_award} XP!"
+                    )
+                    st.rerun()
+            with col_x2:
+                if st.button("🏠 Volver al mapa", key="ex_back",
+                             use_container_width=True, type="secondary"):
+                    reset_to_worlds()
+                    st.rerun()
+
+            send_weekly_report()
+            st.stop()
+
+        # ── Pregunta actual ──
+        q = questions[idx]
+        qtype = q["type"]
+        st.markdown(
+            f"<p class='worlds-section-title' style='color:{ex_accent};'>"
+            f"📝 EXAMEN · PREGUNTA {idx + 1} / {total} · <span style='opacity:0.7;'>{q['skill']}</span></p>",
+            unsafe_allow_html=True
+        )
+
+        # Texto de la pregunta (con blank visual si es fitb)
+        q_html = q["q"]
+        if qtype == "fitb":
+            q_html = q_html.replace("___", "<span class='battle-blank'>______</span>")
+        elif qtype == "translation":
+            q_html = f"🇪🇸 {q_html}"
+
+        hint_html = ""
+        if q.get("hint"):
+            hint_html = f"<p class='battle-q-hint'>💡 <i>{q['hint']}</i></p>"
+
+        st.markdown(
+            f"<div class='battle-question'>"
+            f"<div class='battle-q-meta'>"
+            f"<span class='battle-q-num'>{q['skill'].upper()}</span>"
+            f"<span class='battle-q-type'>{qtype.upper()}</span>"
+            f"</div>"
+            f"<div class='battle-q-text'>{q_html}</div>"
+            f"{hint_html}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        with st.form(key=f"ex_form_{idx}", clear_on_submit=False):
+            user_answer = ""
+            if qtype == "mc" and q.get("options"):
+                opts = ["— Selecciona —"] + list(q["options"])
+                pick = st.radio("Respuesta",
+                                options=opts, index=0,
+                                label_visibility="collapsed",
+                                key=f"ex_mc_{idx}")
+                user_answer = "" if pick == "— Selecciona —" else pick
+            else:  # fitb o translation
+                user_answer = st.text_input(
+                    "Respuesta", placeholder="Escribe tu respuesta en inglés...",
+                    label_visibility="collapsed", key=f"ex_in_{idx}"
+                )
+            submitted = st.form_submit_button(
+                "✓ Responder", use_container_width=True, type="primary"
+            )
+
+        if submitted:
+            answers[idx] = user_answer.strip()
+            ua = user_answer.strip().lower()
+            ca = q["answer"].strip().lower()
+            if qtype == "translation":
+                # Translation: aceptar si comparte >70% de palabras con la answer
+                ua_words = set(ua.split())
+                ca_words = set(ca.split())
+                if ua_words and ca_words:
+                    overlap = len(ua_words & ca_words) / max(len(ca_words), 1)
+                    is_correct = overlap >= 0.7
+                else:
+                    is_correct = (ua == ca)
+            else:
+                is_correct = (ua == ca)
+            if is_correct:
+                st.session_state.ex_correct += 1
+            st.session_state.ex_answers = answers
+            st.session_state.ex_index += 1
+            if st.session_state.ex_index >= total:
+                st.session_state.ex_finished = True
+            st.rerun()
+
+        st.write("")
+        if st.button("✕ Abandonar examen", key="ex_abandon", type="secondary"):
+            reset_to_worlds()
+            st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
+    # ── 2.19) CONVERSATION END SUMMARY ────────────────────────────────
+    if st.session_state.conv_show_end:
+        conv_world_meta = get_world_meta(
+            st.session_state.get("current_world", ""), user
+        )
+        conv_accent = conv_world_meta.get("accent", "#c464ff")
+        st.markdown(
+            f"<style>:root, .stApp {{ --profile-accent: {conv_accent}; }}</style>",
+            unsafe_allow_html=True
+        )
+
+        scenario = st.session_state.get("rp_scenario")
+        summary = st.session_state.get("conv_summary") or {}
+        turn_count = st.session_state.conv_turn_count
+        done = set(st.session_state.get("rp_done_objs") or [])
+
+        # Calcular XP final
+        bonus_xp = 0
+        objs_total = 0
+        if scenario:
+            objs_total = len(scenario["objectives"])
+            bonus_xp = len(done) * 5
+            if objs_total > 0 and len(done) == objs_total:
+                bonus_xp += 15
+        xp_award = min(80, 20 + turn_count * 5 + bonus_xp)
+
+        st.markdown(f"""
+            <div class='battle-end battle-end-victory' style='border-color: {conv_accent}; box-shadow: 0 0 30px {conv_accent};'>
+                <div class='battle-end-emoji' style='color:{conv_accent};'>💬</div>
+                <h1 class='battle-end-title' style='color:{conv_accent}; text-shadow:0 0 20px {conv_accent};'>
+                    ¡Buena charla!
+                </h1>
+                <p class='battle-end-subtitle'>
+                    {turn_count} turnos · {f"{len(done)}/{objs_total} misiones" if scenario else "conversación libre"}
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Tarjeta de resumen
+        st.markdown("<div class='conv-summary'>", unsafe_allow_html=True)
+        if scenario and objs_total > 0:
+            obj_html = ""
+            for i, o in enumerate(scenario["objectives"]):
+                cls = "obj-done" if i in done else "obj-pending"
+                mark = "✓" if i in done else "○"
+                obj_html += f"<li class='{cls}'><span class='obj-mark'>{mark}</span> {o}</li>"
+            st.markdown(
+                f"<p class='summary-section'>🎯 Misiones</p>"
+                f"<ul class='rp-obj-list'>{obj_html}</ul>",
+                unsafe_allow_html=True
+            )
+
+        if summary.get("highlight"):
+            st.markdown(
+                f"<p class='summary-section'>🌟 Frase destacada</p>"
+                f"<p class='summary-quote'>“{summary['highlight']}”</p>",
+                unsafe_allow_html=True
+            )
+
+        if summary.get("new_words"):
+            words_html = " ".join(
+                f"<span class='summary-word'>{w}</span>"
+                for w in summary["new_words"]
+            )
+            st.markdown(
+                f"<p class='summary-section'>🌱 Palabras que usaste</p>"
+                f"<p>{words_html}</p>",
+                unsafe_allow_html=True
+            )
+
+        if summary.get("suggestion"):
+            st.markdown(
+                f"<p class='summary-section'>💡 Tip para la próxima</p>"
+                f"<p class='summary-suggest'>{summary['suggestion']}</p>",
+                unsafe_allow_html=True
+            )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if st.session_state.get("last_save_error"):
+            render_save_failure(st.session_state.last_save_error, xp_award)
+
+        col_x1, col_x2 = st.columns(2)
+        with col_x1:
+            if st.button(f"⚡ Reclamar +{xp_award} XP", key="conv_claim_xp",
+                         use_container_width=True, type="primary"):
+                lesson_type = "roleplay" if scenario else "conversation"
+                queue_xp_save(
+                    user, xp_award, 1.0, attempts=1,
+                    world=st.session_state.get("current_world", ""),
+                    skill="conversation", lesson_type=lesson_type,
+                    success_msg=f"¡Gran conversación, {user}! +{xp_award} XP."
+                )
+                st.rerun()
+        with col_x2:
+            if st.button("🏠 Volver al mapa", key="conv_end_back",
+                         use_container_width=True, type="secondary"):
+                reset_to_worlds()
+                st.rerun()
+
+        send_weekly_report()
+        st.stop()
+
     # ── 2.2) CONVERSATION MODE ───────────────────────────────────────
     if st.session_state.conv_active:
         conv_world_meta = get_world_meta(
@@ -6764,13 +8917,28 @@ else:
             if m["role"] == "system":
                 continue
             content = m["content"]
-            # Separar gloss en español
-            if "🇪🇸:" in content:
-                main_part, _, gloss_part = content.partition("🇪🇸:")
-                gloss_html = f"<span class='gloss'>🇪🇸: {gloss_part.strip()}</span>"
-            else:
-                main_part = content
-                gloss_html = ""
+
+            # Parser robusto: separa main / gloss / tip puntual del feedback
+            tip_part = ""
+            gloss_part = ""
+            main_part = content
+
+            # Buscar el tip 💡 primero (puede ir al final)
+            if "💡:" in main_part:
+                main_part, _, tip_raw = main_part.partition("💡:")
+                tip_part = tip_raw.strip()
+            # Luego separar la gloss en español
+            if "🇪🇸:" in main_part:
+                main_part, _, gloss_raw = main_part.partition("🇪🇸:")
+                gloss_part = gloss_raw.strip()
+
+            gloss_html = (
+                f"<span class='gloss'>🇪🇸: {gloss_part}</span>" if gloss_part else ""
+            )
+            tip_html = (
+                f"<div class='conv-tip'>💡 <i>{tip_part}</i></div>"
+                if tip_part and m["role"] == "assistant" else ""
+            )
 
             speaker = "TUTOR" if m["role"] == "assistant" else user.upper()
             klass = "assistant" if m["role"] == "assistant" else "user"
@@ -6778,6 +8946,7 @@ else:
                 f"<div class='conv-bubble {klass}'>"
                 f"<div class='speaker'>{speaker}</div>"
                 f"{main_part.strip()}{gloss_html}"
+                f"{tip_html}"
                 f"</div>",
                 unsafe_allow_html=True
             )
@@ -6859,28 +9028,20 @@ else:
 
         with col_e1:
             if st.button(
-                f"🏁 Terminar y reclamar XP ({turn_count}/3+)" if not can_claim else "🏁 Terminar y reclamar XP",
+                f"🏁 Terminar conversación ({turn_count}/3+)" if not can_claim else "🏁 Terminar conversación",
                 key="conv_finish",
                 use_container_width=True,
                 type="primary",
                 disabled=not can_claim
             ):
-                # Forzar última evaluación de objetivos antes del cierre
+                # Antes de cerrar: re-evaluar objetivos y generar resumen
                 if scenario:
                     final_done = check_scenario_objectives(scenario, history)
                     st.session_state.rp_done_objs = final_done
-                    bonus_xp = len(final_done) * 5
-                    if len(final_done) == len(scenario["objectives"]):
-                        bonus_xp += 15
-                xp_award = min(80, 20 + turn_count * 5 + bonus_xp)
-                lesson_type = "roleplay" if scenario else "conversation"
-                queue_xp_save(
-                    user, xp_award, 1.0, attempts=1,
-                    world=st.session_state.get("current_world", ""),
-                    skill="conversation",
-                    lesson_type=lesson_type,
-                    success_msg=f"¡Gran conversación, {user}! +{xp_award} XP."
-                )
+                with st.spinner("Preparando tu resumen..."):
+                    summary = summarize_conversation(scenario, history, user)
+                st.session_state.conv_summary = summary
+                st.session_state.conv_show_end = True
                 st.rerun()
         with col_e2:
             if st.button("✕ Salir", key="conv_abandon",
@@ -7164,6 +9325,24 @@ else:
             "desc": "Elige un escenario real y completa misiones.",
             "btn": "Elegir Escenario", "accent": "#c464ff",
         }
+        _ALL_MODES["translate_inv"] = {
+            "key": "translate_inv", "icon": "✍️",
+            "name": "Traducción Inversa",
+            "desc": "Lee la oración en español y escríbela en inglés.",
+            "btn": "Empezar a Traducir", "accent": "#ffd400",
+        }
+        _ALL_MODES["describe_scene"] = {
+            "key": "describe_scene", "icon": "🎨",
+            "name": "Describe la Escena",
+            "desc": "Mira la escena y escribe lo que ves en inglés.",
+            "btn": "Describir Escenas", "accent": "#ff66c4",
+        }
+        _ALL_MODES["shadow_speak"] = {
+            "key": "shadow_speak", "icon": "🎵",
+            "name": "Shadow Speaking",
+            "desc": "Escucha una frase rítmica y repítela imitando el ritmo.",
+            "btn": "Repetir Frases", "accent": "#39ff14",
+        }
 
         # ─── Modos disponibles por mundo (cada mundo con su identidad propia) ───
         _MODES_BY_WORLD = {
@@ -7174,9 +9353,11 @@ else:
             # Mundo personal: foco en expresión personal y narrativa
             "personal":  ["story_fill", "lesson_quiz"],
             # Estudio de Sonido: escuchar + pronunciar (todas las mecánicas auditivas)
-            "sound":     ["min_pairs", "listen_id", "pronunciation"],
+            "sound":     ["min_pairs", "listen_id", "shadow_speak", "pronunciation"],
             # Café Conversación: hablar / role-play
             "chat":      ["roleplay", "conversation"],
+            # Taller de Letras: escritura productiva
+            "writing":   ["translate_inv", "describe_scene"],
             # Desafío Sorpresa: foco en variedad y combate
             "challenge": ["battle", "lesson_quiz"],
         }
@@ -7187,6 +9368,7 @@ else:
             "personal":  "story_fill",
             "sound":     "min_pairs",
             "chat":      "roleplay",
+            "writing":   "translate_inv",
             "challenge": "battle",
         }
 
@@ -7231,6 +9413,12 @@ else:
                             start_listen_id(wkey, wmeta["topic"])
                         elif m["key"] == "roleplay":
                             open_roleplay_picker(wkey)
+                        elif m["key"] == "translate_inv":
+                            start_translate_inverse(wkey, wmeta["topic"])
+                        elif m["key"] == "describe_scene":
+                            start_describe_scene(wkey, wmeta["topic"])
+                        elif m["key"] == "shadow_speak":
+                            start_shadow_speaking(wkey, wmeta["topic"])
                         elif m["key"] == "pronunciation":
                             start_pronunciation(wkey, wmeta["topic"])
                         elif m["key"] == "conversation":
@@ -7263,9 +9451,87 @@ else:
         or st.session_state.mp_pairs is not None
         or st.session_state.li_cards is not None
         or st.session_state.rp_picker
+        or st.session_state.ti_items is not None
+        or st.session_state.ds_scenes is not None
+        or st.session_state.conv_show_end
+        or st.session_state.ss_phrases is not None
+        or st.session_state.ex_questions is not None
     )
 
     if not in_lesson_flow:
+        # ───── MISIÓN DEL DÍA + RECOMENDACIÓN + RACHA ─────
+        streak     = get_streak_days(user)
+        today_n    = get_today_session_count(user)
+        weakest, w_meta = get_weakest_skill(user)
+        streak_emoji = "🔥" if streak >= 3 else "✨" if streak >= 1 else "💤"
+        if today_n == 0:
+            mission_status = "¡Empieza tu primera misión del día!"
+            mission_state = "pending"
+        elif today_n == 1:
+            mission_status = "Genial. Una más para asegurar la racha."
+            mission_state = "started"
+        else:
+            mission_status = "¡Misión cumplida hoy! Sigue acumulando."
+            mission_state = "done"
+
+        st.markdown(
+            f"<div class='daily-card daily-{mission_state}'>"
+            f"<div class='daily-top'>"
+            f"<div class='daily-streak'>"
+            f"<span class='daily-streak-num'>{streak_emoji} {streak}</span>"
+            f"<span class='daily-streak-lbl'>días seguidos</span>"
+            f"</div>"
+            f"<div class='daily-today'>"
+            f"<span class='daily-today-num'>{today_n}</span>"
+            f"<span class='daily-today-lbl'>actividades hoy</span>"
+            f"</div>"
+            f"</div>"
+            f"<p class='daily-status'>{mission_status}</p>"
+            f"<p class='daily-rec'>🎯 <b>Hoy te recomiendo:</b> "
+            f"<span class='daily-rec-world'>{w_meta['emoji']} {w_meta['name']}</span> "
+            f"<span class='daily-rec-why'>(es tu habilidad con menos práctica)</span></p>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        col_dm1, col_dm2 = st.columns(2)
+        with col_dm1:
+            if st.button(f"⚡ Ir al mundo recomendado",
+                         key="goto_recommended",
+                         use_container_width=True, type="primary"):
+                st.session_state.selected_world = w_meta["key"]
+                st.rerun()
+        with col_dm2:
+            if st.button("📝 Examen semanal (+50-150 XP)",
+                         key="start_exam_btn",
+                         use_container_width=True, type="secondary"):
+                start_exam(user)
+                st.rerun()
+
+        # ───── CÁPSULA CULTURAL DEL DÍA ─────
+        capsule = get_cultural_capsule_for_today()
+        st.markdown(
+            f"<div class='culture-card'>"
+            f"<p class='culture-title'>💎 CÁPSULA CULTURAL DEL DÍA</p>"
+            f"<div class='culture-row'>"
+            f"<p class='culture-row-label'>🗯 IDIOM</p>"
+            f"<p class='culture-row-en'>“{capsule['idiom']['en']}”</p>"
+            f"<p class='culture-row-es'>🇪🇸 {capsule['idiom']['es']}</p>"
+            f"</div>"
+            f"<div class='culture-row'>"
+            f"<p class='culture-row-label'>🎵 SONG LINE</p>"
+            f"<p class='culture-row-en'>“{capsule['song']['line']}”</p>"
+            f"<p class='culture-row-es'>🎤 {capsule['song']['song']}</p>"
+            f"</div>"
+            f"<div class='culture-row'>"
+            f"<p class='culture-row-label'>📌 ¿SABÍAS QUÉ?</p>"
+            f"<p class='culture-row-en'>{capsule['fact']['en']}</p>"
+            f"<p class='culture-row-es'>🇪🇸 {capsule['fact']['es']}</p>"
+            f"</div>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
         # SRS hero card: muestra si hay cards pendientes de repaso
         due_count = get_due_srs_count(user)
         if due_count > 0:
@@ -7346,6 +9612,15 @@ else:
                 "accent":  "#c464ff",
                 "topic":   ("Conversación práctica en situaciones cotidianas."),
                 "btn":     "Entrar al Café",
+            },
+            {
+                "key":     "writing",
+                "emoji":   "🖋",
+                "name":    "Taller de Letras",
+                "tagline": "Traduce y describe en inglés",
+                "accent":  "#ff66c4",
+                "topic":   ("Escritura productiva: traducir y describir escenas."),
+                "btn":     "Entrar al Taller",
             },
             {
                 "key":     "challenge",
