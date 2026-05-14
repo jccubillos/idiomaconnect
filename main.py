@@ -1538,6 +1538,16 @@ st.markdown("""
     }
     [data-testid="stExpander"] summary { color: var(--neon-cyan) !important; }
 
+    /* Panel de diagnóstico manual (reemplaza st.expander) */
+    .diag-panel {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        margin: 6px 0 12px;
+    }
+
     .stCaption, [data-testid="stCaptionContainer"], small {
         color: var(--text-dim) !important;
     }
@@ -3494,8 +3504,17 @@ if st.session_state.current_user is None:
         </div>
     """, unsafe_allow_html=True)
 
-    # ── Diagnóstico de conexión (compacto) ──
-    with st.expander("🛠️ Diagnóstico de conexión", expanded=False):
+    # ── Diagnóstico de conexión (toggle manual sin st.expander) ──
+    if "show_diag" not in st.session_state:
+        st.session_state.show_diag = False
+
+    diag_label = "🛠️ Ocultar diagnóstico" if st.session_state.show_diag else "🛠️ Diagnóstico de conexión"
+    if st.button(diag_label, key="diag_toggle", use_container_width=True, type="secondary"):
+        st.session_state.show_diag = not st.session_state.show_diag
+        st.rerun()
+
+    if st.session_state.show_diag:
+        st.markdown("<div class='diag-panel'>", unsafe_allow_html=True)
         st.markdown(
             "<p style='font-size:0.85rem; color:#a8acb3; margin:0 0 8px;'>"
             "Si el XP no se guarda entre sesiones, revisa aquí.</p>",
@@ -3538,6 +3557,7 @@ if st.session_state.current_user is None:
                 st.rerun()
         with col_d2:
             st.caption(f"Service account: `{sa_email}`")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     profile_list = list(PROFILES.items())
     groups = [profile_list[:3], profile_list[3:]]
